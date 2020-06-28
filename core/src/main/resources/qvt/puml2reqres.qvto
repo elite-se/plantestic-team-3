@@ -8,13 +8,10 @@ transformation puml2reqres(in input: puml, out output: reqres);
 main() {
     log('Started transforming PlantUML to RequestResponse pairs');
 
-    assert fatal ( input.objectsOfType(UmlDiagram).umlDiagrams[SequenceUml]->size() = 1 )
-        with log('Input does not contain exactly one SequenceDiagram');
-
-     input.objectsOfType(UmlDiagram).umlDiagrams[SequenceUml].map transformUmlDiagram();
+     input.objectsOfType(SequenceDiagram).map transformUmlDiagram();
 }
 
-mapping SequenceUml::transformUmlDiagram(): Scenario {
+mapping SequenceDiagram::transformUmlDiagram(): Scenario {
     scenarioName := diagramName + "_puml";
     var roundtripId : Integer := 1;
 
@@ -154,7 +151,7 @@ mapping Request::request2httpRequest():HttpRequest {
 
 mapping Response::response2httpResponse(): HttpResponse {
     httpStatus := self.code->toString();
-    httpresponsedatum += self.extractParam->map extractParam2httpResponseDatum();
+    httpresponsedatum += self.responseParam->map responseParam2httpResponseDatum();
 }
 
 mapping RequestParam::requestParam2httpRequestDatum():HttpRequestDatum {
@@ -162,7 +159,7 @@ mapping RequestParam::requestParam2httpRequestDatum():HttpRequestDatum {
     value := self.value;
 }
 
-mapping ExtractParam::extractParam2httpResponseDatum():HttpResponseDatum {
+mapping ResponseParam::responseParam2httpResponseDatum():HttpResponseDatum {
     variableName := self.name;
     xPath := self.value;
 }
