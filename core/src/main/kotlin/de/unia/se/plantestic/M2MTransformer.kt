@@ -9,6 +9,7 @@ import org.eclipse.m2m.qvt.oml.BasicModelExtent
 import org.eclipse.m2m.qvt.oml.ExecutionContextImpl
 import org.eclipse.m2m.qvt.oml.TransformationExecutor
 import org.eclipse.m2m.qvt.oml.util.WriterLog
+import plantuml.puml.SequenceDiagram
 import java.io.OutputStreamWriter
 
 object M2MTransformer {
