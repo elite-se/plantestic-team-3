@@ -33,20 +33,21 @@ Participant:
 	('PARTICIPANT' | 'ACTOR') (name=PUMLID | longname=(STRING | PUMLID) 'AS'
 	name=PUMLID);
 
+// TODO: restrict arrows (problem: hexcode can be anywhere)
 terminal RIGHTARROW:
-	('->' | '-->' | '->>') ('[#' ( 'a'..'z' | 'A'..'Z' | '0'..'9' )+ ']')?;
+	'-' ('-' | '>' | '[' HEXCODE ']')*;
 
 terminal LEFTARROW:
-	('<-' | '<--' | '<<-') ('[#' ( 'a'..'z' | 'A'..'Z' | '0'..'9' )+ ']')?;
+	'<' ('-' | '<' | '[' HEXCODE ']')*;
 
-UseLeft returns UmlUse:
-	{UseLeft}
+UseRight returns UmlUse:
+	{UseRight}
 	userOne=[Participant|PUMLID]
 	associationArrow=LEFTARROW
 	userTwo=[Participant|PUMLID] (':' (content=RequestResponse | text+=(PUMLID)*))?;
 
-UseRight returns UmlUse:
-	{UseRight}
+UseLeft returns UmlUse:
+	{UseLeft}
 	userOne=[Participant|PUMLID]
 	associationArrow=RIGHTARROW
 	userTwo=[Participant|PUMLID] (':' (content=RequestResponse | text+=(PUMLID)*))?;
