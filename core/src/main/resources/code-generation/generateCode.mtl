@@ -33,7 +33,7 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 
 	public [ 'Test'.concat(testScenario.testScenarioName) /](String configFile) throws Exception {
 		try {
-			String osAppropriatePath = IS_WINDOWS ? configFile.substring(1) : configFile;
+			String osAppropriatePath = IS_WINDOWS ? configFile.substring(0) : configFile;
 			Path path = Paths.get(osAppropriatePath);
 
 			paramsMap = unnestTomlMap("", new Toml().read(new String(Files.readAllBytes(path))).toMap());
