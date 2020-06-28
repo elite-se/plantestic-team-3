@@ -9,13 +9,13 @@
   <umlElements xsi:type="puml:Participant" name="ELOS"/>
   <umlElements xsi:type="puml:Participant" name="CCC"/>
   <umlElements xsi:type="puml:Activate" activate="#//@umlElements.1" deactivate="#//@umlElements.0">
-    <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.1" associationArrow="->"
-        userTwo="#//@umlElements.2">
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.2" associationArrow="->"
+        source="#//@umlElements.1">
       <content xsi:type="puml:Request" method="GET" url="/vehicle/internal/${vin}"/>
     </umlElements>
     <umlElements xsi:type="puml:Activate" activate="#//@umlElements.2" deactivate="#//@umlElements.2">
-      <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.2" associationArrow="-->"
-          userTwo="#//@umlElements.1">
+      <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="-->"
+          source="#//@umlElements.2">
         <content xsi:type="puml:Response">
           <code>200</code>
           <responseParam name="homeCountry" value="/homeCountry"/>
@@ -24,8 +24,8 @@
         </content>
       </umlElements>
     </umlElements>
-    <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.1" associationArrow="->"
-        userTwo="#//@umlElements.3">
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.3" associationArrow="->"
+        source="#//@umlElements.1">
       <content xsi:type="puml:Request" method="POST" url="routingTargets/find">
         <requestParam name="eventId" value="${eventId}"/>
         <requestParam name="serviceType" value="${serviceType}"/>
@@ -36,8 +36,8 @@
       </content>
     </umlElements>
     <umlElements xsi:type="puml:Activate" activate="#//@umlElements.3" deactivate="#//@umlElements.3">
-      <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.3" associationArrow="-->"
-          userTwo="#//@umlElements.1">
+      <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="-->"
+          source="#//@umlElements.3">
         <content xsi:type="puml:Response">
           <code>200</code>
           <responseParam name="voiceTargets" value="/voiceTargets"/>
@@ -45,8 +45,8 @@
       </umlElements>
     </umlElements>
     <umlElements xsi:type="puml:Alternative" text="${xcsServiceType} == 'ACall'">
-      <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.1" associationArrow="->"
-          userTwo="#//@umlElements.4">
+      <umlElements xsi:type="puml:Message" sink="#//@umlElements.4" associationArrow="->"
+          source="#//@umlElements.1">
         <content xsi:type="puml:Request" method="PUT" url="xcs/notify/${eventId}">
           <requestParam name="homeCountry" value="${homeCountry}"/>
           <requestParam name="positionCountry" value="${positionCountry}"/>
@@ -54,8 +54,8 @@
         </content>
       </umlElements>
       <umlElements xsi:type="puml:Activate" activate="#//@umlElements.4" deactivate="#//@umlElements.4">
-        <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.4" associationArrow="-->"
-            userTwo="#//@umlElements.1">
+        <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="-->"
+            source="#//@umlElements.4">
           <content xsi:type="puml:Response">
             <code>200</code>
           </content>
@@ -63,8 +63,8 @@
       </umlElements>
     </umlElements>
     <umlElements xsi:type="puml:Alternative" text="${xcsServiceType} == 'BCall'">
-      <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.1" associationArrow="->"
-          userTwo="#//@umlElements.5">
+      <umlElements xsi:type="puml:Message" sink="#//@umlElements.5" associationArrow="->"
+          source="#//@umlElements.1">
         <content xsi:type="puml:Request" method="PUT" url="xcs/notify/${eventId}">
           <requestParam name="homeCountry" value="${homeCountry}"/>
           <requestParam name="positionCountry" value="${positionCountry}"/>
@@ -72,16 +72,16 @@
         </content>
       </umlElements>
       <umlElements xsi:type="puml:Activate" activate="#//@umlElements.5" deactivate="#//@umlElements.5">
-        <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.5" associationArrow="-->"
-            userTwo="#//@umlElements.1">
+        <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="-->"
+            source="#//@umlElements.5">
           <content xsi:type="puml:Response">
             <code>200</code>
           </content>
         </umlElements>
       </umlElements>
     </umlElements>
-    <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.1" associationArrow="->"
-        userTwo="#//@umlElements.6">
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.6" associationArrow="->"
+        source="#//@umlElements.1">
       <content xsi:type="puml:Request" method="POST" url="xcs/eventReceived">
         <requestParam name="eventId" value="${eventId}"/>
         <requestParam name="serviceType" value="${serviceType}"/>
@@ -91,15 +91,15 @@
       </content>
     </umlElements>
     <umlElements xsi:type="puml:Activate" activate="#//@umlElements.6" deactivate="#//@umlElements.6">
-      <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.6" associationArrow="-->"
-          userTwo="#//@umlElements.1">
+      <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="-->"
+          source="#//@umlElements.6">
         <content xsi:type="puml:Response">
           <code>200</code>
         </content>
       </umlElements>
     </umlElements>
-    <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.1" associationArrow="->"
-        userTwo="#//@umlElements.0">
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="->"
+        source="#//@umlElements.1">
       <content xsi:type="puml:Request" method="POST" url="/setupCall">
         <requestParam name="eventId" value="${eventId}"/>
         <requestParam name="vin" value="${vin}"/>
@@ -107,8 +107,8 @@
       </content>
     </umlElements>
     <umlElements xsi:type="puml:Activate" activate="#//@umlElements.0" deactivate="#//@umlElements.1">
-      <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.0" associationArrow="-->"
-          userTwo="#//@umlElements.1">
+      <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="-->"
+          source="#//@umlElements.0">
         <content xsi:type="puml:Response">
           <code>200</code>
         </content>

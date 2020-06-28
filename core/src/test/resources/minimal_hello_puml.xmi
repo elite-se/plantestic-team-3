@@ -3,17 +3,16 @@
     xmlns:puml="http://www.eclipse.plantuml/Puml">
   <umlElements xsi:type="puml:Participant" name="A"/>
   <umlElements xsi:type="puml:Participant" name="B"/>
-  <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.0" associationArrow="->"
-      userTwo="#//@umlElements.1">
+  <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="->"
+      source="#//@umlElements.0">
     <content xsi:type="puml:Request" method="GET" url="/hello"/>
   </umlElements>
   <umlElements xsi:type="puml:Activate" activate="#//@umlElements.1" deactivate="#//@umlElements.1">
-    <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.1" associationArrow="->"
-        userTwo="#//@umlElements.0">
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="->"
+        source="#//@umlElements.1">
       <content xsi:type="puml:Response">
         <code>200</code>
       </content>
     </umlElements>
   </umlElements>
 </puml:SequenceDiagram>
-

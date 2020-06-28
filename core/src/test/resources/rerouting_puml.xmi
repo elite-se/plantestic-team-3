@@ -7,8 +7,8 @@
   <umlElements xsi:type="puml:Divider" name="Rerouting">
     <value>preparation</value>
   </umlElements>
-  <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.2" associationArrow="-[#5B57FF]>"
-      userTwo="#//@umlElements.1">
+  <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="-[#5B57FF]>"
+      source="#//@umlElements.2">
     <content xsi:type="puml:Request" method="POST" url="/ccc/rerouteOptions">
       <requestParam name="countryCode" value="${countryCode1}"/>
       <requestParam name="positionCountryCode" value="${positionCountryCode1}"/>
@@ -17,8 +17,8 @@
   </umlElements>
   <umlElements xsi:type="puml:Activate" activate="#//@umlElements.2">
     <umlElements xsi:type="puml:Activate" activate="#//@umlElements.1" deactivate="#//@umlElements.1">
-      <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.1" associationArrow="->"
-          userTwo="#//@umlElements.2">
+      <umlElements xsi:type="puml:Message" sink="#//@umlElements.2" associationArrow="->"
+          source="#//@umlElements.1">
         <content xsi:type="puml:Response">
           <code>200</code>
           <responseParam name="uiswitch" value="/UISWITCH"/>
@@ -27,14 +27,14 @@
         </content>
       </umlElements>
     </umlElements>
-    <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.2" associationArrow="-[#5B57FF]>"
-        userTwo="#//@umlElements.0">
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="-[#5B57FF]>"
+        source="#//@umlElements.2">
       <content xsi:type="puml:Request" method="GET" url="/ccc/events/${eventId}/isconnected"/>
     </umlElements>
     <umlElements xsi:type="puml:Activate" activate="#//@umlElements.0" deactivate="#//@umlElements.0">
       <umlElements xsi:type="puml:Alternative" text="${voiceEstablished} == true">
-        <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.0" associationArrow="-[#5B57FF]>"
-            userTwo="#//@umlElements.2">
+        <umlElements xsi:type="puml:Message" sink="#//@umlElements.2" associationArrow="-[#5B57FF]>"
+            source="#//@umlElements.0">
           <content xsi:type="puml:Response">
             <code>200</code>
             <responseParam name="eventid1" value="/VoiceStatus/eventId1"/>
@@ -43,8 +43,8 @@
           </content>
         </umlElements>
         <elseBlocks xsi:type="puml:Else" text="${voiceEstablished} == false">
-          <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.0" associationArrow="-[#5B57FF]>"
-              userTwo="#//@umlElements.2">
+          <umlElements xsi:type="puml:Message" sink="#//@umlElements.2" associationArrow="-[#5B57FF]>"
+              source="#//@umlElements.0">
             <content xsi:type="puml:Response">
               <code>400</code>
               <code>404</code>
@@ -54,8 +54,16 @@
         </elseBlocks>
       </umlElements>
     </umlElements>
-    <umlElements xsi:type="puml:Note">
-      <value>CCC</value>
+    <umlElements xsi:type="puml:Note" noteOf="#//@umlElements.2">
+      <value>Error</value>
+      <value>is</value>
+      <value>displayed</value>
+      <value>\n</value>
+      <value>reroute</value>
+      <value>may</value>
+      <value>not</value>
+      <value>be</value>
+      <value>triggered</value>
     </umlElements>
   </umlElements>
 </puml:SequenceDiagram>

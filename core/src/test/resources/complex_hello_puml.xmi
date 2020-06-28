@@ -4,16 +4,16 @@
   <umlElements xsi:type="puml:Participant" name="A"/>
   <umlElements xsi:type="puml:Participant" name="B"/>
   <umlElements xsi:type="puml:Alternative" text="${testCondition} == 'SomeValue'">
-    <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.0" associationArrow="->"
-        userTwo="#//@umlElements.1">
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="->"
+        source="#//@umlElements.0">
       <content xsi:type="puml:Request" method="POST" url="/hello/${id}">
         <requestParam name="variableName" value="value"/>
         <requestParam name="variableName2" value="value2"/>
       </content>
     </umlElements>
     <umlElements xsi:type="puml:Activate" activate="#//@umlElements.1" deactivate="#//@umlElements.1">
-      <umlElements xsi:type="puml:UseLeft" userOne="#//@umlElements.1" associationArrow="->"
-          userTwo="#//@umlElements.0">
+      <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="->"
+          source="#//@umlElements.1">
         <content xsi:type="puml:Response">
           <code>200</code>
           <responseParam name="variableName" value="itemA"/>

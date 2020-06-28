@@ -11,8 +11,7 @@ SequenceDiagram:
 
 SequenceElement:
 	Participant
-	| UseLeft
-	| UseRight
+	| Message
 	| Skinparam
 	| Box
 	| Group
@@ -40,17 +39,11 @@ terminal RIGHTARROW:
 terminal LEFTARROW:
 	'<' ('-' | '<' | '[' HEXCODE ']')*;
 
-UseRight returns UmlUse:
-	{UseRight}
-	userOne=[Participant|PUMLID]
-	associationArrow=LEFTARROW
-	userTwo=[Participant|PUMLID] (':' (content=RequestResponse | text+=(PUMLID)*))?;
-
-UseLeft returns UmlUse:
-	{UseLeft}
-	userOne=[Participant|PUMLID]
-	associationArrow=RIGHTARROW
-	userTwo=[Participant|PUMLID] (':' (content=RequestResponse | text+=(PUMLID)*))?;
+Message:
+	{Message}
+	((sink=[Participant|PUMLID] associationArrow=LEFTARROW source=[Participant|PUMLID])
+	| (source=[Participant|PUMLID] associationArrow=RIGHTARROW sink=[Participant|PUMLID]))
+	(':' (content=RequestResponse | text+=(PUMLID)*))?;
 
 RequestResponse:
     Request | Response;
@@ -74,9 +67,6 @@ ResponseParam:
     {ResponseParam}
     name=PUMLID ':' value=STRING;
 
-UmlUse:
-	{UmlUse};
-
 Space:
 	{Space}
 	('||' value=PUMLID '||' | '|||');
@@ -96,7 +86,7 @@ Divider:
 
 Note:
 	{Note}
-	'NOTE' ('LEFT' | 'RIGHT' | 'OVER') ('OF' noteOf=[Participant|PUMLID])?
+	'NOTE' ('LEFT OF' | 'RIGHT OF' | 'OVER') (noteOf=[Participant|PUMLID])? ':'?
 	value+=(PUMLID)*
 	'END NOTE';
 
@@ -177,9 +167,6 @@ terminal INT returns ecore::EInt:
 // String
 terminal STRING:
 	'"' ('\\' . | !('\\' | '"'))* '"';
-
-/*Arrow:
-	type=ARROWTYPE;*/
 
 // Tab
 terminal WS:
