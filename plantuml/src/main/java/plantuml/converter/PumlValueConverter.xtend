@@ -5,81 +5,12 @@ import org.eclipse.xtext.conversion.IValueConverter
 import org.eclipse.xtext.conversion.ValueConverter
 import org.eclipse.xtext.nodemodel.INode
 import org.eclipse.xtext.conversion.ValueConverterException
-import plantuml.puml.AssociationType
 import org.eclipse.xtext.conversion.impl.AbstractNullSafeConverter
 
 /**
  * This class converts specific inputs from rules to specific data types.
  */
 class PumlValueConverter extends AbstractDeclarativeValueConverterService {
-	
-	/** Associations Type Tuples */
-	static final val ASSOCIATION_TYPES = newHashMap(
-		"<|-"	-> AssociationType.INHERITANCELEFT,
-		"<|." 	-> AssociationType.INHERITANCELEFT,
-		"-|>" 	-> AssociationType.INHERITANCERIGHT,
-		".|>" 	-> AssociationType.INHERITANCERIGHT,
-		"-"		-> AssociationType.BIDIRECTIONAL,
-		"."		-> AssociationType.BIDIRECTIONAL,
-		"<-"	-> AssociationType.DIRECTIONALLEFT,
-		"<."	-> AssociationType.DIRECTIONALLEFT,
-		"->"	-> AssociationType.DIRECTIONALRIGHT,
-		".>" 	-> AssociationType.DIRECTIONALRIGHT,
-		"o-" 	-> AssociationType.AGGREGATIONLEFT,
-		"o." 	-> AssociationType.AGGREGATIONLEFT,
-		"-o" 	-> AssociationType.AGGREGATIONRIGHT,
-		".o" 	-> AssociationType.AGGREGATIONRIGHT,
-		"*-" 	-> AssociationType.COMPOSITIONLEFT,
-		"*." 	-> AssociationType.COMPOSITIONLEFT,
-		"-*" 	-> AssociationType.COMPOSITIONRIGHT,
-		".*"	-> AssociationType.COMPOSITIONRIGHT,
-		// Sequence Diagram Addons
-		"o<-"	-> AssociationType.DIRECTIONALLEFTO,
-		"<-o" 	-> AssociationType.DIRECTIONALLEFTO,
-		"o<-o"	-> AssociationType.DIRECTIONALLEFTO,
-		"x<-" 	-> AssociationType.DIRECTIONALLEFTX,
-		"<-x" 	-> AssociationType.DIRECTIONALLEFTX,
-		"x<-x"	-> AssociationType.DIRECTIONALLEFTX,
-		"->o"	-> AssociationType.DIRECTIONALRIGHTO,
-		"o->"	-> AssociationType.DIRECTIONALRIGHTO,
-		"o->o"	-> AssociationType.DIRECTIONALRIGHTO,
-		"->x" 	-> AssociationType.DIRECTIONALRIGHTX,
-		"x->" 	-> AssociationType.DIRECTIONALRIGHTX,
-		"x->x"	-> AssociationType.DIRECTIONALRIGHTX
-	)
-	
-	/**
-	 * Checks for correct association arrows and returns a new arrow object for the model.
-	 * @return An {@link AssociationType} Enum if the arrow type exists, else null.
-	 */
-	@ValueConverter(rule="ARROW")
-	def IValueConverter<AssociationType> ARROW() {
-		return new AbstractNullSafeConverter<AssociationType>() {
-			override protected internalToString(AssociationType value) {
-				return value.toString
-			}
-			override protected internalToValue(String string, INode node) throws ValueConverterException {
-				var modifiedString = removeColorTag(string)
-				if(modifiedString == null) {
-					throw new ValueConverterException("Incorrect Color Tag! Reminder: Syntax is \'#[<Hexcode|Color>]\'.", node, null)
-				}
-				modifiedString = removeOrientationInformation(modifiedString)
-				if(modifiedString == null) {
-					throw new ValueConverterException("More than one orientation information!", node, null)
-				}
-				modifiedString = fixLength(modifiedString)
-				if(modifiedString == null){
-					throw new ValueConverterException("You should not mix dashed and continuous lines.", node, null)
-				}
-				val result = ASSOCIATION_TYPES.get(modifiedString)
-				if(result == null){
-					throw new ValueConverterException("\'" + modifiedString + "\' is not a correct association arrow. Look at the PlantUML documentation for further informations.", node, null)
-				}
-				return result
-			}
-			
-		};
-	}
 	
 	/**
 	 * Allows to create classes with strings containing empty spaces as names.
