@@ -26,6 +26,7 @@
         eType="#//HttpResponseDatum" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="httpStatus" upperBound="-1"
         eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="postcondition" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Scenario">
     <eStructuralFeatures xsi:type="ecore:EReference" name="roundtrip" lowerBound="1"
