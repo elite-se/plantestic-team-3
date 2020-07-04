@@ -73,6 +73,7 @@ mapping SequenceDiagram::transformUmlDiagram(): Scenario {
             var message : Message := alternative.umlElements->at(1).oclAsType(Message);
             var request : Request := message.message2request();
             var httpRequestElement : HttpRequest := request.request2httpRequest();
+            httpRequestElement.receiver := message.sink.name;
 
             message := alternative.umlElements->at(2).oclAsType(Message);
             var response : Response := message.message2response();
