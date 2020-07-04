@@ -5,10 +5,10 @@ testCondition = '"SomeValue"'
     username = 'Test'
     password = 'password'
     path = '/testA'
-    swagger_json_path = 'http://localhost:8080/swagger/testA.json'
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
 
 [B]
     username = 'Test'
     password = 'password'
     path = '/testB'
-    swagger_json_path = 'http://localhost:8080/swagger/testB.json'
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'

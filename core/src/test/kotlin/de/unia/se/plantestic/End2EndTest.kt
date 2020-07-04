@@ -20,6 +20,10 @@ class End2EndTest : StringSpec({
             get(urlEqualTo("/testB/hello"))
                 .willReturn(WireMock.aResponse().withStatus(200))
         )
+        wireMockServer.stubFor(
+            get(urlPathMatching("/swagger/tests.yaml"))
+                .willReturn(aResponse().withStatus(200).withBody(SWAGGER_YAML.readText()))
+        )
 
         runTransformationPipeline(MINIMAL_EXAMPLE_INPUT_FILE, OUTPUT_FOLDER)
 
@@ -47,9 +51,8 @@ class End2EndTest : StringSpec({
               "itemB" : "value2",
             }"""
         wireMockServer.stubFor(
-            WireMock
-                .post(WireMock.urlPathMatching("/testB/hello/123"))
-                .willReturn(WireMock.aResponse().withStatus(200).withBody(body))
+            post(urlPathMatching("/testB/hello/123"))
+                .willReturn(aResponse().withStatus(200).withBody(body))
         )
 
         runTransformationPipeline(COMPLEX_HELLO_INPUT_FILE, OUTPUT_FOLDER)
@@ -295,6 +298,8 @@ class End2EndTest : StringSpec({
 
         private val XCALL_INPUT_FILE = File(Resources.getResource("xcall.puml").path)
         private val XCALL_CONFIG_FILE = File(Resources.getResource("xcall_config.toml").path)
+
+        private val SWAGGER_YAML = File(Resources.getResource("tests_swagger.yaml").path)
 
         private val OUTPUT_FOLDER = File(Resources.getResource("code-generation").path + "/End2EndTests/GeneratedCode")
 
