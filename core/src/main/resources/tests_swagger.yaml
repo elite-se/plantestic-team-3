@@ -1,0 +1,109 @@
+swagger: "2.0"
+info:
+  description: "This is a swagger definition for the plantestic test diagrams"
+  version: "1.0.0"
+  title: "Plantestic Team03 Test"
+paths:
+  /testB/hello:
+    get:
+      tags:
+        - "minimal_hello"
+      responses:
+        "200":
+          description: "success"
+  /testB/hello/${id}:
+    post:
+      tags:
+        - "complex_hello"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "An id"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            properties:
+              variableName:
+                type: "string"
+                example: "itemA"
+              variableName2:
+                type: "string"
+                example: "itemB"
+  /CRS/ccc/rerouteOptions:
+    post:
+      tags:
+        - "rerouting"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "order placed for purchasing the pet"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              countryCode:
+                type: "string"
+                example: "Ger"
+              positionCountryCode:
+                type: "string"
+                example: "Muc"
+              sourceEventType:
+                type: "string"
+                example: "Hallo"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            properties:
+              uiswitch:
+                type: "string"
+                example: "/UISWITCH"
+              reroute:
+                type: "string"
+                example: "/REROUTE"
+              warmhandover:
+                type: "string"
+                example: "/WARMHANDOVER"
+  /Voicemanager/ccc/events/${eventId}/isconnected:
+    post:
+      tags:
+        - "rerouting"
+      parameters:
+        - name: "eventId"
+          in: "path"
+          description: "An event id"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            properties:
+              VoiceStatus:
+                type: "object"
+                properties:
+                  eventId1:
+                    type: "string"
+                  agent1:
+                    type: "object"
+                    properties:
+                      connectionStatus:
+                        type: "string"
+                  agent2:
+                    type: "object"
+                    properties:
+                      connectionStatus:
+                        type: "string"
+        "400":
+          description: "failure"
+        "404":
+          description: "failure"
+        "500":
+          description: "failure"
