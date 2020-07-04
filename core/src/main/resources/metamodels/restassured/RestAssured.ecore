@@ -26,6 +26,7 @@
         containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="responsedatum" upperBound="-1"
         eType="#//ResponseDatum" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="postcondition" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="BodyMatcherGroup" instanceTypeName="BodyMatcherGroup">
     <eStructuralFeatures xsi:type="ecore:EReference" name="bodymatcher" upperBound="-1"
