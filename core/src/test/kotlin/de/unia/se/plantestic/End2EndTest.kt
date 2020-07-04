@@ -41,14 +41,14 @@ class End2EndTest : StringSpec({
     }
 
     // This this fails because the receiver "B" is somehow not set, which results in things like "${.path}".
-    "End2End test receives request on mock server for complex hello".config(enabled = false) {
+    "End2End test receives request on mock server for complex hello".config(enabled = true) {
         val body = """{
               "itemA" : "value1",
               "itemB" : "value2",
             }"""
         wireMockServer.stubFor(
             WireMock
-                .get(WireMock.urlPathMatching("/testB/test/123"))
+                .post(WireMock.urlPathMatching("/testB/hello/123"))
                 .willReturn(WireMock.aResponse().withStatus(200).withBody(body))
         )
 
