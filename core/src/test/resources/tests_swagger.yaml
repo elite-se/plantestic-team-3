@@ -19,20 +19,26 @@ paths:
       parameters:
         - name: "id"
           in: "path"
-          required: true
           type: "string"
+          required: true
+        - name: "varA"
+          in: "body"
+          required: true
+        - name: "varB"
+          in: "body"
+          required: true
       responses:
         "200":
           description: "success"
           schema:
             type: "object"
             properties:
-              variableName:
+              itemA:
                 type: "string"
-                example: "itemA"
-              variableName2:
+                example: "value1"
+              itemB:
                 type: "string"
-                example: "itemB"
+                example: "value2"
 
   /CRS/ccc/rerouteOptions:
     post:
