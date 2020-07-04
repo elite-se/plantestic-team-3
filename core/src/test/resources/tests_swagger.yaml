@@ -11,17 +11,16 @@ paths:
       responses:
         "200":
           description: "success"
-  /testB/hello/${id}:
+
+  /testB/hello/{id}:
     post:
       tags:
         - "complex_hello"
       parameters:
         - name: "id"
           in: "path"
-          description: "An id"
           required: true
-          type: "integer"
-          format: "int64"
+          type: "string"
       responses:
         "200":
           description: "success"
@@ -34,6 +33,7 @@ paths:
               variableName2:
                 type: "string"
                 example: "itemB"
+
   /CRS/ccc/rerouteOptions:
     post:
       tags:
@@ -41,7 +41,6 @@ paths:
       parameters:
         - in: "body"
           name: "body"
-          description: "order placed for purchasing the pet"
           required: true
           schema:
             type: "object"
@@ -70,7 +69,8 @@ paths:
               warmhandover:
                 type: "string"
                 example: "/WARMHANDOVER"
-  /Voicemanager/ccc/events/${eventId}/isconnected:
+
+  /Voicemanager/ccc/events/{eventId}/isconnected:
     post:
       tags:
         - "rerouting"
@@ -107,3 +107,163 @@ paths:
           description: "failure"
         "500":
           description: "failure"
+
+  /DataService/vehicle/internal/{vin}:
+    get:
+      tags:
+        - "x_call"
+      parameters:
+        - name: "vin"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            properties:
+              homeCountry:
+                type: "string"
+              positionCountry:
+                type: "string"
+              brand:
+                type: "string"
+
+  /CRS/routingTargets/find:
+    post:
+      tags:
+        - "x_call"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              eventId:
+                type: "string"
+              serviceType:
+                type: "string"
+              vin:
+                type: "string"
+              homeCountry:
+                type: "string"
+              positionCountry:
+                type: "string"
+              brand:
+                type: "string"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            properties:
+              voiceTargets:
+                type: "string"
+
+  /EventNotifier/xcs/notify/{eventId}:
+    post:
+      tags:
+        - "x_call"
+      parameters:
+        - name: "eventId"
+          in: "path"
+          description: "An event id"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              eventId:
+                type: "string"
+              homeCountry:
+                type: "string"
+              positionCountry:
+                type: "string"
+              brand:
+                type: "string"
+      responses:
+        "200":
+          description: "success"
+
+  /ELOS/xcs/notify/{eventId}:
+    post:
+      tags:
+        - "x_call"
+      parameters:
+        - in: "path"
+          name: "eventId"
+          required: true
+          type: "string"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              eventId:
+                type: "string"
+              homeCountry:
+                type: "string"
+              positionCountry:
+                type: "string"
+              brand:
+                type: "string"
+      responses:
+        "200":
+          description: "success"
+
+  /CCC/eventReceived:
+    post:
+      tags:
+        - "x_call"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              eventId:
+                type: "string"
+              serviceType:
+                type: "string"
+              homeCountry:
+                type: "string"
+              positionCountry:
+                type: "string"
+              brand:
+                type: "string"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            properties:
+              voiceTargets:
+                type: "string"
+
+  /Voicemanager/setupCall:
+    post:
+      tags:
+        - "x_call"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            type: "object"
+            properties:
+              eventId:
+                type: "string"
+              vin:
+                type: "string"
+              voiceTargets:
+                type: "string"
+      responses:
+        "200":
+          description: "success"
