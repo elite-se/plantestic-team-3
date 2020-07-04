@@ -57,7 +57,7 @@ Request returns RequestResponse:
 
 Response returns RequestResponse:
     {Response}
-    code+=INT (',' code+=INT)* ('-' '(' responseParam+=ResponseParam (',' responseParam+=ResponseParam)* ')')?;
+    code+=INT (',' code+=INT)* ('-' ('(' responseParam+=ResponseParam (',' responseParam+=ResponseParam)* ')')? ('[' postcondition=STRING ']')? )?;
 
 RequestParam:
     {RequestParam}
@@ -65,7 +65,7 @@ RequestParam:
 
 ResponseParam:
     {ResponseParam}
-    name=PUMLID ':' value=STRING;
+    name=PUMLID ':=' value=STRING;
 
 Space:
 	{Space}

@@ -25,6 +25,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import com.atlassian.oai.validator.OpenApiInteractionValidator.ApiLoadException;
 
@@ -125,7 +126,7 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
         [testRoundtrip.responsespecification.generateThenPart()/];
 [if (testRoundtrip.responsespecification.responsedatum->notEmpty())]
 [testRoundtrip.generateExtractions()/]
-
+[testRoundtrip.responsespecification.checkPostcondition()/]
 	[/if]
 [/template]
 
@@ -172,9 +173,7 @@ paramsMap.put("[requestDatum.variableName/]", subst("[requestDatum.value/]"));
 [template private generateExpectations(responseSpecification : ResponseSpecification) post(trim())]
 	[for (bodymatcher : BodyMatcher | responseSpecification.bodymatchergroup.bodymatcher)]
 		[if (bodymatcher.matcher.oclIsTypeOf(HasXPath))]
-			[let bodyXPath : HasXPath = bodymatcher.matcher.oclAsType(HasXPath)]
-.body(hasXPath([bodyXPath.xPath/]))
-            [/let]
+			[let bodyXPath : HasXPath = bodymatcher.matcher.oclAsType(HasXPath)][/let]
 		[/if]
 		[if (bodymatcher.matcher.oclIsTypeOf(IsIn))]
 			[let bodyIsIn : IsIn = bodymatcher.matcher.oclAsType(IsIn)][/let]
@@ -186,4 +185,13 @@ paramsMap.put("[requestDatum.variableName/]", subst("[requestDatum.value/]"));
 	[for (responseDatum : ResponseDatum | testRoundtrip.responsespecification.responsedatum)]
 paramsMap.put("[responseDatum.variableName/]", [testRoundtrip.testRoundtripName/].jsonPath().getString("[responseDatum.xPath/]"));
 	[/for]
+[/template]
+
+[template private checkPostcondition(responseSpecification : ResponseSpecification) post(trim())]
+    [if (responseSpecification.postcondition->notEmpty())]
+        System.out.println(paramsMap);
+        System.out.println(subst("[responseSpecification.postcondition/]"));
+        assertTrue(eval("[responseSpecification.postcondition/]"),
+        "postcondition [responseSpecification.postcondition/] evaluated to " + subst("[responseSpecification.postcondition/]") + "failed");
+    [/if]
 [/template]
