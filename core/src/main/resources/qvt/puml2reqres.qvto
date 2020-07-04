@@ -151,6 +151,7 @@ mapping Request::request2httpRequest():HttpRequest {
 }
 
 mapping Response::response2httpResponse(): HttpResponse {
+    postcondition := self.postcondition;
     httpStatus := self.code->toString();
     httpresponsedatum += self.responseParam->map responseParam2httpResponseDatum();
 }

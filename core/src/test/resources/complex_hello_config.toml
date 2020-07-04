@@ -1,7 +1,7 @@
-id = '123'
+id = 123
 testCondition = '"SomeValue"'
 
 [B]
-    username = 'Test'
+    username = "Test"
     password = 'password'
     path = '/testB'
