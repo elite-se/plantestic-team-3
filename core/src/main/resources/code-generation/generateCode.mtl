@@ -35,6 +35,7 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 	Map<String, Filter> validationFilterMap = new HashMap();
 	ScriptEngine engine;
 	StringSubstitutor substitutor;
+	boolean escape = false;
 
 	// FIXME: no IS_WINDOWS please
 	private static final boolean IS_WINDOWS = System.getProperty( "os.name" ).contains( "indow" );
@@ -90,7 +91,10 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 	    assert engine != null;
 	    // First, run the templating engine over the condition.
 	    // This is the whole reason why we do this "evaluate a JS string at runtime" at all.
+	    // escape strings
+	    escape = true;
 	    String substCondition = subst(condition);
+	    escape = false;
 	    // Second, we can simply pipe the string through the JavaScript engine and get a result.
 	    return (Boolean) engine.eval(substCondition);
 	}
@@ -98,18 +102,47 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
     /// Helper method to flatten the tree-like structure of a TOML file.
     /// Here, we use the path of an item as the key and the item itself as the value.
     /// The path of an item separated by dots, e.g. "A.B.item".
-	private static Map<String, Object> unnestTomlMap(String prefix, Map<String, Object> tree) {
+    private Map<String, Object> unnestTomlMap(String prefix, Map<String, Object> tree) {
         Map<String, Object> resultMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : tree.entrySet()) {
             String identifierPath = prefix + entry.getKey();
-            if(entry.getValue() instanceof Map){
-                resultMap.putAll(unnestTomlMap(identifierPath + ".", (Map<String, Object>)entry.getValue()));
+            if (entry.getValue() instanceof Map) {
+                resultMap.putAll(unnestTomlMap(identifierPath + ".", (Map<String, Object>) entry.getValue()));
             } else {
-                resultMap.put(identifierPath, entry.getValue());
+                resultMap.put(identifierPath, parseJsonObject(entry.getValue()));
             }
         }
         return resultMap;
-	}
+    }
+
+    /// Helper method to parse JSON Objects.
+    private Object parseJsonObject(Object o) {
+        if (o instanceof String) {
+            return new StringEscaper((String) o);
+        } else {
+            return o;
+        }
+    }
+
+    /// Helper class to handle string escaping dynamically
+    /// It obtains a String value and a reference to an Boolean that tells
+    /// whether String needs escaping (i.e., eval) or not (i.e. path substitution).
+    private class StringEscaper {
+        String value;
+
+        StringEscaper(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            if (escape) {
+                return "\"" + value + "\"";
+            } else {
+                return value;
+            }
+        }
+    }
 }
 [/file]
 [/template]
@@ -183,14 +216,12 @@ paramsMap.put("[requestDatum.variableName/]", subst("[requestDatum.value/]"));
 
 [template private generateExtractions(testRoundtrip : TestRoundtrip) post(trim())]
 	[for (responseDatum : ResponseDatum | testRoundtrip.responsespecification.responsedatum)]
-paramsMap.put("[responseDatum.variableName/]", [testRoundtrip.testRoundtripName/].jsonPath().getString("[responseDatum.xPath/]"));
+paramsMap.put("[responseDatum.variableName/]", parseJsonObject([testRoundtrip.testRoundtripName/].jsonPath().getJsonObject("[responseDatum.xPath/]")));
 	[/for]
 [/template]
 
 [template private checkPostcondition(responseSpecification : ResponseSpecification) post(trim())]
     [if (responseSpecification.postcondition->notEmpty())]
-        System.out.println(paramsMap);
-        System.out.println(subst("[responseSpecification.postcondition/]"));
         assertTrue(eval("[responseSpecification.postcondition/]"),
         "postcondition [responseSpecification.postcondition/] evaluated to " + subst("[responseSpecification.postcondition/]") + "failed");
     [/if]
