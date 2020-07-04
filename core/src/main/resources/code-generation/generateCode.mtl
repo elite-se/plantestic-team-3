@@ -132,7 +132,7 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
 [template private generadeAddRequestParams(requestSpecification : RequestSpecification)]
 	[if (requestSpecification.requestdatum->notEmpty())]
 		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
-paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
+paramsMap.put("[requestDatum.variableName/]", subst("[requestDatum.value/]"));
 		[/for]
 	[/if]
 [/template]
