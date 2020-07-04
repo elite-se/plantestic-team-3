@@ -2,9 +2,7 @@ package de.unia.se.plantestic
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock.get
-import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
-import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.google.common.io.Resources
 import de.unia.se.plantestic.Main.runTransformationPipeline
 import io.kotlintest.Description
@@ -20,12 +18,14 @@ class End2EndTest : StringSpec({
     "End2End test receives request on mock server for the minimal hello" {
         wireMockServer.stubFor(
             get(urlEqualTo("/testB/hello"))
-                .willReturn(WireMock.aResponse().withStatus(200)))
+                .willReturn(WireMock.aResponse().withStatus(200))
+        )
 
         runTransformationPipeline(MINIMAL_EXAMPLE_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testminimal_hello_puml.java" }.first()
+        val generatedSourceFile =
+            OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testminimal_hello_puml.java" }.first()
         val compiledTest = Reflect.compile(
             "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
             generatedSourceFile.readText()
@@ -34,7 +34,9 @@ class End2EndTest : StringSpec({
 
         // Check if we received a correct request
         wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.size shouldBe 1
+        wireMockServer.allServeEvents.filter { serveEvent ->
+            serveEvent.request.url == "/testB/hello"
+        }.size shouldBe 1
         wireMockServer.allServeEvents[0].response.status shouldBe 200
     }
 
@@ -47,12 +49,14 @@ class End2EndTest : StringSpec({
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.urlPathMatching("/testB/test/123"))
-                .willReturn(WireMock.aResponse().withStatus(200).withBody(body)))
+                .willReturn(WireMock.aResponse().withStatus(200).withBody(body))
+        )
 
         runTransformationPipeline(COMPLEX_HELLO_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testcomplex_hello_puml.java" }.first()
+        val generatedSourceFile =
+            OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testcomplex_hello_puml.java" }.first()
         val compiledTest = Reflect.compile(
             "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
             generatedSourceFile.readText()
@@ -80,15 +84,21 @@ class End2EndTest : StringSpec({
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.urlPathMatching("/CRS/ccc/rerouteOptions"))
-                .willReturn(WireMock.aResponse()
-                    .withStatus(200)
-                    .withBody(body_CCC_CRS)))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withBody(body_CCC_CRS)
+                )
+        )
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
-                .willReturn(WireMock.aResponse()
-                    .withStatus(200)
-                    .withBody(body_CCC_Voicemanager_voiceenabled)))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withBody(body_CCC_Voicemanager_voiceenabled)
+                )
+        )
 
         runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
 
@@ -98,7 +108,10 @@ class End2EndTest : StringSpec({
             "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
             generatedSourceFile.readText()
         ).create(REROUTE_CONFIG_FILE.path)
-        try { compiledTest.call("test") } catch (e: Exception) { }
+        try {
+            compiledTest.call("test")
+        } catch (e: Exception) {
+        }
 
         // Check if we received a correct request
         // TODO: more assertions
@@ -118,19 +131,27 @@ class End2EndTest : StringSpec({
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.urlPathMatching("/CRS/ccc/rerouteOptions"))
-                .willReturn(WireMock.aResponse()
-                    .withStatus(200)
-                    .withBody(body_CCC_CRS)))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withBody(body_CCC_CRS)
+                )
+        )
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
-                .willReturn(WireMock.aResponse()
-                    .withStatus(400)))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(400)
+                )
+        )
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse()
-                    .withStatus(400))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(400)
+                )
         )
 
         runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
@@ -160,14 +181,20 @@ class End2EndTest : StringSpec({
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.urlPathMatching("/CRS/ccc/rerouteOptions"))
-                .willReturn(WireMock.aResponse()
-                    .withStatus(200)
-                    .withBody(body_CCC_CRS)))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withBody(body_CCC_CRS)
+                )
+        )
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
-                .willReturn(WireMock.aResponse()
-                    .withStatus(404)))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(404)
+                )
+        )
 
         runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
 
@@ -196,19 +223,28 @@ class End2EndTest : StringSpec({
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.urlPathMatching("/CRS/ccc/rerouteOptions"))
-                .willReturn(WireMock.aResponse()
-                    .withStatus(200)
-                    .withBody(body_CCC_CRS)))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(200)
+                        .withBody(body_CCC_CRS)
+                )
+        )
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
-                .willReturn(WireMock.aResponse()
-                    .withStatus(500)))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(500)
+                )
+        )
         wireMockServer.stubFor(
             WireMock
                 .get(WireMock.anyUrl())
-                .willReturn(WireMock.aResponse()
-                    .withStatus(500)))
+                .willReturn(
+                    WireMock.aResponse()
+                        .withStatus(500)
+                )
+        )
 
         runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
 

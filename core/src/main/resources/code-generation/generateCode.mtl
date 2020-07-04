@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.HashMap;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import io.restassured.filter.Filter;
+import io.restassured.filter.FilterContext;
+import io.restassured.specification.FilterableRequestSpecification;
+import io.restassured.specification.FilterableResponseSpecification;
 import org.hamcrest.collection.IsIn;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,10 +25,13 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import org.junit.jupiter.api.Test;
+import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
+import com.atlassian.oai.validator.OpenApiInteractionValidator.ApiLoadException;
 
 public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 
 	Map<String, Object> paramsMap = new HashMap();
+	Map<String, Filter> validationFilterMap = new HashMap();
 	ScriptEngine engine;
 	StringSubstitutor substitutor;
 
@@ -48,12 +55,26 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
     @Test
 	public void test() throws Exception {
 	[for (testRoundtrip : TestRoundtrip | testScenario.testroundtrip) separator('\n\n') ]
-		[if (testRoundtrip.precondition->isEmpty())][testRoundtrip.generateTestRoundtrip()/][/if]
-		[if (testRoundtrip.precondition->notEmpty())]
-		if(eval("[testRoundtrip.precondition/]")) {
-			[testRoundtrip.generateTestRoundtrip()/]
-		}
-		[/if]
+        if (!validationFilterMap.containsKey("[testRoundtrip.requestspecification.receiver/]")){
+            try {
+                validationFilterMap.put("[testRoundtrip.requestspecification.receiver/]",
+                    new OpenApiValidationFilter(subst("${[testRoundtrip.requestspecification.receiver/].swagger_json_path}")));
+            } catch(ApiLoadException e){
+                System.out.println(e);
+                validationFilterMap.put("[testRoundtrip.requestspecification.receiver/]", new Filter() {
+                    @Override
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return ctx.next(requestSpec, responseSpec);
+                    }
+                });
+            }
+        }
+        [if (testRoundtrip.precondition->isEmpty())][testRoundtrip.generateTestRoundtrip()/][/if]
+        [if (testRoundtrip.precondition->notEmpty())]
+        if(eval("[testRoundtrip.precondition/]")) {
+            [testRoundtrip.generateTestRoundtrip()/]
+        }
+        [/if]
 	[/for]
 	}
 
@@ -118,6 +139,7 @@ paramsMap.put("[requestDatum.variableName/]", "[requestDatum.value/]");
 
 [template private generateGivenPart(requestSpecification : RequestSpecification) post(trim())]
 .auth().basic(subst("${[requestSpecification.receiver/].username}"), subst("${[requestSpecification.receiver/].password}"))
+.filter(validationFilterMap.get("[requestSpecification.receiver/]"))
 	[if (requestSpecification.requestdatum->notEmpty())]
 		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
 .param("[requestDatum.variableName/]", subst("${[requestDatum.variableName/]}"))
