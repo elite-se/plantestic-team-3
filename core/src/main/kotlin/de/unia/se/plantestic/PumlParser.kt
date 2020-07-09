@@ -2,6 +2,7 @@ package de.unia.se.plantestic
 
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EPackage
+import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.util.EcoreUtil
 import plantuml.puml.SequenceDiagram
@@ -13,7 +14,7 @@ object PumlParser {
      * @param inputUri URI of resource to be parsed as String
      * @return Root model object
      */
-    fun parse(inputUri: String): SequenceDiagram {
+    fun parse(inputUri: String): Resource {
         require(EPackage.Registry.INSTANCE["http://www.eclipse.plantuml/Puml"] != null) {
             "Please run MetaModelSetup.doSetup() first!"
         }
@@ -26,6 +27,6 @@ object PumlParser {
 
         require(resource.contents.size > 0) { "File should contain something meaningful." }
         require(resource.contents[0] is SequenceDiagram) { "File should contain a diagram." }
-        return resource.contents[0] as SequenceDiagram
+        return resource
     }
 }
