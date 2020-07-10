@@ -1,0 +1,13 @@
+SEQUENCE @startuml
+
+PARTICIPANT A
+PARTICIPANT B
+
+alt "${testCondition} == 'SomeValue'"
+A -> B : POST "/hello/${id}" (varA : "A", varB : "B")
+activate B
+B -> A : 200 - (varA := "itemA", varB := "itemB") ["${varA} == ${varB}"]
+deactivate B
+end
+
+@enduml

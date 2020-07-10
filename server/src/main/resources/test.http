@@ -1,0 +1,9 @@
+POST http://127.0.0.1:9090/runPipeline
+Content-Type: application/json
+
+{"name": "test", "diagram":  "SEQUENCE @startuml PARTICIPANT A PARTICIPANT B A -> B : GET \"/hello\" activate B B -> A : 200 deactivate B @enduml"  }
+
+###
+GET http://127.0.0.1:9090/test
+
+###
