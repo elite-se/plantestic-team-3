@@ -98,6 +98,14 @@ dependencies {
     implementation "org.apache.ant:ant:1.8.2"
 
     implementation project(":plantuml")
+    implementation project(":frontend")
+
+    //Kotlin Web-Server
+    implementation ("io.ktor:ktor-server-core:1.3.2")
+    implementation ("io.ktor:ktor-server-netty:1.3.2")
+    implementation ("io.ktor:ktor-jackson:1.3.2")
+    //logger, which ktor requires
+    compile("ch.qos.logback:logback-classic:1.2.3")
 
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.1.7"
     testImplementation "io.mockk:mockk:1.8.9"
@@ -147,3 +155,12 @@ jacocoTestCoverageVerification {
 check.dependsOn jacocoTestCoverageVerification
 // To run ktlint during the build (and fail when appropriate)
 check.dependsOn ktlint
+
+task startPumlDiagramServer(type: Exec) {
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'docker run -d -p 4000:8080 plantuml/plantuml-server:jetty'
+    } else {
+        commandLine 'sh', '-c', 'docker run -d -p 4000:8080 plantuml/plantuml-server:jetty'
+    }
+    ignoreExitValue = true //the above lines fail if port 4000 is already bound to -> this probably means the container is already running
+}

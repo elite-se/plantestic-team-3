@@ -1,11 +1,7 @@
 package de.unia.se.plantestic.server
 
 import com.fasterxml.jackson.databind.SerializationFeature
-import de.unia.se.plantestic.AcceleoCodeGenerator
-import de.unia.se.plantestic.M2MTransformer
 import de.unia.se.plantestic.Main.runTransformationPipeline
-import de.unia.se.plantestic.MetaModelSetup
-import de.unia.se.plantestic.PumlParser
 import io.ktor.application.*
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
@@ -19,21 +15,26 @@ import io.ktor.request.receive
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 data class PUMLDiagram(val name: String, val diagram: String)
 
+fun String.runCommand(workingDir: File) {
+    ProcessBuilder(*split(" ").toTypedArray())
+        .directory(workingDir)
+        .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+        .redirectError(ProcessBuilder.Redirect.INHERIT)
+        .start()
+        .waitFor(60, TimeUnit.MINUTES)
+}
+
 object ServerMain {
-    //fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
-    @JvmStatic
-    fun main(args: Array<String>): Unit {
-        val inputFile = File("src/main/resources/complex_hello.puml").normalize()
-        val outputFolder = File("./testServer").normalize()
-
-        runTransformationPipeline(inputFile, outputFolder)
+    fun startServer(): Unit {
+        //start the docker container of the plantuml image generating server
+        "docker run -d -p 4000:8080 plantuml/plantuml-server:jetty".runCommand(File("./"))
+        io.ktor.server.netty.EngineMain.main(arrayOf<String>())
     }
-
-
 
     fun Application.serverModule() {
         install(ContentNegotiation) {
@@ -62,17 +63,10 @@ object ServerMain {
                 inputFile.writeText(post.diagram)
                 val outputFolder = File("./testServer").normalize()
 
-                MetaModelSetup.doSetup()
-
-                val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
-
-                val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramModel)
-                val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
-
-                println("Generating code into $outputFolder")
-                AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
+                runTransformationPipeline(inputFile, outputFolder)
 
                 call.respond(mapOf("notok" to false))
+                println("Pipeline Done")
             }
         }
     }

@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import de.unia.se.plantestic.server.ServerMain
 import java.io.File
 
 object Main {
@@ -89,7 +90,8 @@ object Main {
                 return
             }
 
-            runTransformationPipeline(inputFile, outputFolder)
+            ServerMain.startServer()
+            //runTransformationPipeline(inputFile, outputFolder)
         }
     }
 
