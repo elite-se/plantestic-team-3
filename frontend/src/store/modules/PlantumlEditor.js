@@ -5,6 +5,7 @@ import axios from 'axios'
 import lodash from 'lodash'
 import marked from 'marked'
 import DOMPurify from 'dompurify'
+
 const _: any = lodash
 
 const state: any = {
@@ -295,7 +296,7 @@ const actions: any = {
     renderer.table = function (header: string, body: string): string {
       return `<table class="table table-striped table-bordered"><thead>${header}</thead><tbody>${body}</tbody></table>`
     }
-    marked.setOptions({ renderer: renderer })
+    marked.setOptions({renderer: renderer})
   },
   renderUML(context: any, text: string) {
     context.commit('setText', text)
@@ -303,8 +304,8 @@ const actions: any = {
     context.commit('renderMarkdown', text)
     context.commit('setLocalStrage', text)
   },
-  download({ state }: any) {
-    const ext: any = _.find(state.umlExtensions, { text: state.umlExtension })
+  download({state}: any) {
+    const ext: any = _.find(state.umlExtensions, {text: state.umlExtension})
     axios
       .get(state.src || '', {
         responseType: ext.responseType,
@@ -313,7 +314,7 @@ const actions: any = {
         if (response && response.data) {
           let downLoadLink: any = document.createElement('a')
           downLoadLink.download = `${state.plantuml}.${state.umlExtension}`
-          downLoadLink.href = URL.createObjectURL(new Blob([response.data], { type: ext.fileType }))
+          downLoadLink.href = URL.createObjectURL(new Blob([response.data], {type: ext.fileType}))
           downLoadLink.dataset.downloadurl = `${ext.fileType}:${downLoadLink.download}:${downLoadLink.href}`
           if (document.body) {
             document.body.appendChild(downLoadLink) // for firefox
