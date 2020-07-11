@@ -32,11 +32,16 @@ object ServerMain {
 
     fun startServer(): Unit {
         //start the docker container of the plantuml image generating server
+        //if this produces a failure message during runtime, don't worry - it usually means that the container is already running
+        //therefore we let it fail silently
         "docker run -d -p 4000:8080 plantuml/plantuml-server:jetty".runCommand(File("./"))
+
+        //start our plantestic server
         io.ktor.server.netty.EngineMain.main(arrayOf<String>())
     }
 
-    fun Application.serverModule() {
+    //ktor magic, the serverModule function is added to ktor in the application.conf file (located in resources)
+    fun Application.plantesticServerModule() {
         install(ContentNegotiation) {
             jackson {
                 enable(SerializationFeature.INDENT_OUTPUT) // Pretty Prints the JSON
