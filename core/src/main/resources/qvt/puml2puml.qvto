@@ -1,6 +1,6 @@
 modeltype puml "strict" uses puml('http://www.eclipse.plantuml/Puml');
 
-configuration property diagramName : String;
+configuration property tester : String;
 
 transformation puml2puml(in input: puml, out output: puml);
 
@@ -11,42 +11,36 @@ main() {
 }
 
 mapping SequenceDiagram::extractTester(): SequenceDiagram {
-    var actor_in : Actor := self.umlElements -> getActor();
-    assert fatal ( actor_in != null )
-        with log ( 'Sequence diagram needs an actor/tester');
+    var tester_in : Participant := self.umlElements -> getTester();
+    assert fatal ( tester_in != null )
+        with log ( 'Sequence diagram needs a tester');
 
-    var actor_out : Actor := new Actor();
-    actor_out.name := "Tester";
+    var tester_out : Participant := new Participant();
+    tester_out.name := "Tester";
 
-    umlElements += actor_out;
-    umlElements += self.umlElements->filterAndChangeMessages(actor_in, actor_out);
+    umlElements += tester_out;
+    umlElements += self.umlElements->filterAndChangeMessages(tester_in, tester_out);
 }
 
-helper OrderedSet(SequenceElement)::filterAndChangeMessages( in actor : Actor, in tester : Actor) : OrderedSet(SequenceElement) {
+helper OrderedSet(SequenceElement)::filterAndChangeMessages( in tester_in : Participant, in tester_out : Participant) : OrderedSet(SequenceElement) {
     var ret : OrderedSet(SequenceElement);
     self->forEach(sequenceElement) {
         if (sequenceElement.oclIsTypeOf(Message)){
             var message : Message := sequenceElement.oclAsType(Message);
-            if (message.sink = actor and message.content.oclIsKindOf(Response)){
-                message.sink := tester;
+            if (message.sink = tester_in and message.content.oclIsKindOf(Response)){
+                message.sink := tester_out;
                 ret += message;
             }
-            elif (message.source = actor){
-                message.source := tester;
+            elif (message.source = tester_in){
+                message.source := tester_out;
                 ret += message;
             }
         }
         elif (sequenceElement.oclIsKindOf(UmlElementsContainer)){
             var containerChangeList : OrderedSet(SequenceElement) :=
-                sequenceElement.oclAsType(UmlElementsContainer).umlElements->filterAndChangeMessages(actor, tester);
+                sequenceElement.oclAsType(UmlElementsContainer).umlElements->filterAndChangeMessages(tester_in, tester_out);
             if (containerChangeList->size() > 0) {
                 ret += containerChangeList;
-            }
-        }
-        elif (sequenceElement.oclIsTypeOf(Actor)){
-            if (sequenceElement = actor){
-                var participant_in : Participant := actor.actor2Participant();
-                ret += participant_in;
             }
         }
         else {
@@ -56,21 +50,18 @@ helper OrderedSet(SequenceElement)::filterAndChangeMessages( in actor : Actor, i
     return ret;
 }
 
-
-mapping Actor::actor2Participant(): Participant {
-    name := self.name;
-    longname := self.longname;
-}
-
-helper OrderedSet(SequenceElement)::getActor(): Actor {
+helper OrderedSet(SequenceElement)::getTester(): Participant {
     self->forEach(sequenceElement) {
-        if (sequenceElement.oclIsTypeOf(Actor)) {
-            return sequenceElement.oclAsType(Actor);
+        if (sequenceElement.oclIsTypeOf(Participant)) {
+            var participant : Participant := sequenceElement.oclAsType(Participant);
+            if (participant.name = tester or participant.longname = tester){
+                return participant;
+            }
         }
         elif (sequenceElement.oclIsKindOf(UmlElementsContainer)) {
-            var actor : Actor := sequenceElement.oclAsType(UmlElementsContainer).umlElements->getActor();
-            if (actor <> null) {
-                return actor;
+            var tester : Participant := sequenceElement.oclAsType(UmlElementsContainer).umlElements->getTester();
+            if (tester <> null) {
+                return tester;
             };
         };
     };

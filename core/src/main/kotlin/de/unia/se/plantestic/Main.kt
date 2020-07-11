@@ -77,6 +77,8 @@ object Main {
 
         private val input: String by option(help = "Path to the PlantUML file containing the API specification.")
             .required()
+        private val tester: String by option(help = "Actor or participant to be use as tester.")
+            .required()
         private val output: String by option(help = "Output folder where the test cases should be written to. Default is './plantestic-test'")
             .default("./plantestic-test")
 
@@ -89,15 +91,24 @@ object Main {
                 return
             }
 
-            runTransformationPipeline(inputFile, outputFolder)
+            runTransformationPipeline(inputFile, outputFolder, tester)
         }
     }
 
     fun runTransformationPipeline(inputFile: File, outputFolder: File) {
+        val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
+        val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramModel)
+        val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
+
+        println("Generating code into $outputFolder")
+        AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
+    }
+
+    fun runTransformationPipeline(inputFile: File, outputFolder: File, tester : String) {
         MetaModelSetup.doSetup()
 
         val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
-        val pumlDiagramWithActor = M2MTransformer.transformPuml2Puml(pumlDiagramModel)
+        val pumlDiagramWithActor = M2MTransformer.transformPuml2Puml(pumlDiagramModel, tester)
         val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramWithActor)
         val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
 
