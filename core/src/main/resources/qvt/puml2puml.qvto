@@ -1,0 +1,78 @@
+modeltype puml "strict" uses puml('http://www.eclipse.plantuml/Puml');
+
+configuration property diagramName : String;
+
+transformation puml2puml(in input: puml, out output: puml);
+
+main() {
+    log('Started extracting Tester from PlantUML');
+
+     input.objectsOfType(SequenceDiagram).map extractTester();
+}
+
+mapping SequenceDiagram::extractTester(): SequenceDiagram {
+    var actor_in : Actor := self.umlElements -> getActor();
+    assert fatal ( actor_in != null )
+        with log ( 'Sequence diagram needs an actor/tester');
+
+    var actor_out : Actor := new Actor();
+    actor_out.name := "Tester";
+
+    umlElements += actor_out;
+    umlElements += self.umlElements->filterAndChangeMessages(actor_in, actor_out);
+}
+
+helper OrderedSet(SequenceElement)::filterAndChangeMessages( in actor : Actor, in tester : Actor) : OrderedSet(SequenceElement) {
+    var ret : OrderedSet(SequenceElement);
+    self->forEach(sequenceElement) {
+        if (sequenceElement.oclIsTypeOf(Message)){
+            var message : Message := sequenceElement.oclAsType(Message);
+            if (message.sink = actor){
+                message.sink := tester;
+                ret += message;
+            }
+            elif (message.source = actor){
+                message.source := tester;
+                ret += message;
+            }
+        }
+        elif (sequenceElement.oclIsKindOf(UmlElementsContainer)){
+            var containerChangeList : OrderedSet(SequenceElement) :=
+                sequenceElement.oclAsType(UmlElementsContainer).umlElements->filterAndChangeMessages(actor, tester);
+            if (containerChangeList->size() > 0) {
+                ret += containerChangeList;
+            }
+        }
+        elif (sequenceElement.oclIsTypeOf(Actor)){
+            if (sequenceElement = actor){
+                var participant_in : Participant := actor.actor2Participant();
+                ret += participant_in;
+            }
+        }
+        else {
+            ret += sequenceElement;
+        }
+    };
+    return ret;
+}
+
+
+mapping Actor::actor2Participant(): Participant {
+    name := self.name;
+    longname := self.longname;
+}
+
+helper OrderedSet(SequenceElement)::getActor(): Actor {
+    self->forEach(sequenceElement) {
+        if (sequenceElement.oclIsTypeOf(Actor)) {
+            return sequenceElement.oclAsType(Actor);
+        }
+        elif (sequenceElement.oclIsKindOf(UmlElementsContainer)) {
+            var actor : Actor := sequenceElement.oclAsType(UmlElementsContainer).umlElements->getActor();
+            if (actor <> null) {
+                return actor;
+            };
+        };
+    };
+    return null;
+}

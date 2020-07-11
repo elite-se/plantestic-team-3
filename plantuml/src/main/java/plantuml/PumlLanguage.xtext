@@ -10,7 +10,7 @@ SequenceDiagram:
 	'SEQUENCE'? '@startuml' umlElements+=(SequenceElement)* '@enduml';
 
 SequenceElement:
-	Participant
+	Lifeline
 	| Message
 	| Skinparam
 	| Box
@@ -27,9 +27,17 @@ SequenceElement:
 	| Delay
 	| Space;
 
-Participant:
+Lifeline:
+    Participant | Actor;
+
+Participant returns Lifeline:
 	{Participant}
-	('PARTICIPANT' | 'ACTOR') (name=PUMLID | longname=(STRING | PUMLID) 'AS'
+	('PARTICIPANT') (name=PUMLID | longname=(STRING | PUMLID) 'AS'
+	name=PUMLID);
+
+Actor returns Lifeline:
+	{Actor}
+	('ACTOR') (name=PUMLID | longname=(STRING | PUMLID) 'AS'
 	name=PUMLID);
 
 // TODO: restrict arrows (problem: hexcode can be anywhere)
@@ -41,8 +49,8 @@ terminal LEFTARROW:
 
 Message:
 	{Message}
-	((sink=[Participant|PUMLID] associationArrow=LEFTARROW source=[Participant|PUMLID])
-	| (source=[Participant|PUMLID] associationArrow=RIGHTARROW sink=[Participant|PUMLID]))
+	((sink=[Lifeline|PUMLID] associationArrow=LEFTARROW source=[Lifeline|PUMLID])
+	| (source=[Lifeline|PUMLID] associationArrow=RIGHTARROW sink=[Lifeline|PUMLID]))
 	(':' (content=RequestResponse | text+=(PUMLID)*))?;
 
 RequestResponse:
@@ -77,7 +85,7 @@ Delay:
 
 Reference:
 	{Reference}
-	'REF OVER' ref+=[Participant|PUMLID] (',' ref+=[Participant|PUMLID])*
+	'REF OVER' ref+=[Lifeline|PUMLID] (',' ref+=[Lifeline|PUMLID])*
 	(':' value+=(PUMLID)* | value+=(PUMLID)* 'END REF');
 
 Divider:
@@ -86,7 +94,7 @@ Divider:
 
 Note:
 	{Note}
-	'NOTE' ('LEFT OF' | 'RIGHT OF' | 'OVER') (noteOf=[Participant|PUMLID])? ':'?
+	'NOTE' ('LEFT OF' | 'RIGHT OF' | 'OVER') (noteOf=[Lifeline|PUMLID])? ':'?
 	value+=(PUMLID)*
 	'END NOTE';
 
@@ -113,9 +121,9 @@ Autonumber:
 
 Activate returns UmlElementsContainer:
 	{Activate}
-	'ACTIVATE' activate=[Participant|PUMLID]
+	'ACTIVATE' activate=[Lifeline|PUMLID]
 	umlElements+=(SequenceElement)*
-	('DEACTIVATE' | 'DESTROY') deactivate=[Participant|PUMLID];
+	('DEACTIVATE' | 'DESTROY') deactivate=[Lifeline|PUMLID];
 
 Alternative returns UmlElementsContainer:
 	{Alternative}
