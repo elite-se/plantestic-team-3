@@ -27,7 +27,7 @@ helper OrderedSet(SequenceElement)::filterAndChangeMessages( in actor : Actor, i
     self->forEach(sequenceElement) {
         if (sequenceElement.oclIsTypeOf(Message)){
             var message : Message := sequenceElement.oclAsType(Message);
-            if (message.sink = actor){
+            if (message.sink = actor and message.content.oclIsKindOf(Response)){
                 message.sink := tester;
                 ret += message;
             }
