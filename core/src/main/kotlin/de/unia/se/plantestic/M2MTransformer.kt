@@ -14,11 +14,24 @@ import java.io.OutputStreamWriter
 
 object M2MTransformer {
 
+    private val QVT_PUML2PUML_TRANSFORMATION_URI =
+        URI.createURI(Resources.getResource("qvt/puml2puml.qvto").toExternalForm())
+
     private val QVT_PUML2REQRES_TRANSFORMATION_URI =
         URI.createURI(Resources.getResource("qvt/puml2reqres.qvto").toExternalForm())
 
     private val QVT_REQRES2RESTASSURED_TRANSFORMATION_URI =
         URI.createURI(Resources.getResource("qvt/reqres2restassured.qvto").toExternalForm())
+
+    /**
+     * Transforms a UmlDiagram EObject to a another UmlDiagram  EObject with extracted actor.
+     * @param inputModel The UmlDiagram to transform
+     * @return UmlDiagram with extracted actor
+     */
+    fun transformPuml2Puml(inputModel: EObject): EObject {
+        require(inputModel is SequenceDiagram) { "Puml transformation input wasn't a puml object!" }
+        return doQvtoTransformation(inputModel, QVT_PUML2PUML_TRANSFORMATION_URI)
+    }
 
     /**
      * Transforms a UmlDiagram EObject to a Request Response Pair EObject.

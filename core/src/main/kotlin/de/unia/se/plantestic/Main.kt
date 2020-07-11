@@ -97,8 +97,8 @@ object Main {
         MetaModelSetup.doSetup()
 
         val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
-
-        val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramModel)
+        val pumlDiagramWithActor = M2MTransformer.transformPuml2Puml(pumlDiagramModel)
+        val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramWithActor)
         val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
 
         println("Generating code into $outputFolder")
