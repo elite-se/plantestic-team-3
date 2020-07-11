@@ -1,0 +1,18 @@
+puml_name = "tester_out"
+id = '123'
+testCondition = '"SomeValue"'
+
+[A]
+    username = 'Test'
+    password = 'password'
+    path = '/testA'
+
+[B]
+    username = 'Test'
+    password = 'password'
+    path = '/testB'
+
+[C]
+    username = 'Test'
+    password = 'password'
+    path = '/testC'

@@ -56,7 +56,7 @@ object M2MTransformer {
         return doQvtoTransformation(inputModel, QVT_REQRES2RESTASSURED_TRANSFORMATION_URI, context)
     }
 
-    fun setContext(inputModel: EObject, vararg pairs: Pair<String, Any>) : ExecutionContext {
+    private fun setContext(inputModel: EObject, vararg pairs: Pair<String, Any>) : ExecutionContext {
         val context = ExecutionContextImpl()
         context.setConfigProperty("keepModeling", true)
         context.setConfigProperty("diagramName", EcoreUtil.getURI(inputModel).trimFileExtension().lastSegment())

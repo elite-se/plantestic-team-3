@@ -40,6 +40,15 @@ paths:
                 type: "string"
                 example: "value2"
 
+
+  /testC/bye:
+      get:
+          tags:
+              - "tester_out"
+          responses:
+            "200":
+                description: "success"
+
   /CRS/ccc/rerouteOptions:
     post:
       tags:

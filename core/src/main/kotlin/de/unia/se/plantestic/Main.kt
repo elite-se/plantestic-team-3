@@ -4,6 +4,8 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EStructuralFeature
 import java.io.File
 
 object Main {
@@ -91,11 +93,13 @@ object Main {
                 return
             }
 
-            runTransformationPipeline(inputFile, outputFolder, tester)
+            runTransformationPipeline(inputFile, outputFolder)
         }
     }
 
     fun runTransformationPipeline(inputFile: File, outputFolder: File) {
+        MetaModelSetup.doSetup()
+
         val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
         val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramModel)
         val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
@@ -112,8 +116,18 @@ object Main {
         val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramWithActor)
         val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
 
+        addTestScenarioNameIfNull(restAssuredModel, inputFile)
         println("Generating code into $outputFolder")
         AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
+    }
+
+    private fun addTestScenarioNameIfNull(restAssuredModel : EObject, pumlFile : File) {
+        val feature : EStructuralFeature = restAssuredModel.eClass().getEStructuralFeature("testScenarioName")
+        val curr_val = restAssuredModel.eGet(feature)
+        if (curr_val == null) {
+            val shorter = pumlFile.name.replace('.', '_')
+            restAssuredModel.eSet(feature, shorter)
+        }
     }
 
     @JvmStatic
