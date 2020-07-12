@@ -86,9 +86,12 @@ Divider:
 
 Note:
 	{Note}
-	'NOTE' ('LEFT OF' | 'RIGHT OF' | 'OVER') (noteOf=[Participant|PUMLID])? ':'?
-	value+=(PUMLID)*
+	'NOTE' (position=NotePosition) ('OF' noteOf=[Participant|PUMLID])?
+	value+=(STRING | PUMLID)*
 	'END NOTE';
+
+terminal NotePosition:
+    'LEFT' | 'RIGHT' | 'OVER';
 
 Newpage:
 	{Newpage}
