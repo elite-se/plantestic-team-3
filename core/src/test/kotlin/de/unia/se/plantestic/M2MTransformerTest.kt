@@ -41,6 +41,39 @@ class M2MTransformerTest : StringSpec({
         reqRespOutputModel.eContents().filter { f -> f.eClass().name == "Roundtrip" }.size shouldBe 2
     }
 
+    "[Puml->Puml + Tester] complex example" {
+        MetaModelSetup.doSetup()
+
+        val pumlInputModel = ResourceSetImpl().getResource(URI.createFileURI(COMPLEX_TESTER_OUT_PUML_INPUT_PATH), true)
+            .contents[0]
+
+        val pumlOutputModel = M2MTransformer.transformPuml2Puml(pumlInputModel, "A")
+        pumlOutputModel shouldNotBe null
+
+        printModel(pumlOutputModel)
+
+        pumlOutputModel.eClass().name shouldBe "SequenceDiagram"
+        val contentsOutput = pumlOutputModel.eContents()
+        contentsOutput.filter { f -> f.eClass().name == "Message" }.size shouldBe 4
+        contentsOutput.filter { f -> f.eClass().name == "Note" }.size shouldBe 1
+        contentsOutput.filter { f -> f.eClass().name == "Alternative" }.size shouldBe 2
+    }
+
+    "[Puml + Tester->ReqRes] complex Transform example" {
+        MetaModelSetup.doSetup()
+
+        val pumlInputModel = ResourceSetImpl().getResource(URI.createFileURI(COMPLEX_TESTER_PUML_INPUT_PATH), true)
+            .contents[0]
+
+        val reqRespOutputModel = M2MTransformer.transformPuml2ReqRes(pumlInputModel)
+        reqRespOutputModel shouldNotBe null
+
+        printModel(reqRespOutputModel)
+
+        reqRespOutputModel.eClass().name shouldBe "Scenario"
+        reqRespOutputModel.eContents().filter { f -> f.eClass().name == "Roundtrip" }.size shouldBe 5
+    }
+
     "[Puml->ReqRes] Transform minimal hello example" {
         MetaModelSetup.doSetup()
 
@@ -160,6 +193,8 @@ class M2MTransformerTest : StringSpec({
     companion object {
         private val TESTER_OUT_PUML_INPUT_PATH = Resources.getResource("tester_out.xmi").path
         private val TESTER_PUML_INPUT_PATH = Resources.getResource("tester.xmi").path
+        private val COMPLEX_TESTER_OUT_PUML_INPUT_PATH = Resources.getResource("complex_tester_out.xmi").path
+        private val COMPLEX_TESTER_PUML_INPUT_PATH = Resources.getResource("complex_tester.xmi").path
         private val MINIMAL_HELLO_PUML_INPUT_PATH = Resources.getResource("minimal_hello_puml.xmi").path
         private val COMPLEX_HELLO_PUML_INPUT_PATH = Resources.getResource("complex_hello_puml.xmi").path
         private val REROUTING_PUML_INPUT_PATH = Resources.getResource("rerouting_puml.xmi").path

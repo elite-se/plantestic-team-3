@@ -4,6 +4,25 @@ info:
   version: "1.0.0"
   title: "Plantestic Team03 Test"
 paths:
+
+  /testA:
+    get:
+      tags:
+        - "stub_get_tester"
+      responses:
+        "200":
+          description: "successfully saved"
+
+
+  /testA/bye:
+    get:
+      tags:
+        - "complex_tester"
+      responses:
+        "400":
+          description: "error"
+
+
   /testB/hello:
     get:
       tags:
@@ -11,6 +30,13 @@ paths:
       responses:
         "200":
           description: "success"
+
+    post:
+        tags:
+          - "complex_tester"
+        responses:
+          "200":
+            description: "success"
 
   /testB/hello/{id}:
     post:

@@ -6,6 +6,7 @@ testCondition = '"SomeValue"'
     password = 'password'
     path = '/testA'
     swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
+
 [B]
     username = 'Test'
     password = 'password'
