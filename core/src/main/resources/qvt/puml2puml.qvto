@@ -19,8 +19,6 @@ mapping SequenceDiagram::extractTester(): SequenceDiagram {
     tester_out.name := "Tester";
 
     var redirectedElements := self.umlElements->filterAndRedirectMessages(tester_in, tester_out);
-    log("Redirected elements", redirectedElements);
-    log("Size", redirectedElements->size());
     umlElements += tester_out;
     umlElements += redirectedElements ->filterAndChangeIncomingRequests(tester_out, tester_in, false);
 }
@@ -86,9 +84,6 @@ helper OrderedSet(SequenceElement)::filterAndChangeIncomingRequests(in tester : 
     self->forEach(sequenceElement){
         if (sequenceElement.oclIsTypeOf(Message)) {
             var message : Message := sequenceElement.oclAsType(Message);
-            log("Message detected", message);
-            log("In", self);
-            log("Sink", message.sink);
 
             if (isExpectingResponse and message.content.oclIsKindOf(Response) and message.source = tester) {
                 var response_message := message.mapTesterOutgoingToTesterIncoming(tester, prev_tester);
