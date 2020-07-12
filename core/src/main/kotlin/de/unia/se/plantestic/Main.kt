@@ -79,8 +79,7 @@ object Main {
 
         private val input: String by option(help = "Path to the PlantUML file containing the API specification.")
             .required()
-        private val tester: String by option(help = "Actor or participant to be use as tester.")
-            .required()
+        private val tester: String? by option(help = "Actor or participant to be use as tester.")
         private val output: String by option(help = "Output folder where the test cases should be written to. Default is './plantestic-test'")
             .default("./plantestic-test")
 
@@ -93,7 +92,12 @@ object Main {
                 return
             }
 
-            runTransformationPipeline(inputFile, outputFolder)
+            if (tester != null) {
+                runTransformationPipeline(inputFile, outputFolder, tester!!)
+            } else {
+                runTransformationPipeline(inputFile, outputFolder)
+            }
+
         }
     }
 
