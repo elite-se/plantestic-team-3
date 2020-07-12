@@ -46,13 +46,13 @@ class End2EndTest : StringSpec({
 
     // This this fails because the receiver "B" is somehow not set, which results in things like "${.path}".
     "End2End test receives request on mock server for complex hello".config(enabled = true) {
-        val body = """{
+        val responseHello = """{
               "itemA": 1,
               "itemB": 1
             }"""
         wireMockServer.stubFor(
             post(urlPathMatching("/testB/hello/123"))
-                .willReturn(aResponse().withStatus(200).withBody(body))
+                .willReturn(aResponse().withStatus(200).withBody(responseHello))
         )
         wireMockServer.stubFor(
             get(urlPathMatching("/swagger/tests.yaml"))
@@ -79,13 +79,13 @@ class End2EndTest : StringSpec({
         serveEvents[0].response.status shouldBe 200
     }
 
-    "End2End test rerouting - only Swagger checks" {
-        val response_to_CCC = """{
+    "End2End test rerouting - voiceEstablished==true" {
+        val responseRerouteOptions = """{
               "uiswitch" : "UISWITCH_VALUE",
               "reroute" : "REROUTE_VALUE",
               "warmhandover" : "WARMHANDOVER_VALUE"
             }"""
-        val response_to_CCC_voiceEnabled =
+        val responseIsConnected =
             """{
                 "VoiceStatus": {
                     "eventId1" : "123",
@@ -102,7 +102,7 @@ class End2EndTest : StringSpec({
                 .willReturn(
                     aResponse()
                         .withStatus(200)
-                        .withBody(response_to_CCC)
+                        .withBody(responseRerouteOptions)
                 )
         )
         wireMockServer.stubFor(
@@ -110,7 +110,7 @@ class End2EndTest : StringSpec({
                 .willReturn(
                     aResponse()
                         .withStatus(200)
-                        .withBody(response_to_CCC_voiceEnabled)
+                        .withBody(responseIsConnected)
                 )
         )
         wireMockServer.stubFor(
@@ -136,149 +136,50 @@ class End2EndTest : StringSpec({
         serveEvents.forEach { serveEvent -> serveEvent.response.status shouldBe 200 }
     }
 
-    // Test is bullshit because it never sets voiceEstablished to anything.
-    "End2End test receives request on mock server for rerouting - voiceEstablished == false, return 400".config(enabled = false) {
-        val body_CCC_CRS = """{
-              "uiswitch" : "UISWITCH",
-              "reroute" : "REROUTE",
-              "warmhandover" : "WARMHANDOVER",
+    "End2End test receives request on mock server for the xcall example".config(enabled = true) {
+        val responseVehicleInternal = """{
+              "homeCountry" : "HOME_COUNTRY",
+              "positionCountry" : "POS_COUNTRY",
+              "brand" : "BRAND"
             }"""
         wireMockServer.stubFor(
-            get(urlPathMatching("/CRS/ccc/rerouteOptions"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(200)
-                        .withBody(body_CCC_CRS)
+            get(urlEqualTo("/DataService/vehicle/internal/987")).willReturn(
+                aResponse().withBody(
+                    responseVehicleInternal
                 )
+            )
         )
-        wireMockServer.stubFor(
-            get(urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(400)
-                )
-        )
-        wireMockServer.stubFor(
-            get(anyUrl())
-                .willReturn(
-                    aResponse()
-                        .withStatus(400)
-                )
-        )
-
-        runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
-
-        // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
-        val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
-            generatedSourceFile.readText()
-        ).create(REROUTE_CONFIG_FILE.path)
-        compiledTest.call("test")
-
-        // Check if we received a correct request
-        // TODO: more assertions
-        wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.filterNot { serveEvent ->
-            serveEvent.request.url.startsWith("/swagger")
-        }.size shouldBe 1
-        wireMockServer.allServeEvents[0].response.status shouldBe 400
-    }
-
-    // Test is bullshit because it never sets voiceEstablished to anything.
-    "End2End test receives request on mock server for rerouting - voiceEstablished == false, return 404".config(enabled = false) {
-        val body_CCC_CRS = """{
-              "uiswitch" : "UISWITCH",
-              "reroute" : "REROUTE",
-              "warmhandover" : "WARMHANDOVER",
+        val responseRoutingTargetsFind =
+            """{
+                "voiceTargets" : "VOICE_TARGETS"
             }"""
         wireMockServer.stubFor(
-            get(urlPathMatching("/CRS/ccc/rerouteOptions"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(200)
-                        .withBody(body_CCC_CRS)
-                )
+            post(urlEqualTo("/CRS/routingTargets/find")).willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withBody(responseRoutingTargetsFind)
+            )
         )
         wireMockServer.stubFor(
-            get(urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(404)
-                )
-        )
-
-        runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
-
-        // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
-        val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
-            generatedSourceFile.readText()
-        ).create(REROUTE_CONFIG_FILE.path)
-        compiledTest.call("test")
-
-        // Check if we received a correct request
-        // TODO: more assertions
-        wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.filterNot { serveEvent ->
-            serveEvent.request.url.startsWith("/swagger")
-        }.size shouldBe 1
-        wireMockServer.allServeEvents[0].response.status shouldBe 404
-    }
-
-    // Test is bullshit because it never sets voiceEstablished to anything.
-    "End2End test receives request on mock server for rerouting - voiceEstablished == false, return 500".config(enabled = false) {
-        val body_CCC_CRS = """{
-              "uiswitch" : "UISWITCH",
-              "reroute" : "REROUTE",
-              "warmhandover" : "WARMHANDOVER"
-            }""".trimMargin()
-        wireMockServer.stubFor(
-            get(urlPathMatching("/CRS/ccc/rerouteOptions"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(200)
-                        .withBody(body_CCC_CRS)
-                )
+            put(urlPathMatching("/([A-Za-z]+)/xcs/notify/([0-9]+)")).willReturn(
+                aResponse()
+                    .withStatus(200)
+            )
         )
         wireMockServer.stubFor(
-            get(urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
-                .willReturn(
-                    aResponse()
-                        .withStatus(500)
-                )
+            post(urlEqualTo("/CCC/xcs/eventReceived")).willReturn(
+                aResponse().withStatus(200)
+            )
         )
         wireMockServer.stubFor(
-            get(anyUrl())
-                .willReturn(
-                    aResponse()
-                        .withStatus(500)
-                )
+            post(urlEqualTo("/Voicemanager/setupCall")).willReturn(
+                aResponse().withStatus(200)
+            )
         )
-
-        runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
-
-        // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
-        val compiledTest = Reflect.compile(
-            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
-            generatedSourceFile.readText()
-        ).create(REROUTE_CONFIG_FILE.path)
-        compiledTest.call("test")
-
-        // Check if we received a correct request
-        // TODO: more assertions
-        wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.filterNot { serveEvent ->
-            serveEvent.request.url.startsWith("/swagger")
-        }.size shouldBe 1
-        wireMockServer.allServeEvents[0].response.status shouldBe 500
-    }
-
-    // This test is bullshit because the mock server setup has nothing to do with the actual scenario
-    "End2End test receives request on mock server for the xcall example".config(enabled = false) {
-        wireMockServer.stubFor(get(urlEqualTo("/hello/123")).willReturn(aResponse().withBody("test")))
+        wireMockServer.stubFor(
+            get(urlPathMatching("/swagger/tests.yaml"))
+                .willReturn(aResponse().withStatus(200).withBody(SWAGGER_YAML.readText()))
+        )
 
         runTransformationPipeline(XCALL_INPUT_FILE, OUTPUT_FOLDER)
 
@@ -291,11 +192,12 @@ class End2EndTest : StringSpec({
         compiledTest.call("test")
 
         // Check if we received a correct request
-        wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.filterNot { serveEvent ->
+        val serveEvents = wireMockServer.allServeEvents.filterNot { serveEvent ->
             serveEvent.request.url.startsWith("/swagger")
-        }.size shouldBe 1
-        wireMockServer.allServeEvents[0].response.status shouldBe 200
+        }
+        serveEvents.forEach { serveEvent -> println(serveEvent.request) }
+        serveEvents.size shouldBe 5
+        serveEvents.forEach { serveEvent -> serveEvent.response.status shouldBe 200 }
     }
 }) {
     companion object {

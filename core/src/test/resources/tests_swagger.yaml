@@ -141,32 +141,32 @@ paths:
         "500":
           description: "failure"
 
-#  /DataService/vehicle/internal/{vin}:
-#    get:
-#      tags:
-#        - "x_call"
-#      parameters:
-#        - name: "vin"
-#          in: "path"
-#          required: true
-#          type: "string"
-#      responses:
-#        "200":
-#          description: "success"
-#          schema:
-#            type: "object"
-#            properties:
-#              homeCountry:
-#                type: "string"
-#              positionCountry:
-#                type: "string"
-#              brand:
-#                type: "string"
-#
-#  /CRS/routingTargets/find:
-#    post:
-#      tags:
-#        - "x_call"
+  /DataService/vehicle/internal/{vin}:
+    get:
+      tags:
+        - "x_call"
+      parameters:
+        - name: "vin"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            properties:
+              homeCountry:
+                type: "string"
+              positionCountry:
+                type: "string"
+              brand:
+                type: "string"
+
+  /CRS/routingTargets/find:
+    post:
+      tags:
+        - "x_call"
 #      parameters:
 #        - in: "body"
 #          name: "body"
@@ -186,25 +186,25 @@ paths:
 #                type: "string"
 #              brand:
 #                type: "string"
-#      responses:
-#        "200":
-#          description: "success"
-#          schema:
-#            type: "object"
-#            properties:
-#              voiceTargets:
-#                type: "string"
-#
-#  /EventNotifier/xcs/notify/{eventId}:
-#    post:
-#      tags:
-#        - "x_call"
-#      parameters:
-#        - name: "eventId"
-#          in: "path"
-#          description: "An event id"
-#          required: true
-#          type: "string"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            properties:
+              voiceTargets:
+                type: "string"
+
+  /EventNotifier/xcs/notify/{eventId}:
+    put:
+      tags:
+        - "x_call"
+      parameters:
+        - name: "eventId"
+          in: "path"
+          description: "An event id"
+          required: true
+          type: "string"
 #        - in: "body"
 #          name: "body"
 #          required: true
@@ -219,14 +219,14 @@ paths:
 #                type: "string"
 #              brand:
 #                type: "string"
-#      responses:
-#        "200":
-#          description: "success"
-#
-#  /ELOS/xcs/notify/{eventId}:
-#    post:
-#      tags:
-#        - "x_call"
+      responses:
+        "200":
+          description: "success"
+
+  /ELOS/xcs/notify/{eventId}:
+    put:
+      tags:
+        - "x_call"
 #      parameters:
 #        - in: "path"
 #          name: "eventId"
@@ -246,14 +246,14 @@ paths:
 #                type: "string"
 #              brand:
 #                type: "string"
-#      responses:
-#        "200":
-#          description: "success"
-#
-#  /CCC/eventReceived:
-#    post:
-#      tags:
-#        - "x_call"
+      responses:
+        "200":
+          description: "success"
+
+  /CCC/xcs/eventReceived:
+    post:
+      tags:
+        - "x_call"
 #      parameters:
 #        - in: "body"
 #          name: "body"
@@ -271,19 +271,19 @@ paths:
 #                type: "string"
 #              brand:
 #                type: "string"
-#      responses:
-#        "200":
-#          description: "success"
-#          schema:
-#            type: "object"
-#            properties:
-#              voiceTargets:
-#                type: "string"
-#
-#  /Voicemanager/setupCall:
-#    post:
-#      tags:
-#        - "x_call"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            properties:
+              voiceTargets:
+                type: "string"
+
+  /Voicemanager/setupCall:
+    post:
+      tags:
+        - "x_call"
 #      parameters:
 #        - in: "body"
 #          name: "body"
@@ -297,6 +297,6 @@ paths:
 #                type: "string"
 #              voiceTargets:
 #                type: "string"
-#      responses:
-#        "200":
-#          description: "success"
+      responses:
+        "200":
+          description: "success"

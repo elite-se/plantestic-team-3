@@ -1,8 +1,9 @@
 id = "123"
 eventId = "645"
 vin = "987"
+xcsServiceType = "ACall"
 
-[Voicemanager]
+[VM]
     username = "Test"
     password = "123test"
     path = "/Voicemanager"
