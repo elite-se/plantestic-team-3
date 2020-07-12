@@ -18,36 +18,151 @@ mapping SequenceDiagram::extractTester(): SequenceDiagram {
     var tester_out : Participant := new Participant();
     tester_out.name := "Tester";
 
+    var redirectedElements := self.umlElements->filterAndRedirectMessages(tester_in, tester_out);
+    log("Redirected elements", redirectedElements);
+    log("Size", redirectedElements->size());
     umlElements += tester_out;
-    umlElements += self.umlElements->filterAndChangeMessages(tester_in, tester_out);
+    umlElements += redirectedElements ->filterAndChangeIncomingRequests(tester_out, tester_in, false);
 }
 
-helper OrderedSet(SequenceElement)::filterAndChangeMessages( in tester_in : Participant, in tester_out : Participant) : OrderedSet(SequenceElement) {
+helper OrderedSet(SequenceElement)::filterAndRedirectMessages( in tester_in : Participant, in tester_out : Participant)
+        : OrderedSet(SequenceElement) {
     var ret : OrderedSet(SequenceElement);
     self->forEach(sequenceElement) {
         if (sequenceElement.oclIsTypeOf(Message)){
             var message : Message := sequenceElement.oclAsType(Message);
-            if (message.sink = tester_in and message.content.oclIsKindOf(Response)){
-                message.sink := tester_out;
+
+            //Should we consider self-messages?
+            if (message.source = tester_in and message.sink = tester_in){
+                if (message.content.oclIsKindOf(Request)) {
+                    message.source := tester_out;
+                }
+                elif (message.content.oclIsKindOf(Response)) {
+                    message.sink := tester_out;
+                };
                 ret += message;
             }
             elif (message.source = tester_in){
                 message.source := tester_out;
                 ret += message;
             }
+            elif (message.sink = tester_in){
+                message.sink := tester_out;
+                ret += message;
+            };
+        }
+        elif (sequenceElement.oclIsKindOf(Alternative)){
+            var altElement : Alternative := sequenceElement.oclAsType(Alternative);
+            var altChangeList : OrderedSet(SequenceElement) :=
+                altElement.umlElements->filterAndRedirectMessages(tester_in, tester_out);
+            altElement.elseBlocks->forEach(elseBlock) {
+                elseBlock.umlElements := elseBlock.umlElements->filterAndRedirectMessages(tester_in, tester_out);
+            };
+            altElement.elseBlocks := altElement.elseBlocks->select(elseBlock | elseBlock.umlElements->size() > 0);
+            altElement.umlElements := altChangeList;
+            if (altElement.umlElements->size() > 0 or altElement.elseBlocks->size() > 0) {
+                ret += altElement;
+            }
+
         }
         elif (sequenceElement.oclIsKindOf(UmlElementsContainer)){
             var containerChangeList : OrderedSet(SequenceElement) :=
-                sequenceElement.oclAsType(UmlElementsContainer).umlElements->filterAndChangeMessages(tester_in, tester_out);
+                sequenceElement.oclAsType(UmlElementsContainer).umlElements->filterAndRedirectMessages(tester_in, tester_out);
             if (containerChangeList->size() > 0) {
                 ret += containerChangeList;
             }
         }
         else {
             ret += sequenceElement;
-        }
+        };
     };
     return ret;
+}
+
+helper OrderedSet(SequenceElement)::filterAndChangeIncomingRequests(in tester : Participant, in prev_tester : Participant,
+           inout isExpectingResponse : Boolean) : OrderedSet(SequenceElement) {
+
+    var ret : OrderedSet(SequenceElement);
+    self->forEach(sequenceElement){
+        if (sequenceElement.oclIsTypeOf(Message)) {
+            var message : Message := sequenceElement.oclAsType(Message);
+            log("Message detected", message);
+            log("In", self);
+            log("Sink", message.sink);
+
+            if (isExpectingResponse and message.content.oclIsKindOf(Response) and message.source = tester) {
+                var response_message := message.mapTesterOutgoingToTesterIncoming(tester, prev_tester);
+                ret += response_message;
+                isExpectingResponse := false;
+            }
+            elif (message.sink = tester and message.content.oclIsKindOf(Request)) {
+                var msg_request : Request := message.content.oclAsType(Request);
+
+                if(msg_request.method = 'POST' or msg_request.method = 'PUT'
+                    or msg_request.method = 'PATCH') {
+                        var get_message := message.mapTesterIncomingToTesterOutgoing(tester, prev_tester);
+                        ret += get_message;
+                        ret += new Note(tester, msg_request, message.source, prev_tester);
+                        isExpectingResponse := true;
+                    };
+            }
+            else {
+                ret += message;
+            }
+        }
+        elif (sequenceElement.oclIsKindOf(Alternative)){
+            var altElement : Alternative := sequenceElement.oclAsType(Alternative);
+            var altChangeList : OrderedSet(SequenceElement) :=
+                altElement.umlElements->filterAndChangeIncomingRequests(tester, prev_tester,
+                    isExpectingResponse);
+            altElement.elseBlocks->forEach(elseBlock) {
+                elseBlock.umlElements := elseBlock.umlElements->filterAndChangeIncomingRequests(tester, prev_tester,
+                    isExpectingResponse);
+            };
+
+            altElement.umlElements := altChangeList;
+            altElement.elseBlocks := altElement.elseBlocks->select(elseBlock | elseBlock.umlElements->size() > 0);
+            altElement.umlElements := altChangeList;
+            if (altElement.umlElements->size() > 0 or altElement.elseBlocks->size() > 0) {
+                ret += altElement;
+            };
+
+        }
+        elif (sequenceElement.oclIsKindOf(UmlElementsContainer)){
+            var containerChangeList : OrderedSet(SequenceElement) :=
+                sequenceElement.oclAsType(UmlElementsContainer).umlElements->filterAndChangeIncomingRequests(tester, prev_tester,
+                    isExpectingResponse);
+            if (containerChangeList->size() > 0) {
+                ret += containerChangeList;
+            }
+        }
+        else {
+            ret += sequenceElement;
+        };
+    };
+    return ret;
+
+}
+
+mapping Message::mapTesterIncomingToTesterOutgoing(in tester : Participant, in prev_tester : Participant) : Message {
+    result.sink := prev_tester;
+    result.source := tester;
+    var newRequest := new Request();
+    newRequest.method := 'GET';
+    result.content := newRequest;
+}
+
+mapping Message::mapTesterOutgoingToTesterIncoming(in tester : Participant, in prev_tester : Participant) : Message {
+    result.sink := tester;
+    result.source := prev_tester;
+    result.content := new Response();
+}
+
+constructor Note::Note(noteOfIn : Participant, request : Request, og_source : Participant, og_sink : Participant) {
+    position := 'LEFT';
+    noteOf := noteOfIn;
+    value += 'Stub pair for incoming asynchronous messages.';
+    value += 'Corresponds to ' + request.method + ' request between ' + og_source.name + ' and ' + og_sink.name;
 }
 
 helper OrderedSet(SequenceElement)::getTester(): Participant {
