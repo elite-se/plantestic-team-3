@@ -1,7 +1,6 @@
 package de.unia.se.plantestic
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.google.common.io.Resources
 import de.unia.se.plantestic.Main.runTransformationPipeline
@@ -18,7 +17,7 @@ class End2EndTest : StringSpec({
     "End2End test receives request on mock server for the minimal hello" {
         wireMockServer.stubFor(
             get(urlEqualTo("/testB/hello"))
-                .willReturn(WireMock.aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200))
         )
         wireMockServer.stubFor(
             get(urlPathMatching("/swagger/tests.yaml"))
@@ -37,22 +36,27 @@ class End2EndTest : StringSpec({
         compiledTest.call("test")
 
         // Check if we received a correct request
-        wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.filter { serveEvent ->
-            serveEvent.request.url == "/testB/hello"
-        }.size shouldBe 1
-        wireMockServer.allServeEvents[0].response.status shouldBe 200
+        val serveEvents = wireMockServer.allServeEvents.filterNot { serveEvent ->
+            serveEvent.request.url.startsWith("/swagger")
+        }
+        serveEvents.forEach { serveEvent -> println(serveEvent.request) }
+        serveEvents.size shouldBe 1
+        serveEvents[0].response.status shouldBe 200
     }
 
     // This this fails because the receiver "B" is somehow not set, which results in things like "${.path}".
     "End2End test receives request on mock server for complex hello".config(enabled = true) {
         val body = """{
               "itemA": 1,
-              "itemB": 1,
+              "itemB": 1
             }"""
         wireMockServer.stubFor(
             post(urlPathMatching("/testB/hello/123"))
                 .willReturn(aResponse().withStatus(200).withBody(body))
+        )
+        wireMockServer.stubFor(
+            get(urlPathMatching("/swagger/tests.yaml"))
+                .willReturn(aResponse().withStatus(200).withBody(SWAGGER_YAML.readText()))
         )
 
         runTransformationPipeline(COMPLEX_HELLO_INPUT_FILE, OUTPUT_FOLDER)
@@ -67,61 +71,69 @@ class End2EndTest : StringSpec({
         compiledTest.call("test")
 
         // Check if we received a correct request
-        wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.size shouldBe 1
-        wireMockServer.allServeEvents[0].response.status shouldBe 200
+        val serveEvents = wireMockServer.allServeEvents.filterNot { serveEvent ->
+            serveEvent.request.url.startsWith("/swagger")
+        }
+        serveEvents.forEach { serveEvent -> println(serveEvent.request) }
+        serveEvents.size shouldBe 1
+        serveEvents[0].response.status shouldBe 200
     }
 
-    // Test is bullshit because it never sets voiceEstablished to anything.
-    "End2End test receives request on mock server for rerouting - voiceEstablished == true".config(enabled = false) {
-        val body_CCC_CRS = """{
-              "uiswitch" : "/UISWITCH",
-              "reroute" : "/REROUTE",
-              "warmhandover" : "/WARMHANDOVER",
+    "End2End test rerouting - only Swagger checks" {
+        val response_to_CCC = """{
+              "uiswitch" : "UISWITCH_VALUE",
+              "reroute" : "REROUTE_VALUE",
+              "warmhandover" : "WARMHANDOVER_VALUE"
             }"""
-        val body_CCC_Voicemanager_voiceenabled = """{
-              "eventid1" : "/VoiceStatus/eventId1",
-              "agent1" : "/VoiceStatus/agent1/connectionstatus",
-              "agent2" : "/VoiceStatus/agent2/connectionstatus",
+        val response_to_CCC_voiceEnabled =
+            """{
+                "VoiceStatus": {
+                    "eventId1" : "123",
+                    "agent1" : {
+                        "connectionStatus" : "connected"
+                    },
+                    "agent2" : {
+                        "connectionStatus" : "connected"
+                    }
+                }
             }"""
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.urlPathMatching("/CRS/ccc/rerouteOptions"))
+            post(urlEqualTo("/CRS/ccc/rerouteOptions"))
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(200)
-                        .withBody(body_CCC_CRS)
+                        .withBody(response_to_CCC)
                 )
         )
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
+            get(urlPathMatching("/Voicemanager/ccc/events/321/isconnected"))
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(200)
-                        .withBody(body_CCC_Voicemanager_voiceenabled)
+                        .withBody(response_to_CCC_voiceEnabled)
                 )
+        )
+        wireMockServer.stubFor(
+            get(urlPathMatching("/swagger/tests.yaml"))
+                .willReturn(aResponse().withStatus(200).withBody(SWAGGER_YAML.readText()))
         )
 
         runTransformationPipeline(REROUTE_INPUT_FILE, OUTPUT_FOLDER)
 
         // Now compile the resulting code to check for syntax errors
-        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testrerouting_puml.java" }.first()
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles().first { f -> f.name == "Testrerouting_puml.java" }
         val compiledTest = Reflect.compile(
             "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
             generatedSourceFile.readText()
         ).create(REROUTE_CONFIG_FILE.path)
-        try {
-            compiledTest.call("test")
-        } catch (e: Exception) {
-        }
+        compiledTest.call("test")
 
-        // Check if we received a correct request
-        // TODO: more assertions
-        wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.size shouldBe 2
-        wireMockServer.allServeEvents[0].response.status shouldBe 200
-        wireMockServer.allServeEvents[1].response.status shouldBe 200
+        val serveEvents = wireMockServer.allServeEvents.filterNot { serveEvent ->
+            serveEvent.request.url.startsWith("/swagger")
+        }
+        serveEvents.forEach { serveEvent -> println(serveEvent.request) }
+        serveEvents.size shouldBe 2
+        serveEvents.forEach { serveEvent -> serveEvent.response.status shouldBe 200 }
     }
 
     // Test is bullshit because it never sets voiceEstablished to anything.
@@ -132,27 +144,24 @@ class End2EndTest : StringSpec({
               "warmhandover" : "WARMHANDOVER",
             }"""
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.urlPathMatching("/CRS/ccc/rerouteOptions"))
+            get(urlPathMatching("/CRS/ccc/rerouteOptions"))
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(200)
                         .withBody(body_CCC_CRS)
                 )
         )
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
+            get(urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(400)
                 )
         )
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.anyUrl())
+            get(anyUrl())
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(400)
                 )
         )
@@ -170,7 +179,9 @@ class End2EndTest : StringSpec({
         // Check if we received a correct request
         // TODO: more assertions
         wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.size shouldBe 1
+        wireMockServer.allServeEvents.filterNot { serveEvent ->
+            serveEvent.request.url.startsWith("/swagger")
+        }.size shouldBe 1
         wireMockServer.allServeEvents[0].response.status shouldBe 400
     }
 
@@ -182,19 +193,17 @@ class End2EndTest : StringSpec({
               "warmhandover" : "WARMHANDOVER",
             }"""
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.urlPathMatching("/CRS/ccc/rerouteOptions"))
+            get(urlPathMatching("/CRS/ccc/rerouteOptions"))
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(200)
                         .withBody(body_CCC_CRS)
                 )
         )
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
+            get(urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(404)
                 )
         )
@@ -212,7 +221,9 @@ class End2EndTest : StringSpec({
         // Check if we received a correct request
         // TODO: more assertions
         wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.size shouldBe 1
+        wireMockServer.allServeEvents.filterNot { serveEvent ->
+            serveEvent.request.url.startsWith("/swagger")
+        }.size shouldBe 1
         wireMockServer.allServeEvents[0].response.status shouldBe 404
     }
 
@@ -221,30 +232,27 @@ class End2EndTest : StringSpec({
         val body_CCC_CRS = """{
               "uiswitch" : "UISWITCH",
               "reroute" : "REROUTE",
-              "warmhandover" : "WARMHANDOVER",
+              "warmhandover" : "WARMHANDOVER"
             }""".trimMargin()
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.urlPathMatching("/CRS/ccc/rerouteOptions"))
+            get(urlPathMatching("/CRS/ccc/rerouteOptions"))
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(200)
                         .withBody(body_CCC_CRS)
                 )
         )
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
+            get(urlPathMatching("/Voicemanager/ccc/events/123/isconnected"))
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(500)
                 )
         )
         wireMockServer.stubFor(
-            WireMock
-                .get(WireMock.anyUrl())
+            get(anyUrl())
                 .willReturn(
-                    WireMock.aResponse()
+                    aResponse()
                         .withStatus(500)
                 )
         )
@@ -262,7 +270,9 @@ class End2EndTest : StringSpec({
         // Check if we received a correct request
         // TODO: more assertions
         wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.size shouldBe 1
+        wireMockServer.allServeEvents.filterNot { serveEvent ->
+            serveEvent.request.url.startsWith("/swagger")
+        }.size shouldBe 1
         wireMockServer.allServeEvents[0].response.status shouldBe 500
     }
 
@@ -282,7 +292,9 @@ class End2EndTest : StringSpec({
 
         // Check if we received a correct request
         wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
-        wireMockServer.allServeEvents.size shouldBe 1
+        wireMockServer.allServeEvents.filterNot { serveEvent ->
+            serveEvent.request.url.startsWith("/swagger")
+        }.size shouldBe 1
         wireMockServer.allServeEvents[0].response.status shouldBe 200
     }
 }) {

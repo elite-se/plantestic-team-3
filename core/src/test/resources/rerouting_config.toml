@@ -2,19 +2,24 @@ id = "123"
 countryCode1 = "Ger"
 positionCountryCode1 = "Muc"
 sourceEventType1 = "Hallo"
-eventId1 = "321"
+eventId1 = "123"
+eventId = "321"
+voiceEstablished = true
 
 [VM]
     username = "Test"
     password = "password"
     path = "/Voicemanager"
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
 
 [CRS]
     username = "Test"
     password = "password"
     path = "/CRS"
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
 
 [CCC]
     username = "Test"
     password = "password"
     path = "/CCC"
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
