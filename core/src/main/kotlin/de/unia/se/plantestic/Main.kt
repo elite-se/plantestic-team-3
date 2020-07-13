@@ -2,6 +2,7 @@ package de.unia.se.plantestic
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import java.io.File
@@ -79,6 +80,10 @@ object Main {
             .required()
         private val output: String by option(help = "Output folder where the test cases should be written to. Default is './plantestic-test'")
             .default("./plantestic-test")
+        private val preprocessflag by option("--preprocess", "-p", help = "Trigger preprocessing of the input PlantUML instead of transforming to Java unit tests. Generates a new PlantUML file into the output folder with imported variables from Swagger and a tester actor.")
+            .flag(default = false)
+        private val tester: String by option(help = "Actor in the input PlantUML whose requests should be extracted into a separate actor during preprocessing. If not supplied preprocessing will not generate such a new test actor.")
+            .default("")
 
         override fun run() {
             val inputFile = File(input).normalize()
@@ -89,7 +94,13 @@ object Main {
                 return
             }
 
-            runTransformationPipeline(inputFile, outputFolder)
+            if (preprocessflag) {
+                println("Preprocessing PlantUML '${inputFile.name}' ${if (tester != "") "with tester '$tester'" else "" }")
+                //TODO: actually execute preprocessing commands here
+            } else {
+                println("Running transformation pipeline")
+                runTransformationPipeline(inputFile, outputFolder)
+            }
         }
     }
 
