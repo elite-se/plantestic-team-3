@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import de.unia.se.plantestic.server.ServerMain
 import java.io.File
 
 object Main {
@@ -84,8 +85,14 @@ object Main {
             .flag(default = false)
         private val tester: String by option(help = "Actor in the input PlantUML whose requests should be extracted into a separate actor during preprocessing. If not supplied preprocessing will not generate such a new test actor.")
             .default("")
+        private val serverflag by option("--server", "-s", help = "Starts the server providing the workflow's web GUI at localhost:9090. Can be used independently of or in conjunction with the normal pipeline.")
+            .flag(default = false)
 
         override fun run() {
+            if (serverflag) {
+                ServerMain.startServer()
+            }
+
             val inputFile = File(input).normalize()
             val outputFolder = File(output).normalize()
 
