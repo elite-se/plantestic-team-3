@@ -2,6 +2,7 @@ package de.unia.se.plantestic
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import org.eclipse.emf.ecore.EObject
@@ -79,9 +80,11 @@ object Main {
 
         private val input: String by option(help = "Path to the PlantUML file containing the API specification.")
             .required()
-        private val tester: String? by option(help = "Actor or participant to be use as tester.")
         private val output: String by option(help = "Output folder where the test cases should be written to. Default is './plantestic-test'")
             .default("./plantestic-test")
+        private val preprocessflag by option("--preprocess", "-p", help = "Trigger preprocessing of the input PlantUML instead of transforming to Java unit tests. Generates a new PlantUML file into the output folder with imported variables from Swagger and a tester actor.")
+            .flag(default = false)
+        private val tester: String? by option(help = "Actor in the input PlantUML whose requests should be extracted into a separate actor during preprocessing. If not supplied preprocessing will not generate such a new test actor.")
 
         override fun run() {
             val inputFile = File(input).normalize()
@@ -92,12 +95,17 @@ object Main {
                 return
             }
 
-            if (tester != null) {
-                runTransformationPipeline(inputFile, outputFolder, tester!!)
+            if (preprocessflag) {
+                println("Preprocessing PlantUML '${inputFile.name}' ${if (tester != null) "with tester '$tester'" else "" }")
+                //TODO: actually execute preprocessing commands here
             } else {
-                runTransformationPipeline(inputFile, outputFolder)
+                println("Running transformation pipeline")
+                if (tester != null) {
+                    runTransformationPipeline(inputFile, outputFolder, tester!!)
+                } else {
+                    runTransformationPipeline(inputFile, outputFolder)
+                }
             }
-
         }
     }
 
