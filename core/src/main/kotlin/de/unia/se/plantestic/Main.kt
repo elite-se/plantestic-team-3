@@ -5,6 +5,8 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import org.eclipse.emf.ecore.EObject
+import org.eclipse.emf.ecore.EStructuralFeature
 import java.io.File
 
 object Main {
@@ -82,8 +84,7 @@ object Main {
             .default("./plantestic-test")
         private val preprocessflag by option("--preprocess", "-p", help = "Trigger preprocessing of the input PlantUML instead of transforming to Java unit tests. Generates a new PlantUML file into the output folder with imported variables from Swagger and a tester actor.")
             .flag(default = false)
-        private val tester: String by option(help = "Actor in the input PlantUML whose requests should be extracted into a separate actor during preprocessing. If not supplied preprocessing will not generate such a new test actor.")
-            .default("")
+        private val tester: String? by option(help = "Actor in the input PlantUML whose requests should be extracted into a separate actor during preprocessing. If not supplied preprocessing will not generate such a new test actor.")
 
         override fun run() {
             val inputFile = File(input).normalize()
@@ -95,11 +96,15 @@ object Main {
             }
 
             if (preprocessflag) {
-                println("Preprocessing PlantUML '${inputFile.name}' ${if (tester != "") "with tester '$tester'" else "" }")
+                println("Preprocessing PlantUML '${inputFile.name}' ${if (tester != null) "with tester '$tester'" else "" }")
                 //TODO: actually execute preprocessing commands here
             } else {
                 println("Running transformation pipeline")
-                runTransformationPipeline(inputFile, outputFolder)
+                if (tester != null) {
+                    runTransformationPipeline(inputFile, outputFolder, tester!!)
+                } else {
+                    runTransformationPipeline(inputFile, outputFolder)
+                }
             }
         }
     }
@@ -108,12 +113,33 @@ object Main {
         MetaModelSetup.doSetup()
 
         val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
-
         val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramModel)
         val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
 
         println("Generating code into $outputFolder")
         AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
+    }
+
+    fun runTransformationPipeline(inputFile: File, outputFolder: File, tester : String) {
+        MetaModelSetup.doSetup()
+
+        val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
+        val pumlDiagramWithActor = M2MTransformer.transformPuml2Puml(pumlDiagramModel, tester)
+        val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramWithActor)
+        val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
+
+        addTestScenarioNameIfNull(restAssuredModel, inputFile)
+        println("Generating code into $outputFolder")
+        AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
+    }
+
+    private fun addTestScenarioNameIfNull(restAssuredModel : EObject, pumlFile : File) {
+        val feature : EStructuralFeature = restAssuredModel.eClass().getEStructuralFeature("testScenarioName")
+        val curr_val = restAssuredModel.eGet(feature)
+        if (curr_val == null) {
+            val shorter = pumlFile.name.replace('.', '_')
+            restAssuredModel.eSet(feature, shorter)
+        }
     }
 
     @JvmStatic
