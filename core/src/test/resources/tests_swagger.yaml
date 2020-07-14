@@ -17,30 +17,20 @@ paths:
       tags:
         - "complex_hello"
       consumes:
-        - application/x-www-form-urlencoded
+        - "application/x-www-form-urlencoded"
       parameters:
-        - name: "id"
-          in: "path"
+        - in: "path"
+          name: "id"
           type: "string"
-          required: true
-      #        - in: "body"
-      #          name: "body"
-      #          required: true
-      #          schema:
-      #            type: "object"
-      #            properties:
-      #              varA:
-      #                type: "number"
-      #              varB:
-      #                type: "number"
-      #        - in: "formData"
-      #          name: "varA"
-      #          type: "number"
-      #          required: true
-      #        - in: "formData"
-      #          name: "varB"
-      #          type: "number"
-      #          required: true
+          required : true
+#        - in: "formData"
+#          name: "varA"
+#          type: "number"
+#          required: true
+#        - in: "formData"
+#          name: "varB"
+#          type: "number"
+#          required: true
       responses:
         "200":
           description: "success"
@@ -61,26 +51,18 @@ paths:
     post:
       tags:
         - "rerouting"
-      #      consumes:
-      #        - "application/x-www-form-urlencoded"
-      #      parameters:
-      #        - in: "body"
-      #          name: "body"
-      #          required: true
-      #          schema:
-      #            type: "object"
-      #            required:
-      #              - "countyCode"
-      #            properties:
-      #              countryCode:
-      #                type: "string"
-      #                example: "Ger"
-      #              positionCountryCode:
-      #                type: "string"
-      #                example: "Muc"
-      #              sourceEventType:
-      #                type: "string"
-      #                example: "Hallo"
+#        - in: "formData"
+#          name: "countryCode"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "sourceEventType"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
@@ -167,25 +149,30 @@ paths:
     post:
       tags:
         - "x_call"
-      #      parameters:
-      #        - in: "body"
-      #          name: "body"
-      #          required: true
-      #          schema:
-      #            type: "object"
-      #            properties:
-      #              eventId:
-      #                type: "string"
-      #              serviceType:
-      #                type: "string"
-      #              vin:
-      #                type: "string"
-      #              homeCountry:
-      #                type: "string"
-      #              positionCountry:
-      #                type: "string"
-      #              brand:
-      #                type: "string"
+#        - in: "eventId"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "serviceType"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "vin"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "brand"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
@@ -205,20 +192,18 @@ paths:
           description: "An event id"
           required: true
           type: "string"
-      #        - in: "body"
-      #          name: "body"
-      #          required: true
-      #          schema:
-      #            type: "object"
-      #            properties:
-      #              eventId:
-      #                type: "string"
-      #              homeCountry:
-      #                type: "string"
-      #              positionCountry:
-      #                type: "string"
-      #              brand:
-      #                type: "string"
+#        - in: "formData"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "brand"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
@@ -232,20 +217,22 @@ paths:
           name: "eventId"
           required: true
           type: "string"
-      #        - in: "body"
-      #          name: "body"
-      #          required: true
-      #          schema:
-      #            type: "object"
-      #            properties:
-      #              eventId:
-      #                type: "string"
-      #              homeCountry:
-      #                type: "string"
-      #              positionCountry:
-      #                type: "string"
-      #              brand:
-      #                type: "string"
+#        - in: "eventId"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "brand"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
@@ -254,23 +241,26 @@ paths:
     post:
       tags:
         - "x_call"
-      #      parameters:
-      #        - in: "body"
-      #          name: "body"
-      #          required: true
-      #          schema:
-      #            type: "object"
-      #            properties:
-      #              eventId:
-      #                type: "string"
-      #              serviceType:
-      #                type: "string"
-      #              homeCountry:
-      #                type: "string"
-      #              positionCountry:
-      #                type: "string"
-      #              brand:
-      #                type: "string"
+#        - in: "eventId"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "serviceType"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "brand"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
@@ -279,19 +269,18 @@ paths:
     post:
       tags:
         - "x_call"
-      #      parameters:
-      #        - in: "body"
-      #          name: "body"
-      #          required: true
-      #          schema:
-      #            type: "object"
-      #            properties:
-      #              eventId:
-      #                type: "string"
-      #              vin:
-      #                type: "string"
-      #              voiceTargets:
-      #                type: "string"
+#        - in: "formData"
+#          name: "eventId"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "vin"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "voiceTargets"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
