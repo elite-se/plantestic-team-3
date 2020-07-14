@@ -3,7 +3,6 @@ package de.unia.se.plantestic
 import org.eclipse.emf.ecore.EPackage
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.SaveOptions
-import org.eclipse.xtext.serializer.impl.Serializer
 import java.io.ByteArrayOutputStream
 
 
@@ -24,8 +23,6 @@ object PumlSerializer {
 
         resource.save(buffer, options);
 
-        println(buffer.toString());
-
-        return ""
+        return buffer.toString()
     }
 }

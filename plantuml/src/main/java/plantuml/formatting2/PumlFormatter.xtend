@@ -6,7 +6,6 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import plantuml.puml.SequenceDiagram
 import plantuml.puml.SequenceElement
 import plantuml.puml.UmlElementsContainer
-import static plantuml.uml.PumlPackage.Literals.*
 
 class PumlFormatter extends AbstractFormatter2 {
 
