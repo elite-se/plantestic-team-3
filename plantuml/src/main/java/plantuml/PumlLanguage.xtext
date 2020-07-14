@@ -49,7 +49,7 @@ RequestResponse:
     Request | Response;
 
 terminal RequestMethod:
-    'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+    'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'STUB';
 
 Request returns RequestResponse:
     {Request}

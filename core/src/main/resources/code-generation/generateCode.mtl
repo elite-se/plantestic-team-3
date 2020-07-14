@@ -148,6 +148,9 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 [/template]
 
 [template private generateTestRoundtrip(testRoundtrip : TestRoundtrip) post(trim())]
+[if (testRoundtrip.requestspecification.method = 'STUB') ]
+    [testRoundtrip.generateDelayBeforeTestRoundTrip()/]
+[/if]
 Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
         [testRoundtrip.requestspecification.generateGivenPart()/]
     .when()
@@ -158,6 +161,18 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
 [testRoundtrip.generateExtractions()/]
 [testRoundtrip.responsespecification.checkPostcondition()/]
 	[/if]
+[/template]
+
+[template private generateDelayBeforeTestRoundTrip(testRoundtrip : TestRoundtrip) post(trim())]
+    try {
+        System.out.println("waiting");
+        System.out.println(System.currentTimeMillis());
+        Thread.sleep(1000);
+        System.out.println(System.currentTimeMillis());
+        System.out.println("Done waiting");
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+    }
 [/template]
 
 [template private generateGivenPart(requestSpecification : RequestSpecification) post(trim())]
@@ -171,7 +186,12 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
 [/template]
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]
-	.[requestSpecification.method.toLower()/](subst("${[requestSpecification.receiver/].path}") + subst("[requestSpecification.url/]"))
+    [if requestSpecification.method = 'STUB']
+	.get(subst("${[requestSpecification.receiver/].path}") + subst("[requestSpecification.url/]"))
+    [/if]
+    [if requestSpecification.method <> 'STUB']
+    	.[requestSpecification.method.toLower()/](subst("${[requestSpecification.receiver/].path}") + subst("[requestSpecification.url/]"))
+    [/if]
 [/template]
 
 [template private generateThenPart(responseSpecification : ResponseSpecification) post(trim())]

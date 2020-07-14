@@ -143,7 +143,7 @@ mapping Message::mapTesterIncomingToTesterOutgoing(in tester : Participant, in p
     result.sink := prev_tester;
     result.source := tester;
     var newRequest := new Request();
-    newRequest.method := 'GET';
+    newRequest.method := 'STUB';
     result.content := newRequest;
 }
 
