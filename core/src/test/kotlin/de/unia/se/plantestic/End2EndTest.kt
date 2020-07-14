@@ -51,7 +51,7 @@ class End2EndTest : StringSpec({
               "itemB": 1
             }"""
         wireMockServer.stubFor(
-            post(urlPathMatching("/testB/hello/123"))
+            post(urlPathMatching("/testB/hello/([0-9]+)"))
                 .willReturn(aResponse().withStatus(200).withBody(responseHello))
         )
         wireMockServer.stubFor(
@@ -106,7 +106,7 @@ class End2EndTest : StringSpec({
                 )
         )
         wireMockServer.stubFor(
-            get(urlPathMatching("/Voicemanager/ccc/events/321/isconnected"))
+            get(urlPathMatching("/Voicemanager/ccc/events/([0-9]+)/isconnected"))
                 .willReturn(
                     aResponse()
                         .withStatus(200)
