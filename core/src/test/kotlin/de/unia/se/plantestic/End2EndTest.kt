@@ -7,6 +7,7 @@ import de.unia.se.plantestic.Main.runTransformationPipeline
 import io.kotlintest.Description
 import io.kotlintest.TestResult
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotBe
 import io.kotlintest.specs.StringSpec
 import org.joor.Reflect
 import java.io.File
@@ -199,6 +200,52 @@ class End2EndTest : StringSpec({
         serveEvents.size shouldBe 5
         serveEvents.forEach { serveEvent -> serveEvent.response.status shouldBe 200 }
     }
+
+    "End2End test for parameter_pass" {
+        val receivedAge = "22"
+        val responseAge = """{
+              "years" : "22"
+            }"""
+        wireMockServer.stubFor(
+            get(urlEqualTo("/Person/getAge"))
+                .willReturn(aResponse().withStatus(200).withBody(responseAge))
+        )
+        wireMockServer.stubFor(
+            post(urlEqualTo("/Person/checkAge"))
+                .willReturn(aResponse().withStatus(200))
+        )
+        wireMockServer.stubFor(
+            get(urlPathMatching("/swagger/tests.yaml"))
+                .willReturn(aResponse().withStatus(200).withBody(SWAGGER_YAML.readText()))
+        )
+
+        runTransformationPipeline(PARAMETER_PASS_INPUT_FILE, OUTPUT_FOLDER)
+
+        // Now compile the resulting code to check for syntax errors
+        val generatedSourceFile =
+            OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testparameter_pass_puml.java" }.first()
+        val compiledTest = Reflect.compile(
+            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.readText()
+        ).create(PARAMETER_PASS_CONFIG_FILE.path)
+        compiledTest.call("test")
+
+        // Check if we received a correct request
+        val serveEvents = wireMockServer.allServeEvents.filterNot { serveEvent ->
+            serveEvent.request.url.startsWith("/swagger")
+        }
+        serveEvents.forEach { serveEvent -> println(serveEvent.request) }
+        serveEvents.size shouldBe 3
+        serveEvents.forEach { serveEvent -> serveEvent.response.status shouldBe 200 }
+
+        // original age isn't overwritten
+        val ageA1 = serveEvents[0].request.bodyAsString.split("=").last()
+        val ageA2 = serveEvents[2].request.bodyAsString.split("=").last()
+        ageA1 shouldBe ageA2
+        ageA2 shouldNotBe receivedAge
+
+    }
+
 }) {
     companion object {
         private val MINIMAL_EXAMPLE_INPUT_FILE = File(Resources.getResource("minimal_hello.puml").path)
@@ -212,6 +259,9 @@ class End2EndTest : StringSpec({
 
         private val XCALL_INPUT_FILE = File(Resources.getResource("xcall.puml").path)
         private val XCALL_CONFIG_FILE = File(Resources.getResource("xcall_config.toml").path)
+
+        private val PARAMETER_PASS_INPUT_FILE = File(Resources.getResource("parameter_pass.puml").path)
+        private val PARAMETER_PASS_CONFIG_FILE = File(Resources.getResource("parameter_pass_config.toml").path)
 
         private val SWAGGER_YAML = File(Resources.getResource("tests_swagger.yaml").path)
 

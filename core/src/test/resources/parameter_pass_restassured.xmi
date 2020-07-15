@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RestAssured:TestScenario xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:RestAssured="http://www.example.org/RestAssured" testScenarioName="parameter_pass">
+  <testroundtrip testRoundtripName="roundtrip1">
+    <requestspecification method="POST" url="/checkAge" receiver="B">
+      <requestdatum variableName="age" value="${A.age}"/>
+    </requestspecification>
+    <responsespecification>
+      <bodymatchergroup/>
+      <statusmatcher xsi:type="RestAssured:IsIn">
+        <value>200</value>
+      </statusmatcher>
+    </responsespecification>
+  </testroundtrip>
+  <testroundtrip testRoundtripName="roundtrip2">
+    <requestspecification method="GET" url="/getAge" receiver="B"/>
+    <responsespecification>
+      <bodymatchergroup>
+        <bodymatcher>
+          <matcher xsi:type="RestAssured:HasXPath" xPath="years"/>
+        </bodymatcher>
+      </bodymatchergroup>
+      <statusmatcher xsi:type="RestAssured:IsIn">
+        <value>200</value>
+      </statusmatcher>
+      <responsedatum variableName="age" xPath="years"/>
+    </responsespecification>
+  </testroundtrip>
+  <testroundtrip testRoundtripName="roundtrip3">
+    <requestspecification method="POST" url="/checkAge" receiver="B">
+      <requestdatum variableName="age" value="${A.age}"/>
+    </requestspecification>
+    <responsespecification>
+      <bodymatchergroup/>
+      <statusmatcher xsi:type="RestAssured:IsIn">
+        <value>200</value>
+      </statusmatcher>
+    </responsespecification>
+  </testroundtrip>
+</RestAssured:TestScenario>

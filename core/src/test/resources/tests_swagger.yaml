@@ -51,6 +51,7 @@ paths:
     post:
       tags:
         - "rerouting"
+#      parameters:
 #        - in: "formData"
 #          name: "countryCode"
 #          type: "string"
@@ -149,6 +150,7 @@ paths:
     post:
       tags:
         - "x_call"
+#      parameters:
 #        - in: "eventId"
 #          name: "homeCountry"
 #          type: "string"
@@ -241,6 +243,7 @@ paths:
     post:
       tags:
         - "x_call"
+#      parameters:
 #        - in: "eventId"
 #          name: "homeCountry"
 #          type: "string"
@@ -269,6 +272,7 @@ paths:
     post:
       tags:
         - "x_call"
+#      parameters:
 #        - in: "formData"
 #          name: "eventId"
 #          type: "string"
@@ -284,3 +288,36 @@ paths:
       responses:
         "200":
           description: "success"
+
+  /Person/getAge:
+    get:
+      tags:
+        - "parameter_pass"
+      parameters:
+      responses:
+        "200":
+          description: "success"
+          schema:
+             $ref: "#/definitions/Age"
+
+  /Person/checkAge:
+    post:
+      tags:
+        - "parameter_pass"
+#      parameters:
+#        - in: "formData"
+#          name: "age"
+#          type: "integer"
+#          required: true
+      responses:
+        "200":
+          description: "success"
+
+definitions:
+  Age:
+    type: "object"
+    required:
+      - "years"
+    properties:
+      years:
+        type: "integer"

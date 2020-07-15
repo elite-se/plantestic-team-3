@@ -1,0 +1,14 @@
+SEQUENCE @startuml
+
+PARTICIPANT A
+PARTICIPANT B
+
+A -> B : POST "/checkAge" (age : "${A.age}")
+A <- B : 200
+A -> B : GET "/getAge"
+A <- B : 200 - (age := "years")
+A -> B : POST "/checkAge" (age : "${A.age}")
+A <- B : 200
+end
+
+@enduml

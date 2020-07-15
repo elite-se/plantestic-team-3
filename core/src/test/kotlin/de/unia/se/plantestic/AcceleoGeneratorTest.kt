@@ -75,6 +75,23 @@ class AcceleoGeneratorTest : StringSpec({
             generatedSourceFile.readText()
         ).create(XCALL_CONFIG_FILE.path)
     }
+
+    "Transform a Rest Assured EObject input to Java Code for parameter_pass" {
+        MetaModelSetup.doSetup()
+
+        val pumlInputModelURI = URI.createFileURI(PARAMETER_PASS_INPUT_FILE.path)
+        val pumlInputModel = ResourceSetImpl().getResource(pumlInputModelURI, true).contents[0]
+
+        AcceleoCodeGenerator.generateCode(pumlInputModel, OUTPUT_FOLDER)
+
+        // Now compile the resulting code to check for syntax errors
+        val generatedSourceFile = OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testparameter_pass.java" }.first()
+        printCode(generatedSourceFile)
+        Reflect.compile(
+            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.readText()
+        ).create(PARAMETER_PASS_CONFIG_FILE.path)
+    }
 }) {
     companion object {
         private val MINIMAL_EXAMPLE_INPUT_FILE = File(Resources.getResource("minimal_hello_restassured.xmi").path)
@@ -88,6 +105,9 @@ class AcceleoGeneratorTest : StringSpec({
 
         private val XCALL_INPUT_FILE = File(Resources.getResource("xcall_restassured.xmi").path)
         private val XCALL_CONFIG_FILE = File(Resources.getResource("xcall_config.toml").path)
+
+        private val PARAMETER_PASS_INPUT_FILE = File(Resources.getResource("parameter_pass_restassured.xmi").path)
+        private val PARAMETER_PASS_CONFIG_FILE = File(Resources.getResource("parameter_pass_config.toml").path)
 
         private val OUTPUT_FOLDER = File(Resources.getResource("code-generation").path + "/AcceleoGeneratorTest/GeneratedCode")
 
