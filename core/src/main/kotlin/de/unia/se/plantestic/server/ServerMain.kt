@@ -1,7 +1,11 @@
 package de.unia.se.plantestic.server
 
 import com.fasterxml.jackson.databind.SerializationFeature
+import de.unia.se.plantestic.M2MTransformer
 import de.unia.se.plantestic.Main.runTransformationPipeline
+import de.unia.se.plantestic.MetaModelSetup
+import de.unia.se.plantestic.PumlParser
+import de.unia.se.plantestic.PumlSerializer
 import io.ktor.application.*
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
@@ -18,6 +22,8 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 data class PUMLDiagram(val name: String, val diagram: String)
+
+data class PreprocessRequest(val pumlString: String, val tester: String)
 
 fun String.runCommand(workingDir: File) {
     ProcessBuilder(*split(" ").toTypedArray())
@@ -60,6 +66,23 @@ object ServerMain {
             get("/test") {
                 call.respond(mapOf("OK" to true))
             }
+            post("/preprocess") {
+                val reqParam = call.receive(PreprocessRequest::class)
+                println("Preprocess: ${reqParam.pumlString}")
+
+                val tmpFile = File("temp.puml")
+                tmpFile.writeText(reqParam.pumlString)
+
+                MetaModelSetup.doSetup()
+                val pumlDiagramModel = PumlParser.parse(tmpFile.absolutePath)
+                val pumlDiagramWithActor =
+                    M2MTransformer.transformPuml2Puml(pumlDiagramModel.contents[0], reqParam.tester)
+
+                pumlDiagramModel.contents[0] = pumlDiagramWithActor
+                val serialised = PumlSerializer.parse(pumlDiagramModel)
+
+                call.respond(mapOf("processedPuml" to serialised))
+            }
             post("runPipeline") {
                 val post = call.receive(PUMLDiagram::class)
                 println(post.diagram)
@@ -70,7 +93,7 @@ object ServerMain {
 
                 runTransformationPipeline(inputFile, outputFolder)
 
-                call.respond(mapOf("notok" to false))
+                call.respond(mapOf("success" to true))
                 println("Pipeline Done")
             }
         }
