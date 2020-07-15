@@ -3,6 +3,7 @@ SEQUENCE @startuml
 Participant A
 Participant B
 Participant C
+Participant D
 
 ACTIVATE A
 A -> B : POST "/hello"
@@ -31,6 +32,10 @@ else "true"
     A -> C : 400
 end
 DEACTIVATE C
+D -> A : GET "/quetal"
+ACTIVATE D
+A -> D : 200
+DEACTIVATE D
 DEACTIVATE A
 
 @enduml
