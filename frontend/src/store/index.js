@@ -10,6 +10,7 @@ import histories from './modules/Histories'
 import umlTemplate from './modules/UmlTemplate'
 import cheatSheet from './modules/CheatSheet'
 import gistApi from './modules/GistApi'
+import notifications from './modules/Notifications'
 
 export default new Vuex.Store({
   strict: process.env.NODE_ENV !== 'production',
@@ -20,5 +21,6 @@ export default new Vuex.Store({
     umlTemplate,
     cheatSheet,
     gistApi,
+    notifications
   },
 })

@@ -5,8 +5,8 @@
         <div v-html="preMarkdown"></div>
         <div class="text-center" align="center">
           <p>
-            <img :src="src" @load="loadedImg" v-if="!isSvg" />
-            <UmlSvg :src="src" :size="`${umlWidth}%`" @load="loadedImg" v-if="isSvg" />
+            <img :src="src" @load="loadedImg" v-if="!isSvg"/>
+            <UmlSvg :src="src" :size="`${umlWidth}%`" @load="loadedImg" v-if="isSvg"/>
           </p>
         </div>
         <div v-html="afterMarkdown"></div>
@@ -16,67 +16,68 @@
 </template>
 
 <script lang="js">
-/* @flow */
-import UmlSvg from './UmlSvg'
+  /* @flow */
+  import UmlSvg from './UmlSvg'
 
-export default {
-  name: 'Uml',
-  components: {
-    UmlSvg
-  },
-  props: {
-    height: {
-      type: String,
-      default: '100%'
-    }
-  },
-  data(): any {
-    return {
-      loadingDelay: 500
-    }
-  },
-  computed: {
-    src(): string {
-      return this.$store.state.plantumlEditor.src
+  export default {
+    name: 'Uml',
+    components: {
+      UmlSvg
     },
-    isSvg(): string {
-      return this.$store.getters['plantumlEditor/isSvg']
+    props: {
+      height: {
+        type: String,
+        default: '100%'
+      }
     },
-    preMarkdown(): string {
-      return this.$store.state.plantumlEditor.preMarkdown
+    data(): any {
+      return {
+        loadingDelay: 500
+      }
     },
-    afterMarkdown(): string {
-      return this.$store.state.plantumlEditor.afterMarkdown
+    computed: {
+      src(): string {
+        return this.$store.state.plantumlEditor.src
+      },
+      isSvg(): string {
+        return this.$store.getters['plantumlEditor/isSvg']
+      },
+      preMarkdown(): string {
+        return this.$store.state.plantumlEditor.preMarkdown
+      },
+      afterMarkdown(): string {
+        return this.$store.state.plantumlEditor.afterMarkdown
+      },
+      umlWidth(): number {
+        return this.$store.state.plantumlEditor.umlWidth
+      }
     },
-    umlWidth(): number {
-      return this.$store.state.plantumlEditor.umlWidth
-    }
-  },
-  watch: {
-    src() {
-      if (this.src) {
-        this.$store.dispatch('plantumlEditor/setIsLoading', true)
+    watch: {
+      src() {
+        if (this.src) {
+          this.$store.dispatch('plantumlEditor/setIsLoading', true)
+        }
+      }
+    },
+    created() {
+      this.$store.dispatch('plantumlEditor/setMarked')
+      this.$store.dispatch('plantumlEditor/setIsLoading', true)
+    },
+    methods: {
+      loadedImg() {
+        window.setTimeout(() => {
+          this.$store.dispatch('plantumlEditor/setIsLoading', false)
+        }, this.loadingDelay)
       }
     }
-  },
-  created() {
-    this.$store.dispatch('plantumlEditor/setMarked')
-    this.$store.dispatch('plantumlEditor/setIsLoading', true)
-  },
-  methods: {
-    loadedImg() {
-      window.setTimeout(() => {
-        this.$store.dispatch('plantumlEditor/setIsLoading', false)
-      }, this.loadingDelay)
-    }
   }
-}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.umlImage {
-  overflow: auto;
-  width: 100%;
-}
+  .umlImage {
+    overflow: auto;
+    width: 100%;
+    background: white;
+  }
 </style>
