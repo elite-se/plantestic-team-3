@@ -93,7 +93,7 @@ object ServerMain {
 
                 runTransformationPipeline(inputFile, outputFolder)
 
-                call.respond(mapOf("success" to true))
+                call.respond(mapOf("success" to true, "filePath" to "${outputFolder.absolutePath}/Test${post.name}_puml.java" ))
                 println("Pipeline Done")
             }
         }
