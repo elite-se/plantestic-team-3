@@ -76,7 +76,8 @@ object Main {
         |
         |This software is licensed under Apache 2.0 license and was developed by 
         |Andreas Zimmerer, Stefan Grafberger, Fiona Guerin, Daniela Neupert and Michelle Martin.
-        """.trimMargin()) {
+        """.trimMargin()
+    ) {
 
         private val input: String by option(help = "Path to the PlantUML file containing the API specification.")
             .required()
@@ -113,18 +114,18 @@ object Main {
         MetaModelSetup.doSetup()
 
         val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
-        val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramModel)
+        val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramModel.contents[0])
         val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
 
         println("Generating code into $outputFolder")
         AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
     }
 
-    fun runTransformationPipeline(inputFile: File, outputFolder: File, tester : String) {
+    fun runTransformationPipeline(inputFile: File, outputFolder: File, tester: String) {
         MetaModelSetup.doSetup()
 
         val pumlDiagramModel = PumlParser.parse(inputFile.absolutePath)
-        val pumlDiagramWithActor = M2MTransformer.transformPuml2Puml(pumlDiagramModel, tester)
+        val pumlDiagramWithActor = M2MTransformer.transformPuml2Puml(pumlDiagramModel.contents[0], tester)
         val requestResponsePairsModel = M2MTransformer.transformPuml2ReqRes(pumlDiagramWithActor)
         val restAssuredModel = M2MTransformer.transformReqRes2RestAssured(requestResponsePairsModel)
 
