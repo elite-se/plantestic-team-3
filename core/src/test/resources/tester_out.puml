@@ -1,0 +1,22 @@
+SEQUENCE @startuml
+
+Participant A
+Participant B
+Participant C
+
+ACTIVATE A
+A -> B : GET "/hello"
+ACTIVATE B
+B -> C : GET "/hello/ref"
+ACTIVATE C
+C -> B : 200
+DEACTIVATE C
+B -> A : 200
+DEACTIVATE B
+A -> C : GET "/bye"
+ACTIVATE C
+C -> A : 200
+DEACTIVATE C
+DEACTIVATE A
+
+@enduml
