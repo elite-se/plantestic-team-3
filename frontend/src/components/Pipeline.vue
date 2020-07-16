@@ -17,11 +17,7 @@
           </div>
         </form>
         <button type="button" class="btn btn-primary" @click="triggerPreprocessing">
-          <template v-if="preprocessing">
-            <VueSimpleSpinner :size="'small'"
-                              style="display: inline-block; margin-right: 4px; transform: translateX(2px);"/>
-          </template>
-          <span class="glyphicon glyphicon-send" v-else></span> Trigger Preprocessing
+          <span class="glyphicon glyphicon-send"></span> Trigger Preprocessing
         </button>
       </div>
 
@@ -38,11 +34,7 @@
           </div>
         </form>
         <button type="button" class="btn btn-primary" @click="generateTests">
-          <template v-if="pipelining">
-            <VueSimpleSpinner :size="'small'"
-                              style="display: inline-block; margin-right: 4px; transform: translateX(2px);"/>
-          </template>
-          <span class="glyphicon glyphicon-send" v-else></span> Generate Tests
+          <span class="glyphicon glyphicon-send"></span> Generate Tests
         </button>
       </div>
     </div>
@@ -51,7 +43,6 @@
 
 <script lang="js">
   /* @flow */
-  import VueSimpleSpinner from "vue-simple-spinner"
 
   async function sendToServer(url: string = '', data: any = {}): any {
     const response: any = await fetch(url, {
@@ -78,9 +69,6 @@
 
   export default {
     name: 'Pipeline',
-    components: {
-      VueSimpleSpinner
-    },
     data(): any {
       return {
         tester: '',
