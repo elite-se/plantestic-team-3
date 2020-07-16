@@ -19,12 +19,12 @@ class End2EndTest : StringSpec({
     "End2End test with extracted tester" {
         wireMockServer.stubFor(
             get(urlEqualTo("/testB/hello"))
-                .willReturn(WireMock.aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200))
         )
 
         wireMockServer.stubFor(
             get(urlEqualTo("/testC/bye"))
-                .willReturn(WireMock.aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200))
         )
 
         wireMockServer.stubFor(
@@ -57,17 +57,17 @@ class End2EndTest : StringSpec({
     "End2End test with extracted tester - Complex" {
         wireMockServer.stubFor(
             post(urlEqualTo("/testB/hello"))
-                .willReturn(WireMock.aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200))
         )
 
         wireMockServer.stubFor(
             get(urlEqualTo("/testC/bye"))
-                .willReturn(WireMock.aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200))
         )
 
         wireMockServer.stubFor(
             get(urlEqualTo("/testA"))
-                .willReturn(WireMock.aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200))
         )
 
         wireMockServer.stubFor(

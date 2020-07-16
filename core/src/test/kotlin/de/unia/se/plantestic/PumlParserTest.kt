@@ -80,7 +80,7 @@ class PumlParserTest : StringSpec({
     "Parsing works for the parameter_pass example" {
         MetaModelSetup.doSetup()
 
-        val sequenceDiagram = PumlParser.parse(PARAMETER_PASS_INPUT_PATH)
+        val sequenceDiagram = PumlParser.parse(PARAMETER_PASS_INPUT_PATH).contents[0] as SequenceDiagram
         printModel(sequenceDiagram)
 
         sequenceDiagram.umlElements.filterIsInstance<Participant>().size shouldBe 2
