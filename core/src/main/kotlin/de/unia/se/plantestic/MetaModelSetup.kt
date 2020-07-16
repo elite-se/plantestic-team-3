@@ -19,6 +19,7 @@ object MetaModelSetup {
             PumlStandaloneSetup.doSetup()
             registerMetamodelFromEcoreFile(REQUEST_RESPONSE_PAIRS_METAMODEL_URI)
             registerMetamodelFromEcoreFile(REST_ASSURED_METAMODEL_URI)
+            didSetup = true;
         }
     }
 
