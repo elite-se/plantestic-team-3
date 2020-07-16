@@ -140,6 +140,9 @@ helper OrderedSet(SequenceElement)::filterAndChangeIncomingRequests(in tester : 
 }
 
 mapping Message::mapTesterIncomingToTesterOutgoing(in tester : Participant, in prev_tester : Participant) : Message {
+    init {
+        result := self;
+    }
     result.sink := prev_tester;
     result.source := tester;
     var newRequest := new Request();
