@@ -48,14 +48,14 @@ participant CCC
 CCC -[#5B57FF]> CRS : POST "/ccc/rerouteOptions" (countryCode : "\${countryCode1}", positionCountryCode : "\${positionCountryCode1}", sourceEventType : "\${sourceEventType1}")
 activate CCC
 activate CRS
-CRS -> CCC : 200 - (uiswitch : "/UISWITCH", reroute : "/REROUTE", warmhandover : "/WARMHANDOVER")
+CRS -> CCC : 200 - (uiswitch := "/UISWITCH", reroute := "/REROUTE", warmhandover := "/WARMHANDOVER")
     deactivate CRS
 
     '##### CCC checks VoiceManager connection status
     CCC -[#5B57FF]> VM : GET "/ccc/events/\${eventId}/isconnected"
     activate VM
 alt "\${voiceEstablished} == true"
-    VM -[#5B57FF]> CCC : 200 - (eventid1 : "/VoiceStatus/eventId1", agent1 : "/VoiceStatus/agent1/connectionStatus", agent2 : "/VoiceStatus/agent2/connectionStatus")
+    VM -[#5B57FF]> CCC : 200 - (eventid1 := "/VoiceStatus/eventId1", agent1 := "/VoiceStatus/agent1/connectionStatus", agent2 := "/VoiceStatus/agent2/connectionStatus")
 else "\${voiceEstablished} == false"
     VM -[#5B57FF]> CCC : 400,404,500
     deactivate VM
@@ -78,12 +78,12 @@ activate XCS
 
 XCS -> DataService : GET  "/vehicle/internal/\${vin}"
 activate DataService
-DataService --> XCS : 200 - (homeCountry : "/homeCountry", positionCountry : "/positionCountry", brand : "/brand")
+DataService --> XCS : 200 - (homeCountry := "/homeCountry", positionCountry := "/positionCountry", brand := "/brand")
 deactivate DataService
 
 XCS -> CRS : POST "routingTargets/find" (eventId : "\${eventId}", serviceType : "\${serviceType}", vin : "\${vin}", homeCountry : "\${homeCountry}", positionCountry : "\${positionCountry}", brand : "\${brand}")
 activate CRS
-CRS --> XCS : 200 - (voiceTargets : "/voiceTargets")
+CRS --> XCS : 200 - (voiceTargets := "/voiceTargets")
 deactivate CRS
 
 alt "\${xcsServiceType} == 'ACall'"
