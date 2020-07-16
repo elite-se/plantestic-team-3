@@ -111,6 +111,7 @@ dependencies {
     testRuntimeOnly "com.moandjiezana.toml:toml4j:0.7.2"
     testRuntimeOnly "io.rest-assured:rest-assured:3.0.0"
     testRuntimeOnly "javax.xml.bind:jaxb-api:2.3.1"
+    testRuntimeOnly "com.googlecode.json-simple:json-simple:1.1"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.3.1"
     testRuntimeOnly "com.atlassian.oai:swagger-request-validator-core:2.10.0"
     testRuntimeOnly "com.atlassian.oai:swagger-request-validator-restassured:2.10.0"

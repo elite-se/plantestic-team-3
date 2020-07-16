@@ -32,31 +32,36 @@ paths:
           description: "success"
 
     post:
-        tags:
-          - "complex_tester"
-        responses:
-          "200":
-            description: "success"
+      tags:
+        - "complex_tester"
+      responses:
+        "200":
+          description: "success"
 
   /testB/hello/{id}:
     post:
       tags:
         - "complex_hello"
       consumes:
-        - "application/x-www-form-urlencoded"
+        - application/json
       parameters:
         - in: "path"
           name: "id"
           type: "string"
           required : true
-#        - in: "formData"
-#          name: "varA"
-#          type: "number"
-#          required: true
-#        - in: "formData"
-#          name: "varB"
-#          type: "number"
-#          required: true
+        - name: body
+          in: body
+          required: true
+          schema:
+            # Body schema with atomic property examples
+            type: "object"
+            required:
+              - varA
+            properties:
+              varA:
+                type: "string"
+              varB:
+                type: "string"
       responses:
         "200":
           description: "success"
