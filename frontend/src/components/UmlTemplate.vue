@@ -26,9 +26,7 @@
     },
     methods: {
       selectTemplate(prop: string) {
-        if (window.confirm(this.selectMessage)) {
-          this.$store.dispatch('umlTemplate/selectTemplate', prop)
-        }
+        this.$store.dispatch('umlTemplate/selectTemplate', prop)
       }
     }
   }
