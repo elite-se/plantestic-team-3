@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<puml:SequenceDiagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xmlns:puml="http://www.eclipse.plantuml/Puml">
+    <umlElements xsi:type="puml:Participant" name="Tester"/>
+    <umlElements xsi:type="puml:Participant" name="A"/>
+    <umlElements xsi:type="puml:Participant" name="B"/>
+    <umlElements xsi:type="puml:Participant" name="C"/>
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.2" associationArrow="->"
+                 source="#//@umlElements.0">
+        <content xsi:type="puml:Request" method="POST" url="/hello"/>
+    </umlElements>
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="->"
+                 source="#//@umlElements.2">
+        <content xsi:type="puml:Response">
+            <code>200</code>
+        </content>
+    </umlElements>
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.3" associationArrow="->"
+                 source="#//@umlElements.0">
+        <content xsi:type="puml:Request" method="GET" url="/bye"/>
+    </umlElements>
+    <umlElements xsi:type="puml:Alternative" text="true">
+        <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="->"
+                     source="#//@umlElements.3">
+            <content xsi:type="puml:Response">
+                <code>200</code>
+            </content>
+        </umlElements>
+        <elseBlocks xsi:type="puml:Else">
+            <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="->"
+                         source="#//@umlElements.3">
+                <content xsi:type="puml:Response">
+                    <code>400</code>
+                </content>
+            </umlElements>
+        </elseBlocks>
+    </umlElements>
+    <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" source="#//@umlElements.0">
+        <content xsi:type="puml:Request" method="GET"/>
+    </umlElements>
+    <umlElements xsi:type="puml:Note" position="LEFT" noteOf="#//@umlElements.0">
+        <value>Stub pair for incoming asynchronous messages.</value>
+        <value>Corresponds to POST request between C and A</value>
+    </umlElements>
+    <umlElements xsi:type="puml:Alternative" text="false">
+        <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" source="#//@umlElements.1">
+            <content xsi:type="puml:Response"/>
+        </umlElements>
+        <elseBlocks xsi:type="puml:Else">
+            <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" source="#//@umlElements.1">
+                <content xsi:type="puml:Response"/>
+            </umlElements>
+        </elseBlocks>
+    </umlElements>
+</puml:SequenceDiagram>

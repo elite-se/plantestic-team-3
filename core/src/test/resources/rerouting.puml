@@ -23,5 +23,6 @@ else "${voiceEstablished} == false"
     deactivate VM
     note over CCC : Error is displayed \n reroute may not be triggered
 end
+deactivate CCC
 
 @enduml

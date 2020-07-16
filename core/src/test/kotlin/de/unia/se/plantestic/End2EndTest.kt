@@ -15,6 +15,91 @@ import java.io.File
 val wireMockServer = WireMockServer(8080)
 
 class End2EndTest : StringSpec({
+
+    "End2End test with extracted tester" {
+        wireMockServer.stubFor(
+            get(urlEqualTo("/testB/hello"))
+                .willReturn(WireMock.aResponse().withStatus(200))
+        )
+
+        wireMockServer.stubFor(
+            get(urlEqualTo("/testC/bye"))
+                .willReturn(WireMock.aResponse().withStatus(200))
+        )
+
+        wireMockServer.stubFor(
+            get(urlPathMatching("/swagger/tests.yaml"))
+                .willReturn(aResponse().withStatus(200).withBody(SWAGGER_YAML.readText()))
+        )
+
+        runTransformationPipeline(TESTER_OUT_INPUT_FILE, OUTPUT_FOLDER, TESTER)
+
+        // Now compile the resulting code to check for syntax errors
+        val generatedSourceFile =
+            OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testtester_out_puml.java" }.first()
+        val compiledTest = Reflect.compile(
+            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.readText()
+        ).create(TESTER_OUT_CONFIG_FILE.path)
+        compiledTest.call("test")
+
+        // Check if we received a correct request
+        wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
+        wireMockServer.allServeEvents.filter { serveEvent ->
+            serveEvent.request.url == "/testB/hello"
+        }.size shouldBe 1
+        wireMockServer.allServeEvents.filter { serveEvent ->
+            serveEvent.request.url == "/testC/bye"
+        }.size shouldBe 1
+        wireMockServer.allServeEvents[0].response.status shouldBe 200
+    }
+
+    "End2End test with extracted tester - Complex" {
+        wireMockServer.stubFor(
+            post(urlEqualTo("/testB/hello"))
+                .willReturn(WireMock.aResponse().withStatus(200))
+        )
+
+        wireMockServer.stubFor(
+            get(urlEqualTo("/testC/bye"))
+                .willReturn(WireMock.aResponse().withStatus(200))
+        )
+
+        wireMockServer.stubFor(
+            get(urlEqualTo("/testA"))
+                .willReturn(WireMock.aResponse().withStatus(200))
+        )
+
+        wireMockServer.stubFor(
+            get(urlPathMatching("/swagger/tests.yaml"))
+                .willReturn(aResponse().withStatus(200).withBody(SWAGGER_YAML.readText()))
+        )
+
+        runTransformationPipeline(COMPLEX_TESTER_OUT_INPUT_FILE, OUTPUT_FOLDER, TESTER)
+
+        // Now compile the resulting code to check for syntax errors
+        val generatedSourceFile =
+            OUTPUT_FOLDER.listFiles().filter { f -> f.name == "Testcomplex_tester_out_puml.java" }.first()
+        val compiledTest = Reflect.compile(
+            "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
+            generatedSourceFile.readText()
+        ).create(COMPLEX_TESTER_OUT_CONFIG_FILE.path)
+        compiledTest.call("test")
+
+        // Check if we received a correct request
+        wireMockServer.allServeEvents.forEach { serveEvent -> println(serveEvent.request) }
+        wireMockServer.allServeEvents.filter { serveEvent ->
+            serveEvent.request.url == "/testB/hello"
+        }.size shouldBe 1
+        wireMockServer.allServeEvents.filter { serveEvent ->
+            serveEvent.request.url == "/testC/bye"
+        }.size shouldBe 1
+        wireMockServer.allServeEvents.filter { serveEvent ->
+            serveEvent.request.url == "/testA"
+        }.size shouldBe 1
+        wireMockServer.allServeEvents[0].response.status shouldBe 200
+    }
+
     "End2End test receives request on mock server for the minimal hello" {
         wireMockServer.stubFor(
             get(urlEqualTo("/testB/hello"))
@@ -248,6 +333,12 @@ class End2EndTest : StringSpec({
 
 }) {
     companion object {
+        private val TESTER_OUT_INPUT_FILE = File(Resources.getResource("tester_out.puml").path)
+        private val TESTER_OUT_CONFIG_FILE = File(Resources.getResource("tester_out_config.toml").path)
+
+        private val COMPLEX_TESTER_OUT_INPUT_FILE = File(Resources.getResource("complex_tester_out.puml").path)
+        private val COMPLEX_TESTER_OUT_CONFIG_FILE = File(Resources.getResource("complex_tester_out_config.toml").path)
+
         private val MINIMAL_EXAMPLE_INPUT_FILE = File(Resources.getResource("minimal_hello.puml").path)
         private val MINIMAL_EXAMPLE_CONFIG_FILE = File(Resources.getResource("minimal_hello_config.toml").path)
 
@@ -266,6 +357,8 @@ class End2EndTest : StringSpec({
         private val SWAGGER_YAML = File(Resources.getResource("tests_swagger.yaml").path)
 
         private val OUTPUT_FOLDER = File(Resources.getResource("code-generation").path + "/End2EndTests/GeneratedCode")
+
+        private val TESTER = "A"
 
         fun printCode(folder: File) {
             folder.listFiles().forEach { file ->

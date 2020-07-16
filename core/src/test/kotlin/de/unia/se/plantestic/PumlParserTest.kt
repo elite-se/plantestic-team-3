@@ -6,17 +6,15 @@ import io.kotlintest.specs.StringSpec
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
-import plantuml.puml.Activate
-import plantuml.puml.Alternative
-import plantuml.puml.Message
-import plantuml.puml.Participant
+import plantuml.puml.*
 
 class PumlParserTest : StringSpec({
 
     "Parsing works for the minimal example" {
         MetaModelSetup.doSetup()
 
-        val sequenceDiagram = PumlParser.parse(MINIMAL_HELLO_INPUT_PATH)
+        PumlSerializer.parse(PumlParser.parse(MINIMAL_HELLO_INPUT_PATH))
+        val sequenceDiagram = PumlParser.parse(MINIMAL_HELLO_INPUT_PATH).contents[0] as SequenceDiagram
         printModel(sequenceDiagram)
 
         sequenceDiagram.umlElements.size shouldBe 4
@@ -33,7 +31,7 @@ class PumlParserTest : StringSpec({
     "Parsing works for the complex hello example" {
         MetaModelSetup.doSetup()
 
-        val sequenceDiagram = PumlParser.parse(COMPLEX_HELLO_INPUT_PATH)
+        val sequenceDiagram = PumlParser.parse(COMPLEX_HELLO_INPUT_PATH).contents[0] as SequenceDiagram
         printModel(sequenceDiagram)
 
         sequenceDiagram.umlElements.size shouldBe 3
@@ -54,7 +52,7 @@ class PumlParserTest : StringSpec({
     "Parsing works for the rerouting example" {
         MetaModelSetup.doSetup()
 
-        val sequenceDiagram = PumlParser.parse(REROUTE_INPUT_PATH)
+        val sequenceDiagram = PumlParser.parse(REROUTE_INPUT_PATH).contents[0] as SequenceDiagram
         printModel(sequenceDiagram)
 
         sequenceDiagram.umlElements.filterIsInstance<Participant>().size shouldBe 3
@@ -68,7 +66,7 @@ class PumlParserTest : StringSpec({
     "Parsing works for the xcall example" {
         MetaModelSetup.doSetup()
 
-        val sequenceDiagram = PumlParser.parse(XCALL_INPUT_PATH)
+        val sequenceDiagram = PumlParser.parse(XCALL_INPUT_PATH).contents[0] as SequenceDiagram
         printModel(sequenceDiagram)
 
         sequenceDiagram.umlElements.filterIsInstance<Participant>().size shouldBe 7

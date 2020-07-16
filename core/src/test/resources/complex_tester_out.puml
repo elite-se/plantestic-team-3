@@ -1,0 +1,36 @@
+SEQUENCE @startuml
+
+Participant A
+Participant B
+Participant C
+
+ACTIVATE A
+A -> B : POST "/hello"
+ACTIVATE B
+B -> C : GET "/hello/ref"
+alt "true"
+    C -> B : 200
+else
+    C -> B : 400
+end
+ACTIVATE C
+DEACTIVATE C
+B -> A : 200
+DEACTIVATE B
+A -> C : GET "/bye"
+ACTIVATE C
+alt "true"
+    C -> A : 200
+else "false"
+    C -> A : 400
+end
+C -> A : POST "/bye"
+alt "false"
+    A -> C : 200
+else "true"
+    A -> C : 400
+end
+DEACTIVATE C
+DEACTIVATE A
+
+@enduml
