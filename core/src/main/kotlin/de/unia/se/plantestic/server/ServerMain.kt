@@ -82,6 +82,7 @@ object ServerMain {
                 val serialised = PumlSerializer.parse(pumlDiagramModel)
 
                 call.respond(mapOf("processedPuml" to serialised))
+                tmpFile.delete();
             }
             post("runPipeline") {
                 val post = call.receive(PUMLDiagram::class)
