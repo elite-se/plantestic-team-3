@@ -46,25 +46,39 @@
 
   async function sendToServer(url: string = '', data: any = {}): any {
     const response: any = await fetch(url, {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     });
-    return response.json();
+    if (response.ok) {
+      return await response.json();
+    } else {
+      throw await response.text();
+    }
   }
 
-  async function preprocess(pumlString: string = '', tester: string = '', callback: any): any {
+  async function preprocess(pumlString: string = '', tester: string = '', callback: any, errorCallback: any): any {
     console.log("Triggered Preprocessing");
-    const preprocessedPuml: any = await sendToServer('preprocess', {pumlString: pumlString, tester: tester});
-    callback(preprocessedPuml.processedPuml);
+    try {
+      const preprocessedPuml: any = await sendToServer('preprocess', {pumlString: pumlString, tester: tester});
+      callback(preprocessedPuml.processedPuml);
+    } catch (error) {
+      console.log("Error: ", error);
+      errorCallback(error);
+    }
   }
 
-  async function triggerPipeline(testFileName: string = '', pumlString: string = '', callback: any): any {
+  async function triggerPipeline(testFileName: string = '', pumlString: string = '', callback: any, errorCallback: any): any {
     console.log("Triggered Pipeline");
-    const pipelineResult: any = await sendToServer('runPipeline', {name: testFileName, diagram: pumlString});
-    callback(pipelineResult);
+    try {
+      const pipelineResult: any = await sendToServer('runPipeline', {name: testFileName, diagram: pumlString});
+      callback(pipelineResult);
+    } catch (error) {
+      console.log("Error: ", error);
+      errorCallback(error);
+    }
   }
 
   export default {
@@ -96,24 +110,34 @@
         this.preprocessing = true;
         this.$store.dispatch('histories/save', this.$store.state.plantumlEditor)
         preprocess(this.$store.state.plantumlEditor.text, this.tester, (preprocessedPuml: string) => {
-          this.$store.dispatch('plantumlEditor/syncText', preprocessedPuml);
-          this.preprocessing = false;
-          setTimeout(() => {
-            this.$store.dispatch('plantumlEditor/renderUML', this.$store.state.plantumlEditor.text)
-          }, 300)
-        })
+            this.$store.dispatch('plantumlEditor/syncText', preprocessedPuml);
+            this.preprocessing = false;
+            setTimeout(() => {
+              this.$store.dispatch('plantumlEditor/renderUML', this.$store.state.plantumlEditor.text)
+            }, 300)
+          },
+          (error: any) => {
+            this.preprocessing = false;
+            this.showErrorModal("Preprocessing failed, " + error);
+          })
       },
       generateTests() {
         this.pipelining = true;
         triggerPipeline(this.testFileName, this.$store.state.plantumlEditor.text, (pipelineResult: any) => {
           this.pipelining = false;
           if (pipelineResult.success) {
-            //do some state magic
             this.$store.dispatch('notifications/setNotificationHeading', "Testcase successfully generated");
             this.$store.dispatch('notifications/setNotificationMessage', "Testcase can be found at " + pipelineResult.filePath);
             window.$('#notification').modal({})
+          } else {
+            this.showErrorModal("Testcases could not be generated...")
           }
         })
+      },
+      showErrorModal(errorMessage: string) {
+        this.$store.dispatch('notifications/setNotificationHeading', "ERROR!");
+        this.$store.dispatch('notifications/setNotificationMessage', errorMessage);
+        window.$('#notification').modal({})
       }
     }
   }
