@@ -5,7 +5,9 @@
 import Vue from 'vue'
 import App from './App'
 import VueLazyload from 'vue-lazyload'
+import zloading from 'z-loading';
 
+Vue.use(zloading);
 Vue.use(VueLazyload)
 
 Vue.config.productionTip = false

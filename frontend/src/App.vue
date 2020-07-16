@@ -120,6 +120,8 @@
   @import '../node_modules/font-awesome/css/font-awesome.min.css';
   /* Bootstrap */
   @import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+  /* Spinners */
+  @import '../node_modules/z-loading/dist/z-loading.css';
 
   .col-editor {
     margin-top: -20px;

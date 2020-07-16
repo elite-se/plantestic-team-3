@@ -16,9 +16,11 @@
                    class="form-control"/>
           </div>
         </form>
-        <button type="button" class="btn btn-primary" @click="triggerPreprocessing">
-          <span class="glyphicon glyphicon-send"></span> Trigger Preprocessing
-        </button>
+        <div v-zLoading.fullscreen="preprocessing">
+          <button type="button" class="btn btn-primary" @click="triggerPreprocessing">
+            <span class="glyphicon glyphicon-send"></span> Trigger Preprocessing
+          </button>
+        </div>
       </div>
 
 
@@ -33,9 +35,11 @@
                    class="form-control"/>
           </div>
         </form>
-        <button type="button" class="btn btn-primary" @click="generateTests">
-          <span class="glyphicon glyphicon-send"></span> Generate Tests
-        </button>
+        <div v-zLoading.fullscreen="pipelining">
+          <button type="button" class="btn btn-primary" @click="generateTests">
+            <span class="glyphicon glyphicon-send"></span> Generate Tests
+          </button>
+        </div>
       </div>
     </div>
   </div>
