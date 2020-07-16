@@ -1,0 +1,29 @@
+plugins {
+    id "com.github.node-gradle.node" version "2.2.4"
+}
+
+apply plugin: 'java'
+sourceCompatibility = 1.8
+
+node {
+    version = '13.1.0'
+    npmVersion = '6.12.1'
+    download = true
+}
+
+task buildVueApp(type: NpmTask) {
+    dependsOn npmInstall
+    args = ['run', 'build']
+    inputs.files('package.json', 'package-lock.json', 'vue.config.json', 'gulpfile.js', 'cypress.json', 'babel.config.js', '.flowconfig', '.env', '.env.development')
+    inputs.dir('src')
+    inputs.dir(fileTree("node_modules").exclude(".cache"))
+    outputs.dir('dist')
+}
+
+// 3
+jar.dependsOn 'buildVueApp'
+
+// 4
+jar {
+    from 'dist' into 'vueappbuild'
+}

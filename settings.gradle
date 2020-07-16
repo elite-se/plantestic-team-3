@@ -1,3 +1,5 @@
 rootProject.name = 'plantestic'
 include 'plantuml'
+include 'frontend'
 include 'core'
+include 'server'

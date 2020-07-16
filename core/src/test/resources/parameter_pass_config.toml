@@ -1,0 +1,13 @@
+[A]
+    username = 'Test'
+    password = 'password'
+    age = '21'
+    path = '/PersonA'
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
+
+[B]
+    username = 'Test'
+    password = 'password'
+    age = '22'
+    path = '/Person'
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
