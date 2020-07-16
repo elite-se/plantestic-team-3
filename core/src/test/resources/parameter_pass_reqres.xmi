@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RequestResponsePairs:Scenario xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:RequestResponsePairs="http://www.example.org/RequestResponsePairs" scenarioName="parameter_pass_puml_puml">
+  <roundtrip roundtripName="roundtrip1">
+    <httprequest httpMethod="POST" url="/checkAge" receiver="B">
+      <httprequestdatum variableName="age" value="${A.age}"/>
+    </httprequest>
+    <httpresponse>
+      <httpStatus>200</httpStatus>
+    </httpresponse>
+  </roundtrip>
+  <roundtrip roundtripName="roundtrip2">
+    <httprequest httpMethod="GET" url="/getAge" receiver="B"/>
+    <httpresponse>
+      <httpresponsedatum variableName="age" xPath="years"/>
+      <httpStatus>200</httpStatus>
+    </httpresponse>
+  </roundtrip>
+  <roundtrip roundtripName="roundtrip3">
+    <httprequest httpMethod="POST" url="/checkAge" receiver="B">
+      <httprequestdatum variableName="age" value="${A.age}"/>
+    </httprequest>
+    <httpresponse>
+      <httpStatus>200</httpStatus>
+    </httpresponse>
+  </roundtrip>
+</RequestResponsePairs:Scenario>

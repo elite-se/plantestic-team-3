@@ -42,22 +42,29 @@ paths:
     post:
       tags:
         - "complex_hello"
+      consumes:
+        - "application/x-www-form-urlencoded"
       parameters:
-        - name: "id"
-          in: "path"
+        - in: "path"
+          name: "id"
           type: "string"
-          required: true
-        - name: "varA"
-          in: "body"
-          required: true
-        - name: "varB"
-          in: "body"
-          required: true
+          required : true
+#        - in: "formData"
+#          name: "varA"
+#          type: "number"
+#          required: true
+#        - in: "formData"
+#          name: "varB"
+#          type: "number"
+#          required: true
       responses:
         "200":
           description: "success"
           schema:
             type: "object"
+            required:
+              - "itemA"
+              - "itemB"
             properties:
               itemA:
                 type: "string"
@@ -79,22 +86,19 @@ paths:
     post:
       tags:
         - "rerouting"
-      parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            type: "object"
-            properties:
-              countryCode:
-                type: "string"
-                example: "Ger"
-              positionCountryCode:
-                type: "string"
-                example: "Muc"
-              sourceEventType:
-                type: "string"
-                example: "Hallo"
+#      parameters:
+#        - in: "formData"
+#          name: "countryCode"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "sourceEventType"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
@@ -112,7 +116,7 @@ paths:
                 example: "/WARMHANDOVER"
 
   /Voicemanager/ccc/events/{eventId}/isconnected:
-    post:
+    get:
       tags:
         - "rerouting"
       parameters:
@@ -126,9 +130,15 @@ paths:
           description: "success"
           schema:
             type: "object"
+            required:
+              - "VoiceStatus"
             properties:
               VoiceStatus:
                 type: "object"
+                required:
+                  - "eventId1"
+                  - "agent1"
+                  - "agent2"
                 properties:
                   eventId1:
                     type: "string"
@@ -175,25 +185,31 @@ paths:
     post:
       tags:
         - "x_call"
-      parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            type: "object"
-            properties:
-              eventId:
-                type: "string"
-              serviceType:
-                type: "string"
-              vin:
-                type: "string"
-              homeCountry:
-                type: "string"
-              positionCountry:
-                type: "string"
-              brand:
-                type: "string"
+#      parameters:
+#        - in: "eventId"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "serviceType"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "vin"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "brand"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
@@ -204,7 +220,7 @@ paths:
                 type: "string"
 
   /EventNotifier/xcs/notify/{eventId}:
-    post:
+    put:
       tags:
         - "x_call"
       parameters:
@@ -213,26 +229,24 @@ paths:
           description: "An event id"
           required: true
           type: "string"
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            type: "object"
-            properties:
-              eventId:
-                type: "string"
-              homeCountry:
-                type: "string"
-              positionCountry:
-                type: "string"
-              brand:
-                type: "string"
+#        - in: "formData"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "brand"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
 
   /ELOS/xcs/notify/{eventId}:
-    post:
+    put:
       tags:
         - "x_call"
       parameters:
@@ -240,71 +254,105 @@ paths:
           name: "eventId"
           required: true
           type: "string"
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            type: "object"
-            properties:
-              eventId:
-                type: "string"
-              homeCountry:
-                type: "string"
-              positionCountry:
-                type: "string"
-              brand:
-                type: "string"
+#        - in: "eventId"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "brand"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
 
-  /CCC/eventReceived:
+  /CCC/xcs/eventReceived:
     post:
       tags:
         - "x_call"
-      parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            type: "object"
-            properties:
-              eventId:
-                type: "string"
-              serviceType:
-                type: "string"
-              homeCountry:
-                type: "string"
-              positionCountry:
-                type: "string"
-              brand:
-                type: "string"
+#      parameters:
+#        - in: "eventId"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "serviceType"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "homeCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "positionCountry"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "brand"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
-          schema:
-            type: "object"
-            properties:
-              voiceTargets:
-                type: "string"
 
   /Voicemanager/setupCall:
     post:
       tags:
         - "x_call"
-      parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            type: "object"
-            properties:
-              eventId:
-                type: "string"
-              vin:
-                type: "string"
-              voiceTargets:
-                type: "string"
+#      parameters:
+#        - in: "formData"
+#          name: "eventId"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "vin"
+#          type: "string"
+#          required: true
+#        - in: "formData"
+#          name: "voiceTargets"
+#          type: "string"
+#          required: true
       responses:
         "200":
           description: "success"
+
+  /Person/getAge:
+    get:
+      tags:
+        - "parameter_pass"
+      parameters:
+      responses:
+        "200":
+          description: "success"
+          schema:
+             $ref: "#/definitions/Age"
+
+  /Person/checkAge:
+    post:
+      tags:
+        - "parameter_pass"
+#      parameters:
+#        - in: "formData"
+#          name: "age"
+#          type: "integer"
+#          required: true
+      responses:
+        "200":
+          description: "success"
+
+definitions:
+  Age:
+    type: "object"
+    required:
+      - "years"
+    properties:
+      years:
+        type: "integer"
