@@ -6,17 +6,15 @@ import io.kotlintest.specs.StringSpec
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
-import plantuml.puml.Activate
-import plantuml.puml.Alternative
-import plantuml.puml.Message
-import plantuml.puml.Participant
+import plantuml.puml.*
 
 class PumlParserTest : StringSpec({
 
     "Parsing works for the minimal example" {
         MetaModelSetup.doSetup()
 
-        val sequenceDiagram = PumlParser.parse(MINIMAL_HELLO_INPUT_PATH)
+        PumlSerializer.parse(PumlParser.parse(MINIMAL_HELLO_INPUT_PATH))
+        val sequenceDiagram = PumlParser.parse(MINIMAL_HELLO_INPUT_PATH).contents[0] as SequenceDiagram
         printModel(sequenceDiagram)
 
         sequenceDiagram.umlElements.size shouldBe 4
@@ -33,7 +31,7 @@ class PumlParserTest : StringSpec({
     "Parsing works for the complex hello example" {
         MetaModelSetup.doSetup()
 
-        val sequenceDiagram = PumlParser.parse(COMPLEX_HELLO_INPUT_PATH)
+        val sequenceDiagram = PumlParser.parse(COMPLEX_HELLO_INPUT_PATH).contents[0] as SequenceDiagram
         printModel(sequenceDiagram)
 
         sequenceDiagram.umlElements.size shouldBe 3
@@ -54,7 +52,7 @@ class PumlParserTest : StringSpec({
     "Parsing works for the rerouting example" {
         MetaModelSetup.doSetup()
 
-        val sequenceDiagram = PumlParser.parse(REROUTE_INPUT_PATH)
+        val sequenceDiagram = PumlParser.parse(REROUTE_INPUT_PATH).contents[0] as SequenceDiagram
         printModel(sequenceDiagram)
 
         sequenceDiagram.umlElements.filterIsInstance<Participant>().size shouldBe 3
@@ -68,7 +66,7 @@ class PumlParserTest : StringSpec({
     "Parsing works for the xcall example" {
         MetaModelSetup.doSetup()
 
-        val sequenceDiagram = PumlParser.parse(XCALL_INPUT_PATH)
+        val sequenceDiagram = PumlParser.parse(XCALL_INPUT_PATH).contents[0] as SequenceDiagram
         printModel(sequenceDiagram)
 
         sequenceDiagram.umlElements.filterIsInstance<Participant>().size shouldBe 7
@@ -78,12 +76,28 @@ class PumlParserTest : StringSpec({
         (alternative.umlElements[0] as Message).source.name shouldBe "XCS"
         ((alternative.umlElements[1] as Activate).umlElements[0] as Message).source.name shouldBe "EventNotifier"
     }
+
+    "Parsing works for the parameter_pass example" {
+        MetaModelSetup.doSetup()
+
+        val sequenceDiagram = PumlParser.parse(PARAMETER_PASS_INPUT_PATH).contents[0] as SequenceDiagram
+        printModel(sequenceDiagram)
+
+        sequenceDiagram.umlElements.filterIsInstance<Participant>().size shouldBe 2
+        val messages = sequenceDiagram.umlElements.filterIsInstance<Message>()
+        messages.size shouldBe 6
+
+        messages[0].source.name shouldBe messages[1].sink.name
+        messages[1].source.name shouldBe messages[0].sink.name
+
+    }
 }) {
     companion object {
         private val MINIMAL_HELLO_INPUT_PATH = Resources.getResource("minimal_hello.puml").path
         private val COMPLEX_HELLO_INPUT_PATH = Resources.getResource("complex_hello.puml").path
         private val REROUTE_INPUT_PATH = Resources.getResource("rerouting.puml").path
         private val XCALL_INPUT_PATH = Resources.getResource("xcall.puml").path
+        private val PARAMETER_PASS_INPUT_PATH = Resources.getResource("parameter_pass.puml").path
 
         fun printModel(model: EObject) {
             val resource = ResourceSetImpl().createResource(URI.createURI("dummy:/test.ecore"))

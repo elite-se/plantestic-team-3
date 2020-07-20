@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<puml:SequenceDiagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:puml="http://www.eclipse.plantuml/Puml">
+  <umlElements xsi:type="puml:Participant" name="A"/>
+  <umlElements xsi:type="puml:Participant" name="B"/>
+  <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="->"
+      source="#//@umlElements.0">
+    <content xsi:type="puml:Request" method="POST" url="/checkAge">
+      <requestParam name="age" value="${A.age}"/>
+    </content>
+  </umlElements>
+  <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="&lt;-"
+      source="#//@umlElements.1">
+    <content xsi:type="puml:Response">
+      <code>200</code>
+    </content>
+  </umlElements>
+  <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="->"
+      source="#//@umlElements.0">
+    <content xsi:type="puml:Request" method="GET" url="/getAge"/>
+  </umlElements>
+  <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="&lt;-"
+      source="#//@umlElements.1">
+    <content xsi:type="puml:Response">
+      <code>200</code>
+      <responseParam name="age" value="years"/>
+    </content>
+  </umlElements>
+  <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="->"
+      source="#//@umlElements.0">
+    <content xsi:type="puml:Request" method="POST" url="/checkAge">
+      <requestParam name="age" value="${A.age}"/>
+    </content>
+  </umlElements>
+  <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="&lt;-"
+      source="#//@umlElements.1">
+    <content xsi:type="puml:Response">
+      <code>200</code>
+    </content>
+  </umlElements>
+</puml:SequenceDiagram>

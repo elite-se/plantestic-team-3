@@ -15,6 +15,7 @@ import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
+import io.restassured.http.ContentType;
 import org.hamcrest.collection.IsIn;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ import com.moandjiezana.toml.Toml;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
@@ -71,9 +73,16 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
                 });
             }
         }
-        [if (testRoundtrip.precondition->isEmpty())][testRoundtrip.generateTestRoundtrip()/][/if]
+
+        [if (testRoundtrip.precondition->isEmpty())]
+        {
+            [testRoundtrip.generateRequestParams()/]
+            [testRoundtrip.generateTestRoundtrip()/]
+        }
+        [/if]
         [if (testRoundtrip.precondition->notEmpty())]
         if(eval("[testRoundtrip.precondition/]")) {
+            [testRoundtrip.generateRequestParams()/]
             [testRoundtrip.generateTestRoundtrip()/]
         }
         [/if]
@@ -147,11 +156,20 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 [/file]
 [/template]
 
+[template private generateRequestParams(testRoundtrip: TestRoundtrip) post(trim())]
+	[if (testRoundtrip.requestspecification.requestdatum->notEmpty() and testRoundtrip.requestspecification.method.toLower() = 'post')]
+JSONObject requestParams = new JSONObject();
+        [for (requestDatum : RequestDatum | testRoundtrip.requestspecification.requestdatum)]
+requestParams.put("[requestDatum.variableName/]", subst("[requestDatum.value/]"));
+        [/for]
+	[/if]
+[/template]
+
 [template private generateTestRoundtrip(testRoundtrip : TestRoundtrip) post(trim())]
 [if (testRoundtrip.requestspecification.method = 'STUB') ]
     [testRoundtrip.generateDelayBeforeTestRoundTrip()/]
 [/if]
-Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
+Response [testRoundtrip.testRoundtripName/] = RestAssured.given().contentType(ContentType.JSON)
         [testRoundtrip.requestspecification.generateGivenPart()/]
     .when()
         [testRoundtrip.requestspecification.generateWhenPart()/]
@@ -179,9 +197,14 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given()
 .auth().basic(subst("${[requestSpecification.receiver/].username}"), subst("${[requestSpecification.receiver/].password}"))
 .filter(validationFilterMap.get("[requestSpecification.receiver/]"))
 	[if (requestSpecification.requestdatum->notEmpty())]
-		[for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
-.param("[requestDatum.variableName/]", subst("${[requestDatum.value/]}"))
-		[/for]
+	    [if (requestSpecification.method.toLower() = 'post')]
+.body(requestParams)
+        [/if]
+        [if (requestSpecification.method.toLower() <> 'post')]
+            [for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
+.param("[requestDatum.variableName/]", subst("[requestDatum.value/]"))
+            [/for]
+        [/if]
 	[/if]
 [/template]
 
