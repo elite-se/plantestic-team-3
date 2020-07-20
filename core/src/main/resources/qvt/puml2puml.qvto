@@ -154,6 +154,7 @@ mapping Message::mapTesterIncomingToTesterOutgoing(in tester : Participant, in p
     result.source := tester;
     var newRequest := new Request();
     newRequest.method := 'STUB';
+    newRequest.waitingTime := 2000;
     result.content := newRequest;
 }
 

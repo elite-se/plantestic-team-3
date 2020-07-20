@@ -166,8 +166,8 @@ requestParams.put("[requestDatum.variableName/]", subst("[requestDatum.value/]")
 [/template]
 
 [template private generateTestRoundtrip(testRoundtrip : TestRoundtrip) post(trim())]
-[if (testRoundtrip.requestspecification.method = 'STUB') ]
-    [testRoundtrip.generateDelayBeforeTestRoundTrip()/]
+[if (testRoundtrip.requestspecification.waitingTime > 0) ]
+    [testRoundtrip.requestspecification.generateDelayBeforeTestRoundTrip()/]
 [/if]
 Response [testRoundtrip.testRoundtripName/] = RestAssured.given().contentType(ContentType.JSON)
         [testRoundtrip.requestspecification.generateGivenPart()/]
@@ -181,13 +181,9 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given().contentType(Co
 	[/if]
 [/template]
 
-[template private generateDelayBeforeTestRoundTrip(testRoundtrip : TestRoundtrip) post(trim())]
+[template private generateDelayBeforeTestRoundTrip(requestspecification : RequestSpecification) post(trim())]
     try {
-        System.out.println("waiting");
-        System.out.println(System.currentTimeMillis());
-        Thread.sleep(1000);
-        System.out.println(System.currentTimeMillis());
-        System.out.println("Done waiting");
+        Thread.sleep([requestspecification.waitingTime/]);
     } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
     }

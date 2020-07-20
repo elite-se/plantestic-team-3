@@ -53,7 +53,8 @@ terminal RequestMethod:
 
 Request returns RequestResponse:
     {Request}
-    method=RequestMethod url=STRING ('(' requestParam+=RequestParam (',' requestParam+=RequestParam)* ')')?;
+    method=RequestMethod url=STRING ('(' requestParam+=RequestParam (',' requestParam+=RequestParam)* ')')?
+    ('waitingTime='waitingTime=INT)?;
 
 Response returns RequestResponse:
     {Response}

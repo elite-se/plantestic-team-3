@@ -8,7 +8,7 @@
     <umlElements xsi:type="puml:Activate" activate="#//@umlElements.0" deactivate="#//@umlElements.0">
         <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="->"
                      source="#//@umlElements.0">
-            <content xsi:type="puml:Request" method="POST" url="/hello"/>
+            <content xsi:type="puml:Request" method="POST" url="/hello" waitingTime="1000"/>
         </umlElements>
         <umlElements xsi:type="puml:Activate" activate="#//@umlElements.1" deactivate="#//@umlElements.1">
             <umlElements xsi:type="puml:Message" sink="#//@umlElements.2" associationArrow="->"
@@ -22,7 +22,7 @@
                         <code>200</code>
                     </content>
                 </umlElements>
-                <elseBlocks xsi:type="puml:Else">
+                <elseBlocks xsi:type="puml:Else" text="false">
                     <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="->"
                                  source="#//@umlElements.2">
                         <content xsi:type="puml:Response">

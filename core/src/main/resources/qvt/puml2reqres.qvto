@@ -147,6 +147,7 @@ helper generateRoundtrip(roundtripId : Integer, httpRequest : HttpRequest, httpR
 mapping Request::request2httpRequest():HttpRequest {
     httpMethod := self.method;
     url := self.url;
+    waitingTime := self.waitingTime;
     httprequestdatum += self.requestParam->map requestParam2httpRequestDatum();
 }
 

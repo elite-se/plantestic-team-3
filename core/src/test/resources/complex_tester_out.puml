@@ -6,12 +6,12 @@ Participant C
 Participant D
 
 ACTIVATE A
-A -> B : POST "/hello"
+A -> B : POST "/hello"  waitingTime=1000
 ACTIVATE B
 B -> C : GET "/hello/ref"
 alt "true"
     C -> B : 200
-else
+else "false"
     C -> B : 400
 end
 ACTIVATE C
