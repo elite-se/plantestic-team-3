@@ -13,7 +13,6 @@ paths:
         "200":
           description: "successfully saved"
 
-
   /testA/bye:
     get:
       tags:
@@ -21,7 +20,6 @@ paths:
       responses:
         "400":
           description: "error"
-
 
   /testB/hello:
     get:
@@ -57,6 +55,7 @@ paths:
             type: "object"
             required:
               - varA
+              - varB
             properties:
               varA:
                 type: "string"
@@ -78,32 +77,35 @@ paths:
                 type: "string"
                 example: "value2"
 
-
   /testC/bye:
-      get:
-          tags:
-              - "tester_out"
-          responses:
-            "200":
-                description: "success"
+    get:
+      tags:
+        - "tester_out"
+      responses:
+        "200":
+          description: "success"
 
   /CRS/ccc/rerouteOptions:
     post:
       tags:
         - "rerouting"
-#      parameters:
-#        - in: "formData"
-#          name: "countryCode"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "positionCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "sourceEventType"
-#          type: "string"
-#          required: true
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            type: "object"
+            required:
+              - countryCode
+              - positionCountryCode
+              - sourceEventType
+            properties:
+              countryCode:
+                type: "string"
+              positionCountryCode:
+                type: "string"
+              sourceEventType:
+                type: "string"
       responses:
         "200":
           description: "success"
@@ -190,31 +192,32 @@ paths:
     post:
       tags:
         - "x_call"
-#      parameters:
-#        - in: "eventId"
-#          name: "homeCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "serviceType"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "vin"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "homeCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "positionCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "brand"
-#          type: "string"
-#          required: true
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            type: "object"
+            required:
+              - eventId
+              - serviceType
+              - vin
+              - homeCountry
+              - positionCountry
+              - brand
+            properties:
+              eventId:
+                type: "string"
+              serviceType:
+                type: "string"
+              vin:
+                type: "string"
+              homeCountry:
+                type: "string"
+              positionCountry:
+                type: "string"
+              brand:
+                type: "string"
       responses:
         "200":
           description: "success"
@@ -228,24 +231,27 @@ paths:
     put:
       tags:
         - "x_call"
+      consumes:
+        - application/x-www-form-encoded
       parameters:
         - name: "eventId"
           in: "path"
           description: "An event id"
           required: true
           type: "string"
-#        - in: "formData"
-#          name: "homeCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "positionCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "brand"
-#          type: "string"
-#          required: true
+#       Query parameters ignored in validation
+        - in: "query"
+          name: "homeCountry"
+          required: true
+          type: "string"
+        - in: "query"
+          name: "positionCountry"
+          required: true
+          type: "string"
+        - in: "query"
+          name: "brand"
+          required: true
+          type: "string"
       responses:
         "200":
           description: "success"
@@ -259,22 +265,19 @@ paths:
           name: "eventId"
           required: true
           type: "string"
-#        - in: "eventId"
-#          name: "homeCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "homeCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "positionCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "brand"
-#          type: "string"
-#          required: true
+#       Query parameters ignored in validation
+        - in: "query"
+          name: "homeCountry"
+          required: true
+          type: "string"
+        - in: "query"
+          name: "positionCountry"
+          required: true
+          type: "string"
+        - in: "query"
+          name: "brand"
+          required: true
+          type: "string"
       responses:
         "200":
           description: "success"
@@ -283,27 +286,29 @@ paths:
     post:
       tags:
         - "x_call"
-#      parameters:
-#        - in: "eventId"
-#          name: "homeCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "serviceType"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "homeCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "positionCountry"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "brand"
-#          type: "string"
-#          required: true
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            type: "object"
+            required:
+              - eventId
+              - serviceType
+              - homeCountry
+              - positionCountry
+              - brand
+            properties:
+              eventId:
+                type: "string"
+              serviceType:
+                type: "string"
+              homeCountry:
+                type: "string"
+              positionCountry:
+                type: "string"
+              brand:
+                type: "string"
       responses:
         "200":
           description: "success"
@@ -312,19 +317,23 @@ paths:
     post:
       tags:
         - "x_call"
-#      parameters:
-#        - in: "formData"
-#          name: "eventId"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "vin"
-#          type: "string"
-#          required: true
-#        - in: "formData"
-#          name: "voiceTargets"
-#          type: "string"
-#          required: true
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            type: "object"
+            required:
+              - eventId
+              - vin
+              - voiceTargets
+            properties:
+              eventId:
+                type: "string"
+              vin:
+                type: "string"
+              voiceTargets:
+                type: "string"
       responses:
         "200":
           description: "success"
@@ -333,7 +342,6 @@ paths:
     get:
       tags:
         - "parameter_pass"
-      parameters:
       responses:
         "200":
           description: "success"
@@ -344,11 +352,12 @@ paths:
     post:
       tags:
         - "parameter_pass"
-#      parameters:
-#        - in: "formData"
-#          name: "age"
-#          type: "integer"
-#          required: true
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/Age"
       responses:
         "200":
           description: "success"
@@ -359,5 +368,5 @@ definitions:
     required:
       - "years"
     properties:
-      years:
+      age:
         type: "integer"
