@@ -88,6 +88,8 @@ helper OrderedSet(SequenceElement)::filterAndChangeIncomingRequests(in tester : 
             var message : Message := sequenceElement.oclAsType(Message);
             log("Message", message.content);
             log("Before if", tester.isExpectingResponse);
+            log("Message source", message.source);
+            log("Tester", tester);
             if (message.content.oclIsKindOf(Response) and message.source = tester) {
                 if (tester.isExpectingResponse) {
                     var response_message := message.mapTesterOutgoingToTesterIncoming(tester, prev_tester);
@@ -116,10 +118,11 @@ helper OrderedSet(SequenceElement)::filterAndChangeIncomingRequests(in tester : 
         }
         elif (sequenceElement.oclIsKindOf(Alternative)){
             var altElement : Alternative := sequenceElement.oclAsType(Alternative);
+            var prevIsExpectingResponse : Boolean := tester.isExpectingResponse;
             altElement.elseBlocks->forEach(elseBlock) {
-                var copyTester := tester.clone().oclAsType(Participant);
-                elseBlock.umlElements := elseBlock.umlElements->filterAndChangeIncomingRequests(copyTester, prev_tester);
+                elseBlock.umlElements := elseBlock.umlElements->filterAndChangeIncomingRequests(tester, prev_tester);
             };
+            tester.isExpectingResponse := prevIsExpectingResponse;
             var altChangeList : OrderedSet(SequenceElement) :=
                 altElement.umlElements->filterAndChangeIncomingRequests(tester, prev_tester);
 
@@ -159,9 +162,11 @@ mapping Message::mapTesterIncomingToTesterOutgoing(in tester : Participant, in p
 }
 
 mapping Message::mapTesterOutgoingToTesterIncoming(in tester : Participant, in prev_tester : Participant) : Message {
+    init {
+        result := self;
+    }
     result.sink := tester;
     result.source := prev_tester;
-    result.content := new Response();
 }
 
 constructor Note::Note(noteOfIn : Participant, request : Request, og_source : Participant, og_sink : Participant) {
