@@ -67,7 +67,7 @@ class End2EndTest : StringSpec({
 
         wireMockServer.stubFor(
             get(urlEqualTo("/testA"))
-                .willReturn(aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(400))
         )
 
         wireMockServer.stubFor(
@@ -97,7 +97,7 @@ class End2EndTest : StringSpec({
         wireMockServer.allServeEvents.filter { serveEvent ->
             serveEvent.request.url == "/testA"
         }.size shouldBe 1
-        wireMockServer.allServeEvents[0].response.status shouldBe 200
+        wireMockServer.allServeEvents[0].response.status shouldBe 400
     }
 
     "End2End test receives request on mock server for the minimal hello" {
