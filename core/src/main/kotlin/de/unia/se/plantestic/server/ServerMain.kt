@@ -6,24 +6,30 @@ import de.unia.se.plantestic.Main.runTransformationPipeline
 import de.unia.se.plantestic.MetaModelSetup
 import de.unia.se.plantestic.PumlParser
 import de.unia.se.plantestic.PumlSerializer
-import io.ktor.application.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.defaultResource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.jackson.*
+import io.ktor.jackson.jackson
 import io.ktor.request.receive
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
+import io.ktor.response.respond
+import io.ktor.response.respondText
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.routing
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-data class PUMLDiagram(val name: String, val diagram: String)
+data class PUMLDiagram(val name: String, val diagram: String, val toml: String?)
 
-data class PreprocessRequest(val pumlString: String, val tester: String)
+data class PreprocessTesterRequest(val pumlString: String, val tester: String)
+data class PreprocessSwaggerRequest(val pumlString: String, val tomlString: String)
 
 fun String.runCommand(workingDir: File) {
     ProcessBuilder(*split(" ").toTypedArray())
@@ -66,9 +72,9 @@ object ServerMain {
             get("/test") {
                 call.respond(mapOf("OK" to true))
             }
-            post("/preprocess") {
-                val reqParam = call.receive(PreprocessRequest::class)
-                println("Preprocess: ${reqParam.pumlString}")
+            post("/preprocessTester") {
+                val reqParam = call.receive(PreprocessTesterRequest::class)
+                println("PreprocessTester: ${reqParam.pumlString}")
 
                 val tmpFile = File("temp.puml")
                 tmpFile.writeText(reqParam.pumlString)
@@ -82,7 +88,28 @@ object ServerMain {
                 val serialised = PumlSerializer.parse(pumlDiagramModel)
 
                 call.respond(mapOf("processedPuml" to serialised))
-                tmpFile.delete();
+                tmpFile.delete()
+            }
+            post("/preprocessSwagger") {
+                val reqParam = call.receive(PreprocessSwaggerRequest::class)
+                println("PreprocessSwagger: ${reqParam.pumlString}")
+
+                val tmpFile = File("temp.puml")
+                val tmpTomlFile = File("temp.toml")
+                tmpFile.writeText(reqParam.pumlString)
+                tmpTomlFile.writeText(reqParam.tomlString)
+
+                MetaModelSetup.doSetup()
+                val pumlDiagramModel = PumlParser.parse(tmpFile.absolutePath)
+                // TODO: Swagger Transformation
+                val pumlDiagramWithActor = null
+
+                pumlDiagramModel.contents[0] = pumlDiagramWithActor
+                val serialised = PumlSerializer.parse(pumlDiagramModel)
+
+                call.respond(mapOf("processedPuml" to serialised))
+                tmpFile.delete()
+                tmpTomlFile.delete()
             }
             post("runPipeline") {
                 val post = call.receive(PUMLDiagram::class)
@@ -92,9 +119,19 @@ object ServerMain {
                 inputFile.writeText(post.diagram)
                 val outputFolder = File("./testServer").normalize()
 
+                if (post.toml != null) {
+                    val tomlFile = File(outputFolder, "Test${post.name}.toml")
+                    tomlFile.writeText(post.toml)
+                }
+
                 runTransformationPipeline(inputFile, outputFolder)
 
-                call.respond(mapOf("success" to true, "filePath" to "${outputFolder.absolutePath}/Test${post.name}_puml.java" ))
+                call.respond(
+                    mapOf(
+                        "success" to true,
+                        "filePath" to "${outputFolder.absolutePath}/Test${post.name}_puml.java"
+                    )
+                )
                 println("Pipeline Done")
             }
         }
