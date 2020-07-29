@@ -86,16 +86,11 @@ helper OrderedSet(SequenceElement)::filterAndChangeIncomingRequests(in tester : 
     self->forEach(sequenceElement){
         if (sequenceElement.oclIsTypeOf(Message)) {
             var message : Message := sequenceElement.oclAsType(Message);
-            log("Message", message.content);
-            log("Before if", tester.isExpectingResponse);
-            log("Message source", message.source);
-            log("Tester", tester);
             if (message.content.oclIsKindOf(Response) and message.source = tester) {
                 if (tester.isExpectingResponse) {
                     var response_message := message.mapTesterOutgoingToTesterIncoming(tester, prev_tester);
                     ret += response_message;
                     tester.isExpectingResponse := false;
-                    log("Expecting Response set to", tester.isExpectingResponse);
                 } else {
                     log("Found response from tester even though none is expected. Skipping");
                 };
@@ -109,7 +104,6 @@ helper OrderedSet(SequenceElement)::filterAndChangeIncomingRequests(in tester : 
                         ret += get_message;
                         ret += new Note(tester, msg_request, message.source, prev_tester);
                         tester.isExpectingResponse := true;
-                        log("Stub message detected. Expecting Response set to", tester.isExpectingResponse);
                     };
             }
             else {
