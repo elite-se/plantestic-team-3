@@ -107,7 +107,7 @@ object ServerMain {
                 pumlDiagramModel.contents[0] = pumlDiagramWithActor
                 val serialised = PumlSerializer.parse(pumlDiagramModel)
 
-                call.respond(mapOf("processedPuml" to serialised))
+                call.respond(mapOf("processedPuml" to serialised, "processedToml" to tmpTomlFile.readText()))
                 tmpFile.delete()
                 tmpTomlFile.delete()
             }
