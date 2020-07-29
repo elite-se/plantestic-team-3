@@ -4,6 +4,7 @@ import com.google.common.io.Resources
 import io.swagger.parser.OpenAPIParser
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
+import io.swagger.v3.parser.OpenAPIV3Parser
 import io.swagger.v3.parser.core.models.ParseOptions
 import org.eclipse.emf.common.util.Diagnostic
 import org.eclipse.emf.common.util.URI
@@ -14,9 +15,11 @@ import org.eclipse.m2m.qvt.oml.ExecutionContext
 import org.eclipse.m2m.qvt.oml.ExecutionContextImpl
 import org.eclipse.m2m.qvt.oml.TransformationExecutor
 import org.eclipse.m2m.qvt.oml.util.WriterLog
+import plantuml.puml.Message
 import plantuml.puml.Request
 import plantuml.puml.SequenceDiagram
 import plantuml.puml.impl.PumlFactoryImpl
+import java.io.FileNotFoundException
 import java.io.OutputStreamWriter
 
 object M2MTransformer {
@@ -35,26 +38,30 @@ object M2MTransformer {
      * @param inputModel The UmlDiagram to transform
      * @return UmlDiagram with extracted actor
      */
-    fun transformPuml2Puml(inputModel: EObject, tester : String): EObject {
+    fun transformPuml2Puml(inputModel: EObject, tester : String, path : String): EObject {
         require(inputModel is SequenceDiagram) { "Puml transformation input wasn't a puml object!" }
         val context = setContext(inputModel, Pair("tester", tester))
         val outputModel = doQvtoTransformation(inputModel, QVT_PUML2PUML_TRANSFORMATION_URI, context)
-        val test = addSwaggerAttributes(outputModel)
         return outputModel
     }
 
-    fun addSwaggerAttributes(inputModel : EObject) : List<EObject> {
-        val requestsList = inputModel.eContents().filter { obj -> obj.eClass().name == "Message"
+    fun addSwaggerAttributes(inputModel : EObject, sink2SwaggerPathMap : Map<String, String>) : List<EObject> {
+        val messagesList = inputModel.eContents().filter { obj -> obj.eClass().name == "Message"
                 && obj.eContents().filter { message -> message.eClass().name == "Request" }.any()}
-            .map { message -> message.eGet(message.eClass().getEStructuralFeature("content")) as EObject }
-        val swaggerContents = Resources.getResource("tests_swagger.yaml").readText()
-        val options = ParseOptions();
-        options.setResolve(true);
-        options.setFlatten(true);
-        val result = OpenAPIParser().readContents(swaggerContents, null, options);
-        val openApi = result.getOpenAPI();
-        requestsList.forEach { request -> addSwaggerAttributeToRequest(request as Request, openApi) }
-        return requestsList
+        val sink2SwaggerMap = mutableMapOf<String, OpenAPI>()
+        messagesList.forEach { message ->
+            val message = message as Message
+            val sinkName = message.sink.name
+            if (!sink2SwaggerMap.containsKey(sinkName)) {
+                val path = sink2SwaggerPathMap[sinkName]
+                sink2SwaggerMap[sinkName] = OpenAPIV3Parser().read(path)
+                if (sink2SwaggerMap[sinkName] == null) {
+                    throw FileNotFoundException();
+                }
+            }
+            addSwaggerAttributeToRequest(message.content as Request, sink2SwaggerMap[sinkName]!!)
+        }
+        return messagesList
     }
 
     fun addSwaggerAttributeToRequest(request : Request, openAPI : OpenAPI) {
