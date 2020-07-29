@@ -1,6 +1,17 @@
-# Plantestic
-![plantestic](https://img.shields.io/badge/🌱-plantestic-green.svg)
-[![Build Status](https://travis-ci.com/FionaGuerin/plantestic.svg?token=qCz9ynu1x7xYBT4zA1MS&branch=master)](https://travis-ci.com/FionaGuerin/plantestic/builds)
+# Plantestic - V2
+This project is a continuation and extension of the [plantestic project](https://github.com/FionaGuerin/plantestic).
+This README gives an overview of plantestic's core features and of the new features we added.
+
+##Contents
+* [Description]('#Description')
+* [Motivation]('#Motivation')
+* [Core Features (V1)]('#Motivation')
+* [Extension Features (V2, new in this repo)]('#Motivation')
+* [Installation]('#Installation')
+* [Usage]('#Usage')
+* [Limitations]('#Limitations')
+* [Credits]('#Credits')
+
 
 ## Description
 The test case generator Plantestic produces test cases from a sequence diagram. 
@@ -44,22 +55,17 @@ If the implementation fulfills these test cases, then the implementation fulfill
 If the implementation does not fulfill these test cases, the implementation deviates from the specification. 
 With our test case generator, developers can quickly uncover inconsistencies, fix them, and save costs.## Demo
 
-## Features
-Plantestic is universal in that it can run in any IDE. 
-For this, Plantestic uses Gradle.
+## Core Features
+* gradle-based. Runs in any IDE
+* requires only Java to be installed
+* single line user friendly CLI
+* powerful condition evaluation evaluates JavaScript conform conditions within sequence diagrams
+* parameters can be passed into sequence diagrams using external `.toml` config files and templating
 
-Plantestic is user-friendly: 
-You set it up by installing Java and downloading Plantestic.
-You generate a test case by filing a sequence diagram and entering one instruction. 
-
-Plantestic has a powerful condition evaluation: 
-A sequence diagram can contain alternative or optional interactions that it invokes under a certain condition. 
-Plantestic will evaluate any condition that conforms to JavaScript. 
-For this, it uses a JavaScript engine.  
-
-You can pass parameters to your sequence diagram if you wish to customize its flows.
-For example, you no longer need to reveal security-critical information such as passwords in your sequence diagram. 
-Plantestic evaluates the parameters using templating.
+## Extension Features (V2, new in this repo)
+* Restructure sequence diagrams to inspect only interactions of a specific actor. This enables users to have fewer,
+ more granular sequence diagrams and automatically generate specific sequence diagrams that test only the interactions of one actor.
+* Annotate requests to be delayed during the testcase execution. This enables the user to test a endpoint
 
 ## Installation
 1. Install Java SE Development Kit 8 or higher. 
@@ -67,7 +73,7 @@ You can find Java SE Development Kit 8 under the website [https://www.oracle.com
 2. Clone the Plantestic repository.
 3. Run `./gradlew build`.
 
-## How to use
+## Usage
 ### Input requirements
 The input is a PlantUML sequence diagram. 
 This sequence diagram contains several participants and interactions between the participants. 
@@ -105,14 +111,13 @@ Example: ```(name1 : "/value/value1", name2 : "/value2")```
 ![./core/src/test/resources/rerouting.png](./core/src/test/resources/rerouting.png)
 
 ### Execution
+#### Via the CLI
 1. Create a PlantUML sequence diagram. Note the input requirements above. 
 2. Save the sequence diagram. 
 3. Call the command `./gradlew run --args="--input=<path/to/sequence/diagram/diagram_name.puml>"`.
+4. The generated test cases are in `<path/to/sequence/diagram/generatedCode/<diagramName>.java>`.
 
-### Output expectation
-The generated test cases are in `<path/to/sequence/diagram/generatedCode/<diagramName>.java>`.
-
-## Demo
+##### Example
 Take the following test case generation from a minimal sequence diagram as an example:
 
 1. You can find the sequence diagram `minimal_hello.puml` in the Plantestic project under `./core/src/test/resources/minimal_hello.puml`:
@@ -205,7 +210,13 @@ public class Test {
 - We only support authenticated requests with username and password.
 
 ## Credits
-### Contributors 
+### Contributors (V2)
+- Jorge Quintero
+- Tobias Schmidt
+- Paula Wikidal
+- Fabian Wildgrube
+
+### Contributors (V1)
 - [Stefan Grafberger](https://github.com/stefan-grafberger) *
 - [Fiona Guerin](https://github.com/FionaGuerin) *
 - [Michelle Martin](https://github.com/MichelleMar) *
