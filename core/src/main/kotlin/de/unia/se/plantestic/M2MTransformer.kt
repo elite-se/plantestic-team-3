@@ -38,14 +38,14 @@ object M2MTransformer {
      * @param inputModel The UmlDiagram to transform
      * @return UmlDiagram with extracted actor
      */
-    fun transformPuml2Puml(inputModel: EObject, tester : String, path : String): EObject {
+    fun transformPuml2Puml(inputModel: EObject, tester : String): EObject {
         require(inputModel is SequenceDiagram) { "Puml transformation input wasn't a puml object!" }
         val context = setContext(inputModel, Pair("tester", tester))
         val outputModel = doQvtoTransformation(inputModel, QVT_PUML2PUML_TRANSFORMATION_URI, context)
         return outputModel
     }
 
-    fun addSwaggerAttributes(inputModel : EObject, sink2SwaggerPathMap : Map<String, Any>) : List<EObject> {
+    fun addSwaggerAttributes(inputModel : EObject, sink2SwaggerPathMap : Map<String, Any>) : EObject {
         val messagesList = inputModel.eContents().filter { obj -> obj.eClass().name == "Message"
                 && obj.eContents().filter { message -> message.eClass().name == "Request" }.any()}
         val sink2SwaggerMap = mutableMapOf<String, OpenAPI>()
@@ -61,7 +61,7 @@ object M2MTransformer {
             }
             addSwaggerAttributeToRequest(message.content as Request, sink2SwaggerMap[sinkName]!!)
         }
-        return messagesList
+        return inputModel
     }
 
     fun addSwaggerAttributeToRequest(request : Request, openAPI : OpenAPI) {
