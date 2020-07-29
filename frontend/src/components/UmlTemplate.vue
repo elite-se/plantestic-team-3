@@ -29,6 +29,7 @@
       selectTemplate(prop: string) {
         this.$store.dispatch('umlTemplate/selectTemplate', prop)
         this.$store.dispatch('tomlTemplate/selectTemplate', prop)
+        this.$store.dispatch('plantumlEditor/syncFileName', prop)
       }
     }
   }

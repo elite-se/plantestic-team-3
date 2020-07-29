@@ -13,11 +13,11 @@
                 <li class="nav-item active">
                   <a class="nav-link active" id="pumlTab" data-toggle="tab" href="#plantuml" role="tab"
                      aria-controls="plantuml"
-                     aria-selected="true">diagram.puml</a>
+                     aria-selected="true">{{pumlFileName}}</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" id="configTab" data-toggle="tab" href="#config" role="tab" aria-controls="config"
-                     aria-selected="false">config.toml</a>
+                     aria-selected="false">{{tomlFileName}}</a>
                 </li>
               </ul>
             </div>
@@ -97,6 +97,12 @@
       },
       umlCol(): number {
         return this.$store.state.layout.colSize.uml
+      },
+      pumlFileName(): string {
+        return this.$store.state.plantumlEditor.fileName + ".puml"
+      },
+      tomlFileName(): string {
+        return this.$store.state.plantumlEditor.fileName + "_config.toml"
       },
       applyThemeColor(): any {
         return {

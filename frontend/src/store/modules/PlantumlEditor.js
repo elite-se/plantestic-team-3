@@ -25,6 +25,8 @@ const state: any = {
   defaultConfigText: 'This is an empty .toml file. Add your configuration here.',
   configText: 'This is an empty .toml file. Add your configuration here.',
   encodedText: '',
+  fileName: '',
+  defaultFileName: 'diagram',
   src: '',
   preMarkdown: '',
   afterMarkdown: '',
@@ -200,6 +202,9 @@ const mutations: any = {
   setConfigText(state: any, configText: string) {
     state.configText = configText
   },
+  setFileName(state: any, fileName: string) {
+    state.fileName = fileName
+  },
   renderUML(state: any, text: string) {
     const start: string = findKey(state.startuml, text)
     const end: string = findKey(state.enduml, text)
@@ -238,6 +243,15 @@ const mutations: any = {
   getConfigFromLocalStrage(state: any) {
     const text: string = window.localStorage ? window.localStorage.getItem(state.configtoml) : ''
     state.configText = text || state.defaultConfigText
+  },
+  setFileNameLocalStrage(state: any, text: string) {
+    if (window.localStorage) {
+      window.localStorage.setItem('fileName', text)
+    }
+  },
+  getFileNameFromLocalStrage(state: any) {
+    const text: string = window.localStorage ? window.localStorage.getItem('fileName') : ''
+    state.fileName = text || state.defaultFileName
   },
   setKeyMapLocalStrage(state: any, keyMap: string) {
     if (window.localStorage) {
@@ -308,6 +322,7 @@ const actions: any = {
   getLocalStrage(context: any) {
     context.commit('getLocalStrage')
     context.commit('getConfigFromLocalStrage')
+    context.commit('getFileNameFromLocalStrage')
     context.commit('getUmlWidthFromLocalStorage')
     context.commit('getKeyMapFromLocalStrage')
     context.commit('getIndentFromLocalStrage')
@@ -321,6 +336,10 @@ const actions: any = {
   syncConfigText(context: any, text: string) {
     context.commit('setConfigText', text)
     context.commit('setConfigLocalStrage', text)
+  },
+  syncFileName(context: any, text: string) {
+    context.commit('setFileName', text)
+    context.commit('setFileNameLocalStrage', text)
   },
   setMarked() {
     const renderer: any = new marked.Renderer()
