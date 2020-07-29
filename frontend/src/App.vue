@@ -11,7 +11,7 @@
             <div role="navigation" class="col-editor">
               <ul class="nav nav-tabs" id="codeEditorTabs" role="tablist" :style="applyThemeColor">
                 <li class="nav-item active">
-                  <a class="nav-link active" id="plantuml-tab" data-toggle="tab" href="#plantuml" role="tab"
+                  <a class="nav-link active" id="pumlTab" data-toggle="tab" href="#plantuml" role="tab"
                      aria-controls="plantuml"
                      aria-selected="true">diagram.puml</a>
                 </li>
@@ -23,7 +23,7 @@
             </div>
             <div class="tab-content editor-tabs-container" id="codeEditorTabsContent" :class="'col-sm-12'">
               <div class="tab-pane in active" id="plantuml" role="tabpanel">
-                <editor :height="editorH" id="puml"></editor>
+                <editor :height="editorH" ref="puml"></editor>
               </div>
 
               <div class="tab-pane" id="config" role="tabpanel">
@@ -115,8 +115,10 @@
       window.$('[data-toggle="tooltip"]').tooltip()
       //Rerender toml editor once its shown, because bootstrap messes up codemirrors initial layout calculations when inside a hidden tab
       window.$('#configTab').on('shown.bs.tab', () => {
-        console.log("Refresh toml editor on shown")
         this.$refs.toml.refreshEditor();
+      })
+      window.$('#pumlTab').on('shown.bs.tab', () => {
+        this.$refs.puml.refreshEditor();
       })
     },
     methods: {

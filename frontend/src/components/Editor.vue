@@ -125,6 +125,12 @@
           this.insertTab()
         }
         this.codemirror.setOption('extraKeys', map)
+      },
+      refreshEditor() {
+        //foce rerendering of editor. Needed when this editor is hidden and only shown interactively by bootstrap tabs
+        if (this.codemirror) {
+          this.codemirror.refresh();
+        }
       }
     }
   }
