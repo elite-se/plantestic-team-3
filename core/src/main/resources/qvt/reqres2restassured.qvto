@@ -36,6 +36,7 @@ mapping HttpRequest::httprequest2requestSpecification(): RequestSpecification {
 
      method := self.httpMethod;
      url := self.url;
+     waitingTime := self.waitingTime;
      requestdatum := self.httprequestdatum -> map httpRequestDatum2requestdatum();
      receiver := self.receiver;
 }

@@ -49,11 +49,12 @@ RequestResponse:
     Request | Response;
 
 terminal RequestMethod:
-    'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+    'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'STUB';
 
 Request returns RequestResponse:
     {Request}
-    method=RequestMethod url=STRING ('(' requestParam+=RequestParam (',' requestParam+=RequestParam)* ')')?;
+    method=RequestMethod url=STRING ('(' requestParam+=RequestParam (',' requestParam+=RequestParam)* ')')?
+    ('waitingTime='waitingTime=INT)?;
 
 Response returns RequestResponse:
     {Response}
