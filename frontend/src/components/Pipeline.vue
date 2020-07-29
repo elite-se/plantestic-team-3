@@ -23,7 +23,7 @@
         <form class="form-inline">
           <div class="form-group">
             <label for="tester">Tester</label>
-            <input type="text" id="tester" style="width: 70px;" v-model="tester"
+            <input type="text" id="tester" style="width: 120px;" v-model="tester"
                    class="form-control"/>
           </div>
         </form>
@@ -42,7 +42,7 @@
         <form class="form-inline">
           <div class="form-group">
             <label for="testName">Testfile Name</label>
-            <input type="text" id="testName" style="width: 70px;" v-model="testFileName"
+            <input type="text" id="testName" style="width: 120px;" v-model="testFileName"
                    class="form-control"/>
           </div>
         </form>
