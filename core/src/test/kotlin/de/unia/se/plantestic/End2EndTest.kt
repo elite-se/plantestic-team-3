@@ -287,10 +287,7 @@ class End2EndTest : StringSpec({
     }
 
     "End2End test for parameter_pass" {
-        val receivedAge = 22
-        val responseAge = """{
-              "years" : 22
-            }"""
+        val responseAge = """{"years":22}"""
         wireMockServer.stubFor(
             get(urlEqualTo("/Person/getAge"))
                 .willReturn(aResponse().withStatus(200).withBody(responseAge))
@@ -324,11 +321,10 @@ class End2EndTest : StringSpec({
         serveEvents.forEach { serveEvent -> serveEvent.response.status shouldBe 200 }
 
         // original age isn't overwritten
-        val ageA1 = serveEvents[0].request.bodyAsString.split("=").last()
-        val ageA2 = serveEvents[2].request.bodyAsString.split("=").last()
-        ageA1 shouldBe ageA2
-        ageA2 shouldNotBe receivedAge
-
+        val ageA1 = serveEvents[2].request.bodyAsString.split("=").last()
+        val ageA2 = serveEvents[0].request.bodyAsString.split("=").last()
+        ageA1 shouldNotBe ageA2
+        ageA2 shouldBe """{"age":22}"""
     }
 
 }) {

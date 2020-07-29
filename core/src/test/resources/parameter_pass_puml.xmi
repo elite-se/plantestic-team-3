@@ -21,7 +21,7 @@
   </umlElements>
   <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="&lt;-"
       source="#//@umlElements.1">
-    <content xsi:type="puml:Response">
+    <content xsi:type="puml:Response" postcondition="${age} === 22">
       <code>200</code>
       <responseParam name="age" value="years"/>
     </content>
@@ -29,7 +29,7 @@
   <umlElements xsi:type="puml:Message" sink="#//@umlElements.1" associationArrow="->"
       source="#//@umlElements.0">
     <content xsi:type="puml:Request" method="POST" url="/checkAge">
-      <requestParam name="age" value="${A.age}"/>
+      <requestParam name="age" value="${age}"/>
     </content>
   </umlElements>
   <umlElements xsi:type="puml:Message" sink="#//@umlElements.0" associationArrow="&lt;-"
