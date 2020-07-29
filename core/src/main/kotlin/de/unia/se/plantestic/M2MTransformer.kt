@@ -1,6 +1,10 @@
 package de.unia.se.plantestic
 
 import com.google.common.io.Resources
+import io.swagger.parser.OpenAPIParser
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.Operation
+import io.swagger.v3.parser.core.models.ParseOptions
 import org.eclipse.emf.common.util.Diagnostic
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
@@ -10,7 +14,9 @@ import org.eclipse.m2m.qvt.oml.ExecutionContext
 import org.eclipse.m2m.qvt.oml.ExecutionContextImpl
 import org.eclipse.m2m.qvt.oml.TransformationExecutor
 import org.eclipse.m2m.qvt.oml.util.WriterLog
+import plantuml.puml.Request
 import plantuml.puml.SequenceDiagram
+import plantuml.puml.impl.PumlFactoryImpl
 import java.io.OutputStreamWriter
 
 object M2MTransformer {
@@ -32,8 +38,72 @@ object M2MTransformer {
     fun transformPuml2Puml(inputModel: EObject, tester : String): EObject {
         require(inputModel is SequenceDiagram) { "Puml transformation input wasn't a puml object!" }
         val context = setContext(inputModel, Pair("tester", tester))
-        return doQvtoTransformation(inputModel, QVT_PUML2PUML_TRANSFORMATION_URI, context)
+        val outputModel = doQvtoTransformation(inputModel, QVT_PUML2PUML_TRANSFORMATION_URI, context)
+        val test = addSwaggerAttributes(outputModel)
+        return outputModel
     }
+
+    fun addSwaggerAttributes(inputModel : EObject) : List<EObject> {
+        val requestsList = inputModel.eContents().filter { obj -> obj.eClass().name == "Message"
+                && obj.eContents().filter { message -> message.eClass().name == "Request" }.any()}
+            .map { message -> message.eGet(message.eClass().getEStructuralFeature("content")) as EObject }
+        val swaggerContents = Resources.getResource("tests_swagger.yaml").readText()
+        val options = ParseOptions();
+        options.setResolve(true);
+        options.setFlatten(true);
+        val result = OpenAPIParser().readContents(swaggerContents, null, options);
+        val openApi = result.getOpenAPI();
+        requestsList.forEach { request -> addSwaggerAttributeToRequest(request as Request, openApi) }
+        return requestsList
+    }
+
+    fun addSwaggerAttributeToRequest(request : Request, openAPI : OpenAPI) {
+        val method = request.method.toLowerCase()
+        val item = openAPI.paths.get(request.url)
+        var params = mutableListOf<String>()
+
+        if (item != null) {
+            when (method) {
+                "get" -> {
+                    params =  item.get.parameters
+                        .filter { param -> param.`in` != "path"}.map { param -> param.name }.toMutableList()
+                    addBodyAttributes(item.get, openAPI, params)
+                }
+                "post" -> {
+                    params =  item.post.parameters
+                        .filter { param -> param.`in` != "path"}.map { param -> param.name }.toMutableList()
+                    addBodyAttributes(item.post, openAPI, params)
+                }
+                //TODO: other methods e.g. put, delete, etc
+                else -> {
+                }//TODO: error handling
+            }
+        }
+        params.forEach { param ->
+                val newRequestParam  = PumlFactoryImpl.init().createRequestParam()
+                newRequestParam.name = param
+                newRequestParam.value = "STUB"
+                request.requestParam.add(newRequestParam)
+            }
+    }
+
+    fun addBodyAttributes(operation : Operation, openAPI : OpenAPI, params : MutableList<String> ){
+        val mediaType = operation.requestBody.content.get("application/json")
+        if (mediaType != null) {
+            val reference = mediaType.schema.`$ref`
+            if (reference.startsWith("#/components/schemas/")){
+                val contentName = reference.split('/').last()
+                val test = openAPI.components.schemas[contentName]!!.properties!!.keys
+                params.addAll(test)
+            } else {
+                //TODO: Error handling malformed reference
+            }
+
+        } else {
+            //TODO: Error handling no application/json
+        }
+    }
+
 
     /**
      * Transforms a UmlDiagram EObject to a Request Response Pair EObject.

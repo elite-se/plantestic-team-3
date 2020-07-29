@@ -37,6 +37,19 @@ paths:
           description: "success"
 
   /testB/hello/{id}:
+    get:
+      tags:
+        - "tester"
+      parameters:
+        - in: "query"
+          name: "testQuery"
+          required : true
+        - in: "path"
+          name: "id"
+          required: true
+      responses:
+        "200":
+          description: "success"
     post:
       tags:
         - "complex_hello"
@@ -44,11 +57,15 @@ paths:
         - application/json
       parameters:
         - in: "path"
-          name: "id"
+          name: "pathTest"
           type: "string"
           required : true
-        - name: body
-          in: body
+        - in: "query"
+          name: "testQuery"
+          type: "string"
+          required : true
+        - name: "body"
+          in: "body"
           required: true
           schema:
             # Body schema with atomic property examples
@@ -239,7 +256,7 @@ paths:
           description: "An event id"
           required: true
           type: "string"
-#       Query parameters ignored in validation
+        #       Query parameters ignored in validation
         - in: "query"
           name: "homeCountry"
           required: true
@@ -265,7 +282,7 @@ paths:
           name: "eventId"
           required: true
           type: "string"
-#       Query parameters ignored in validation
+        #       Query parameters ignored in validation
         - in: "query"
           name: "homeCountry"
           required: true
@@ -346,7 +363,7 @@ paths:
         "200":
           description: "success"
           schema:
-             $ref: "#/definitions/Age"
+            $ref: "#/definitions/Age"
 
   /Person/checkAge:
     post:
