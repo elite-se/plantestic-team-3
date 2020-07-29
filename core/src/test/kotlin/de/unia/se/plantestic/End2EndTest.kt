@@ -287,9 +287,9 @@ class End2EndTest : StringSpec({
     }
 
     "End2End test for parameter_pass" {
-        val receivedAge = "22"
+        val receivedAge = 22
         val responseAge = """{
-              "years" : "22"
+              "years" : 22
             }"""
         wireMockServer.stubFor(
             get(urlEqualTo("/Person/getAge"))

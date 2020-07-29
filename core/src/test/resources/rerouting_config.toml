@@ -1,9 +1,9 @@
-id = "123"
+id = 123
 countryCode1 = "Ger"
 positionCountryCode1 = "Muc"
 sourceEventType1 = "Hallo"
-eventId1 = "123"
-eventId = "321"
+eventId1 = 123
+eventId = 321
 voiceEstablished = true
 
 [VM]
