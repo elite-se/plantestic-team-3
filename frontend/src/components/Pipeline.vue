@@ -4,6 +4,17 @@
       <h2 class="heading">Pipeline</h2>
 
       <div class="alert alert-default">
+        <h4><span class="glyphicon glyphicon-compressed"></span> Autocomplete via Swagger</h4>
+        <p>Autogenerate variables from swagger API definitions onto the request arrows and into the config file.</p>
+        <p></p>
+        <div v-zLoading.fullscreen="preprocessing">
+          <button type="button" class="btn btn-primary" @click="triggerAutocompleteFromSwagger">
+            <span class="glyphicon glyphicon-send"></span> Trigger Autocomplete
+          </button>
+        </div>
+      </div>
+
+      <div class="alert alert-default">
         <h4><span class="glyphicon glyphicon-compressed"></span> Preprocess</h4>
         <p>Autogenerate variables from swagger API definitions and extract the tester actor (if
           present)</p>
@@ -102,6 +113,7 @@
       return {
         tester: '',
         testFileName: 'magicMike',
+        autocompleting: false,
         preprocessing: false,
         pipelining: false
       }
