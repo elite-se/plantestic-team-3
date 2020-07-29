@@ -8,7 +8,8 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Required for Kotlin integration
-        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version" // See https://kotlinlang.org/docs/reference/compiler-plugins.html#kotlin-spring-compiler-plugin
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
+        // See https://kotlinlang.org/docs/reference/compiler-plugins.html#kotlin-spring-compiler-plugin
         classpath "org.jetbrains.kotlin:kotlin-noarg:$kotlin_version"
         classpath "net.ltgt.gradle:gradle-apt-plugin:0.19"
     }
@@ -38,7 +39,7 @@ jar {
     }
 }
 
-sourceSets{
+sourceSets {
     main.java.srcDirs += "src/main/kotlin/"
     test.java.srcDirs += "src/test/kotlin/"
 }
@@ -97,8 +98,17 @@ dependencies {
     implementation "org.eclipse.acceleo:org.eclipse.acceleo.model:3.5.1.201409021433"
     implementation "org.eclipse.platform:org.eclipse.core.runtime:3.15.200"
     implementation "org.apache.ant:ant:1.8.2"
+    implementation "com.moandjiezana.toml:toml4j:0.7.2"
 
     implementation project(":plantuml")
+    implementation project(":frontend")
+
+    //Kotlin Web-Server
+    implementation ("io.ktor:ktor-server-core:1.3.2")
+    implementation ("io.ktor:ktor-server-netty:1.3.2")
+    implementation ("io.ktor:ktor-jackson:1.3.2")
+    //logger, which ktor requires
+    compile("ch.qos.logback:logback-classic:1.2.3")
 
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.1.7"
     testImplementation "io.mockk:mockk:1.8.9"
@@ -109,7 +119,6 @@ dependencies {
 
     // Needed for running the dynamically compiled test code (runtime dependencies)
     testRuntimeOnly "org.apache.commons:commons-text:1.7"
-    testRuntimeOnly "com.moandjiezana.toml:toml4j:0.7.2"
     testRuntimeOnly "io.rest-assured:rest-assured:3.0.0"
     testRuntimeOnly "javax.xml.bind:jaxb-api:2.3.1"
     testRuntimeOnly "com.googlecode.json-simple:json-simple:1.1"
@@ -149,3 +158,12 @@ jacocoTestCoverageVerification {
 check.dependsOn jacocoTestCoverageVerification
 // To run ktlint during the build (and fail when appropriate)
 check.dependsOn ktlint
+
+task startPumlDiagramServer(type: Exec) {
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'docker run -d -p 4000:8080 plantuml/plantuml-server:jetty'
+    } else {
+        commandLine 'sh', '-c', 'docker run -d -p 4000:8080 plantuml/plantuml-server:jetty'
+    }
+    ignoreExitValue = true //the above lines fail if port 4000 is already bound to -> this probably means the container is already running
+}

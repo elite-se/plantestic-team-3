@@ -9,129 +9,112 @@ const actions: any = {
 }
 
 const state: any = {
-  useCase: `@startuml
+  minimalHello: `SEQUENCE @startuml
 
-actor A
-actor B
+PARTICIPANT A
+PARTICIPANT B
 
-A -up-> (up)
-A -right-> (center)
-A -down-> (down)
-A -left-> (left)
-
-B -up-> (up)
-B -left-> (center)
-B -right-> (right)
-B -down-> (down)
-
-@enduml`,
-  ActivityB: `@startuml
-
-|A Section|
-start
-:step1;
-|#AntiqueWhite|B Section|
-:step2;
-:step3;
-|A Section|
-:step4;
-|B Section|
-:step5;
-stop
-
-@enduml`,
-  Activity: `@startuml
-
-start
-
-:step 1;
-
-if (try) then (true)
-  :step 2;
-  :step 3;
-else (false)
-  :error;
-  end
-endif
-
-stop
-
-@enduml`,
-  Sequence: `@startuml
-
-autonumber
-
-A -> B: step
-
+A -> B : GET "/hello"
 activate B
-B -> C: step
-
-activate C
-C --> C: action
-C -> B: step
-deactivate C
-
-B -> A: step
+B -> A : 200
 deactivate B
 
-@enduml`,
-  Object: `@startuml
+@enduml
+  `,
+  complexHello: `SEQUENCE @startuml
 
-object Car
-object Bus
-object Tire
-object Engine
-object Driver
+PARTICIPANT A
+PARTICIPANT B
 
-Car <|- Bus
-Car *-down- Tire
-Car *-down- Engine
-Bus o-down- Driver
+alt "\${testCondition} == 'SomeValue'"
+A -> B : POST "/hello/\${id}" (varA : "A", varB : "B")
+activate B
+B -> A : 200 - (varA := "itemA", varB := "itemB") ["\${varA} == \${varB}"]
+deactivate B
+end
 
-@enduml`,
-  Class: `@startuml
+@enduml
 
-class Car {
-  color
-  model
-  +start()
-  #run()
-  #stop()
-}
+  `,
+  rerouting: `SEQUENCE @startuml
 
-Car <|- Bus
-Car *-down- Tire
-Car *-down- Engine
-Bus o-down- Driver
+participant "Voicemanager" as VM
+participant CRS
+participant CCC
 
-@enduml`,
-  ER: `@startuml
+== Rerouting preparation ==
 
-entity Customer  {
-  + id (PK)
-  --
-  name
-  mail
-}
+'##### CCC checks VoiceManager connection status
+CCC -[#5B57FF]> CRS : POST "/ccc/rerouteOptions" (countryCode : "\${countryCode1}", positionCountryCode : "\${positionCountryCode1}", sourceEventType : "\${sourceEventType1}")
+activate CCC
+activate CRS
+CRS -> CCC : 200 - (uiswitch := "/UISWITCH", reroute := "/REROUTE", warmhandover := "/WARMHANDOVER")
+    deactivate CRS
 
-entity Order  {
-  + id (PK)
-  --
-  # customer id (FK)
-  order date
-}
-
-entity "Order Detail" as OrderDetail {
-  + id (PK)
-  --
-  # order id  (FK)
-  price without tax
-}
-
-Customer -right-o{ Order
-Order ||-right-|{ OrderDetail
+    '##### CCC checks VoiceManager connection status
+    CCC -[#5B57FF]> VM : GET "/ccc/events/\${eventId}/isconnected"
+    activate VM
+alt "\${voiceEstablished} == true"
+    VM -[#5B57FF]> CCC : 200 - (eventid1 := "/VoiceStatus/eventId1", agent1 := "/VoiceStatus/agent1/connectionStatus", agent2 := "/VoiceStatus/agent2/connectionStatus")
+else "\${voiceEstablished} == false"
+    VM -[#5B57FF]> CCC : 400,404,500
+    deactivate VM
+    note over CCC : Error is displayed \\n reroute may not be triggered
+end
 
 @enduml`,
+  xcall: `SEQUENCE @startuml
+
+participant "Voicemanager" as VM
+participant XCS
+participant DataService
+participant CRS
+participant EventNotifier
+participant ELOS
+participant CCC
+
+
+activate XCS
+
+XCS -> DataService : GET  "/vehicle/internal/\${vin}"
+activate DataService
+DataService --> XCS : 200 - (homeCountry := "/homeCountry", positionCountry := "/positionCountry", brand := "/brand")
+deactivate DataService
+
+XCS -> CRS : POST "routingTargets/find" (eventId : "\${eventId}", serviceType : "\${serviceType}", vin : "\${vin}", homeCountry : "\${homeCountry}", positionCountry : "\${positionCountry}", brand : "\${brand}")
+activate CRS
+CRS --> XCS : 200 - (voiceTargets := "/voiceTargets")
+deactivate CRS
+
+alt "\${xcsServiceType} == 'ACall'"
+XCS -> EventNotifier : PUT "xcs/notify/\${eventId}" (homeCountry : "\${homeCountry}", positionCountry : "\${positionCountry}", brand : "\${brand}")
+activate EventNotifier
+EventNotifier --> XCS : 200
+deactivate EventNotifier
+end
+
+alt "\${xcsServiceType} == 'BCall'"
+XCS -> ELOS : PUT "xcs/notify/\${eventId}" (homeCountry : "\${homeCountry}", positionCountry : "\${positionCountry}", brand : "\${brand}")
+activate ELOS
+ELOS --> XCS : 200
+deactivate ELOS
+end
+
+XCS -> CCC : POST "xcs/eventReceived" (eventId : "\${eventId}", serviceType : "\${serviceType}", homeCountry : "\${homeCountry}", positionCountry : "\${positionCountry}", brand : "\${brand}")
+activate CCC
+CCC --> XCS : 200
+deactivate CCC
+
+XCS -> VM : POST "/setupCall" (eventId : "\${eventId}", vin : "\${vin}", voiceTargets : "\${voiceTargets}")
+activate VM
+VM --> XCS : 200
+deactivate XCS
+deactivate VM
+
+@enduml
+
+
+  `,
 }
 
 export default {

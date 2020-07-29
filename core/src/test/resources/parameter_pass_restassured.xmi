@@ -14,7 +14,7 @@
   </testroundtrip>
   <testroundtrip testRoundtripName="roundtrip2">
     <requestspecification method="GET" url="/getAge" receiver="B"/>
-    <responsespecification>
+    <responsespecification postcondition="${age} === 22">
       <bodymatchergroup>
         <bodymatcher>
           <matcher xsi:type="RestAssured:HasXPath" xPath="years"/>
@@ -28,7 +28,7 @@
   </testroundtrip>
   <testroundtrip testRoundtripName="roundtrip3">
     <requestspecification method="POST" url="/checkAge" receiver="B">
-      <requestdatum variableName="age" value="${A.age}"/>
+      <requestdatum variableName="age" value="${age}"/>
     </requestspecification>
     <responsespecification>
       <bodymatchergroup/>

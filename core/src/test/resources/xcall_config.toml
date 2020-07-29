@@ -1,6 +1,6 @@
-id = "123"
-eventId = "645"
-vin = "987"
+id = 123
+eventId = 645
+vin = 987
 serviceType = "ACall"
 xcsServiceType = "ACall"
 homeCountry = "Ger"

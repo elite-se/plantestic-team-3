@@ -1,11 +1,9 @@
 <template>
   <div class="row functionTop">
     <div class="col-sm-12">
-      <div class="alert alert-warning" v-if="!isHTTPS">
-        Please go to <a :href="url">{{ url }}</a>
-      </div>
       <div class="alert alert-default">
-        Preview is <kbd>{{ winKey }}</kbd> or <kbd>{{ macKey }}</kbd> . Snippets are <kbd>{{ snippetWinKey }}</kbd> or <kbd>{{ snippetMacKey }}</kbd> .
+        Preview is <kbd>{{ winKey }}</kbd> or <kbd>{{ macKey }}</kbd> . Snippets are <kbd>{{ snippetWinKey }}</kbd> or
+        <kbd>{{ snippetMacKey }}</kbd> .
       </div>
       <div class="row form-group">
         <div class="col-sm-12">
@@ -17,33 +15,33 @@
 </template>
 
 <script lang="js">
-/* @flow */
+  /* @flow */
 
-// components
-import Parameters from './Parameters'
+  // components
+  import Parameters from './Parameters'
 
-export default {
-  name: 'FunctionTop',
-  components: {
-    Parameters
-  },
-  data(): any {
-    return {
-      winKey: this.$store.state.plantumlEditor.renderUMLKey.win,
-      macKey: this.$store.state.plantumlEditor.renderUMLKey.mac,
-      snippetWinKey: this.$store.state.plantumlEditor.snippetKey.win,
-      snippetMacKey: this.$store.state.plantumlEditor.snippetKey.mac
-    }
-  },
-  computed: {
-    isHTTPS(): boolean {
-      return this.$store.state.plantumlEditor.isHTTPS
+  export default {
+    name: 'FunctionTop',
+    components: {
+      Parameters
     },
-    url(): string {
-      return this.$store.state.plantumlEditor.url
+    data(): any {
+      return {
+        winKey: this.$store.state.plantumlEditor.renderUMLKey.win,
+        macKey: this.$store.state.plantumlEditor.renderUMLKey.mac,
+        snippetWinKey: this.$store.state.plantumlEditor.snippetKey.win,
+        snippetMacKey: this.$store.state.plantumlEditor.snippetKey.mac
+      }
+    },
+    computed: {
+      isHTTPS(): boolean {
+        return this.$store.state.plantumlEditor.isHTTPS
+      },
+      url(): string {
+        return this.$store.state.plantumlEditor.url
+      }
     }
   }
-}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

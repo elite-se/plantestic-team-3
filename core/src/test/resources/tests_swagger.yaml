@@ -148,7 +148,7 @@ paths:
           in: "path"
           description: "An event id"
           required: true
-          type: "string"
+          type: "number"
       responses:
         "200":
           description: "success"
@@ -165,7 +165,7 @@ paths:
                   - "agent2"
                 properties:
                   eventId1:
-                    type: "string"
+                    type: "number"
                   agent1:
                     type: "object"
                     properties:
@@ -191,7 +191,7 @@ paths:
         - name: "vin"
           in: "path"
           required: true
-          type: "string"
+          type: "number"
       responses:
         "200":
           description: "success"
@@ -224,11 +224,11 @@ paths:
               - brand
             properties:
               eventId:
-                type: "string"
+                type: "number"
               serviceType:
                 type: "string"
               vin:
-                type: "string"
+                type: "number"
               homeCountry:
                 type: "string"
               positionCountry:
@@ -255,7 +255,7 @@ paths:
           in: "path"
           description: "An event id"
           required: true
-          type: "string"
+          type: "number"
         #       Query parameters ignored in validation
         - in: "query"
           name: "homeCountry"
@@ -281,7 +281,7 @@ paths:
         - in: "path"
           name: "eventId"
           required: true
-          type: "string"
+          type: "number"
         #       Query parameters ignored in validation
         - in: "query"
           name: "homeCountry"
@@ -317,7 +317,7 @@ paths:
               - brand
             properties:
               eventId:
-                type: "string"
+                type: "number"
               serviceType:
                 type: "string"
               homeCountry:
@@ -346,9 +346,9 @@ paths:
               - voiceTargets
             properties:
               eventId:
-                type: "string"
+                type: "number"
               vin:
-                type: "string"
+                type: "number"
               voiceTargets:
                 type: "string"
       responses:

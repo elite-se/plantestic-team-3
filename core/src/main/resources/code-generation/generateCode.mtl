@@ -62,7 +62,7 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
         if (!validationFilterMap.containsKey("[testRoundtrip.requestspecification.receiver/]")){
             try {
                 validationFilterMap.put("[testRoundtrip.requestspecification.receiver/]",
-                    new OpenApiValidationFilter(subst("${[testRoundtrip.requestspecification.receiver/].swagger_json_path}")));
+                    new OpenApiValidationFilter(substStr("${[testRoundtrip.requestspecification.receiver/].swagger_json_path}")));
             } catch(ApiLoadException e){
                 System.out.println(e);
                 validationFilterMap.put("[testRoundtrip.requestspecification.receiver/]", new Filter() {
@@ -90,7 +90,22 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 	}
 
     /// Helper method to make to templating in string variables above more clean.
-	private String subst(String source) {
+	private String substStr(String source) {
+	    assert substitutor != null;
+	    return substitutor.replace(source);
+	}
+
+    /// Helper method to make to templating in string variables above more clean.
+	private Object subst(String source) {
+	    // keep type for non string
+	    if (source.startsWith("${") && source.endsWith("}")) {
+	        String paramName = source.substring(2, source.length() - 1);
+	        if (paramsMap.containsKey(paramName) && !(paramsMap.get(paramName) instanceof StringEscaper)){
+                return paramsMap.get(paramName);
+	        } else if (paramsMap.containsKey(paramName) && paramsMap.get(paramName) instanceof StringEscaper){
+	            return paramsMap.get(paramName).toString();
+	        }
+	    }
 	    assert substitutor != null;
 	    return substitutor.replace(source);
 	}
@@ -102,7 +117,7 @@ public class [ 'Test'.concat(testScenario.testScenarioName) /] {
 	    // This is the whole reason why we do this "evaluate a JS string at runtime" at all.
 	    // escape strings
 	    escape = true;
-	    String substCondition = subst(condition);
+	    String substCondition = substStr(condition);
 	    escape = false;
 	    // Second, we can simply pipe the string through the JavaScript engine and get a result.
 	    return (Boolean) engine.eval(substCondition);
@@ -190,7 +205,7 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given().contentType(Co
 [/template]
 
 [template private generateGivenPart(requestSpecification : RequestSpecification) post(trim())]
-.auth().basic(subst("${[requestSpecification.receiver/].username}"), subst("${[requestSpecification.receiver/].password}"))
+.auth().basic(substStr("${[requestSpecification.receiver/].username}"), substStr("${[requestSpecification.receiver/].password}"))
 .filter(validationFilterMap.get("[requestSpecification.receiver/]"))
 	[if (requestSpecification.requestdatum->notEmpty())]
 	    [if (requestSpecification.method.toLower() = 'post')]
@@ -198,7 +213,7 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given().contentType(Co
         [/if]
         [if (requestSpecification.method.toLower() <> 'post')]
             [for (requestDatum : RequestDatum | requestSpecification.requestdatum)]
-.param("[requestDatum.variableName/]", subst("[requestDatum.value/]"))
+.queryParam("[requestDatum.variableName/]", subst("[requestDatum.value/]"))
             [/for]
         [/if]
 	[/if]
@@ -206,10 +221,10 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given().contentType(Co
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]
     [if requestSpecification.method = 'STUB']
-	.get(subst("${[requestSpecification.receiver/].path}") + subst("[requestSpecification.url/]"))
+	.get(substStr("${[requestSpecification.receiver/].path}") + substStr("[requestSpecification.url/]"))
     [/if]
     [if requestSpecification.method <> 'STUB']
-    	.[requestSpecification.method.toLower()/](subst("${[requestSpecification.receiver/].path}") + subst("[requestSpecification.url/]"))
+    	.[requestSpecification.method.toLower()/](substStr("${[requestSpecification.receiver/].path}") + substStr("[requestSpecification.url/]"))
     [/if]
 [/template]
 
@@ -251,6 +266,6 @@ paramsMap.put("[responseDatum.variableName/]", parseJsonObject([testRoundtrip.te
 [template private checkPostcondition(responseSpecification : ResponseSpecification) post(trim())]
     [if (responseSpecification.postcondition->notEmpty())]
         assertTrue(eval("[responseSpecification.postcondition/]"),
-        "postcondition [responseSpecification.postcondition/] evaluated to " + subst("[responseSpecification.postcondition/]") + "failed");
+        "postcondition [responseSpecification.postcondition/] evaluated to " + substStr("[responseSpecification.postcondition/]") + "failed");
     [/if]
 [/template]

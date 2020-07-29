@@ -45,15 +45,15 @@ object M2MTransformer {
         return outputModel
     }
 
-    fun addSwaggerAttributes(inputModel : EObject, sink2SwaggerPathMap : Map<String, String>) : List<EObject> {
+    fun addSwaggerAttributes(inputModel : EObject, sink2SwaggerPathMap : Map<String, Any>) : List<EObject> {
         val messagesList = inputModel.eContents().filter { obj -> obj.eClass().name == "Message"
                 && obj.eContents().filter { message -> message.eClass().name == "Request" }.any()}
         val sink2SwaggerMap = mutableMapOf<String, OpenAPI>()
         messagesList.forEach { message ->
             val message = message as Message
-            val sinkName = message.sink.name
+            val sinkName = message.sink.name + "swagger_json_path"
             if (!sink2SwaggerMap.containsKey(sinkName)) {
-                val path = sink2SwaggerPathMap[sinkName]
+                val path = sink2SwaggerPathMap[sinkName] as String
                 sink2SwaggerMap[sinkName] = OpenAPIV3Parser().read(path)
                 if (sink2SwaggerMap[sinkName] == null) {
                     throw FileNotFoundException();

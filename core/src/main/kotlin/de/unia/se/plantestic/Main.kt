@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import de.unia.se.plantestic.server.ServerMain
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import java.io.File
@@ -79,32 +80,49 @@ object Main {
         """.trimMargin()
     ) {
 
-        private val input: String by option(help = "Path to the PlantUML file containing the API specification.")
-            .required()
+        private val input: String? by option(help = "Path to the PlantUML file containing the API specification.")
         private val output: String by option(help = "Output folder where the test cases should be written to. Default is './plantestic-test'")
             .default("./plantestic-test")
-        private val preprocessflag by option("--preprocess", "-p", help = "Trigger preprocessing of the input PlantUML instead of transforming to Java unit tests. Generates a new PlantUML file into the output folder with imported variables from Swagger and a tester actor.")
+        private val preprocessflag by option(
+            "--preprocess",
+            "-p",
+            help = "Trigger preprocessing of the input PlantUML instead of transforming to Java unit tests. Generates a new PlantUML file into the output folder with imported variables from Swagger and a tester actor."
+        )
             .flag(default = false)
         private val tester: String? by option(help = "Actor in the input PlantUML whose requests should be extracted into a separate actor during preprocessing. If not supplied preprocessing will not generate such a new test actor.")
+        private val serverflag by option(
+            "--server",
+            "-s",
+            help = "Starts the server providing the workflow's web GUI at localhost:9090. Can be used independently of or in conjunction with the normal pipeline."
+        )
+            .flag(default = false)
 
         override fun run() {
-            val inputFile = File(input).normalize()
-            val outputFolder = File(output).normalize()
-
-            if (!inputFile.exists()) {
-                echo("Input file ${inputFile.absolutePath} does not exist.")
-                return
+            if (serverflag) {
+                ServerMain.startServer()
             }
 
-            if (preprocessflag) {
-                println("Preprocessing PlantUML '${inputFile.name}' ${if (tester != null) "with tester '$tester'" else "" }")
-                //TODO: actually execute preprocessing commands here
+            if (input == null) {
+                if (!serverflag) echo("Input file has to be provided, when not running in server mode!")
             } else {
-                println("Running transformation pipeline")
-                if (tester != null) {
-                    runTransformationPipeline(inputFile, outputFolder, tester!!)
+                val inputFile = File(input!!).normalize()
+                val outputFolder = File(output).normalize()
+
+                if (!inputFile.exists() && !serverflag) {
+                    echo("Input file ${inputFile.absolutePath} does not exist.")
+                    return
+                }
+
+                if (preprocessflag) {
+                    println("Preprocessing PlantUML '${inputFile.name}' ${if (tester != null) "with tester '$tester'" else ""}")
+                    //TODO: actually execute preprocessing commands here
                 } else {
-                    runTransformationPipeline(inputFile, outputFolder)
+                    println("Running transformation pipeline")
+                    if (tester != null) {
+                        runTransformationPipeline(inputFile, outputFolder, tester!!)
+                    } else {
+                        runTransformationPipeline(inputFile, outputFolder)
+                    }
                 }
             }
         }
@@ -134,8 +152,8 @@ object Main {
         AcceleoCodeGenerator.generateCode(restAssuredModel, outputFolder)
     }
 
-    private fun addTestScenarioNameIfNull(restAssuredModel : EObject, pumlFile : File) {
-        val feature : EStructuralFeature = restAssuredModel.eClass().getEStructuralFeature("testScenarioName")
+    private fun addTestScenarioNameIfNull(restAssuredModel: EObject, pumlFile: File) {
+        val feature: EStructuralFeature = restAssuredModel.eClass().getEStructuralFeature("testScenarioName")
         val curr_val = restAssuredModel.eGet(feature)
         if (curr_val == null) {
             val shorter = pumlFile.name.replace('.', '_')

@@ -5,6 +5,7 @@ import axios from 'axios'
 import lodash from 'lodash'
 import marked from 'marked'
 import DOMPurify from 'dompurify'
+
 const _: any = lodash
 
 const state: any = {
@@ -13,6 +14,7 @@ const state: any = {
   url: process.env.VUE_APP_URL,
   official: 'http://plantuml.com/',
   plantuml: 'plantuml',
+  configtoml: 'config',
   server: process.env.VUE_APP_SERVER,
   cdn: process.env.VUE_APP_CDN,
   startuml: ['@startuml', '@startmindmap', '@startditaa', '@startgantt', '@startwbs'],
@@ -20,7 +22,11 @@ const state: any = {
   defaultText:
     '# PlantUML Editor\n\n1. select template\n2. write uml diagram\n\n@startuml\n\nleft to right direction\n\nactor User\n\nUser --> (1. select template)\nUser --> (2. write uml diagram)\n\n@enduml',
   text: '',
+  defaultConfigText: 'This is an empty .toml file. Add your configuration here.',
+  configText: 'This is an empty .toml file. Add your configuration here.',
   encodedText: '',
+  fileName: '',
+  defaultFileName: 'diagram',
   src: '',
   preMarkdown: '',
   afterMarkdown: '',
@@ -33,6 +39,15 @@ const state: any = {
     lineNumbers: true,
     styleActiveLine: true,
     keyMap: '',
+  },
+  codemirrorOptionsToml: {
+    mode: 'text/x-toml',
+    theme: '',
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    lineNumbers: true,
+    styleActiveLine: true,
   },
   themes: [
     {
@@ -165,6 +180,7 @@ const mutations: any = {
   },
   setCodeMirrorTheme(state: any, theme: string) {
     state.codemirrorOptions.theme = theme
+    state.codemirrorOptionsToml.theme = theme
   },
   getUmlWidthFromLocalStorage() {
     if (window.localStorage && window.localStorage.getItem('umlWidth')) {
@@ -182,6 +198,12 @@ const mutations: any = {
   },
   setText(state: any, text: string) {
     state.text = text
+  },
+  setConfigText(state: any, configText: string) {
+    state.configText = configText
+  },
+  setFileName(state: any, fileName: string) {
+    state.fileName = fileName
   },
   renderUML(state: any, text: string) {
     const start: string = findKey(state.startuml, text)
@@ -213,6 +235,24 @@ const mutations: any = {
     const text: string = window.localStorage ? window.localStorage.getItem(state.plantuml) : ''
     state.text = text || state.defaultText
   },
+  setConfigLocalStrage(state: any, text: string) {
+    if (window.localStorage) {
+      window.localStorage.setItem(state.configtoml, text)
+    }
+  },
+  getConfigFromLocalStrage(state: any) {
+    const text: string = window.localStorage ? window.localStorage.getItem(state.configtoml) : ''
+    state.configText = text || state.defaultConfigText
+  },
+  setFileNameLocalStrage(state: any, text: string) {
+    if (window.localStorage) {
+      window.localStorage.setItem('fileName', text)
+    }
+  },
+  getFileNameFromLocalStrage(state: any) {
+    const text: string = window.localStorage ? window.localStorage.getItem('fileName') : ''
+    state.fileName = text || state.defaultFileName
+  },
   setKeyMapLocalStrage(state: any, keyMap: string) {
     if (window.localStorage) {
       window.localStorage.setItem('codemirrorOptions.keyMap', keyMap)
@@ -239,6 +279,7 @@ const mutations: any = {
   getThemeFromLocalStrage(state: any) {
     const theme: string = window.localStorage ? window.localStorage.getItem('codemirrorOptions.theme') : ''
     state.codemirrorOptions.theme = theme || state.defaultTheme
+    state.codemirrorOptionsToml.theme = theme || state.defaultTheme
   },
   setIsLoading(state: any, isLoading: boolean) {
     state.isLoading = isLoading
@@ -280,6 +321,8 @@ const actions: any = {
   },
   getLocalStrage(context: any) {
     context.commit('getLocalStrage')
+    context.commit('getConfigFromLocalStrage')
+    context.commit('getFileNameFromLocalStrage')
     context.commit('getUmlWidthFromLocalStorage')
     context.commit('getKeyMapFromLocalStrage')
     context.commit('getIndentFromLocalStrage')
@@ -290,12 +333,20 @@ const actions: any = {
     context.commit('setText', text)
     context.commit('setLocalStrage', text)
   },
+  syncConfigText(context: any, text: string) {
+    context.commit('setConfigText', text)
+    context.commit('setConfigLocalStrage', text)
+  },
+  syncFileName(context: any, text: string) {
+    context.commit('setFileName', text)
+    context.commit('setFileNameLocalStrage', text)
+  },
   setMarked() {
     const renderer: any = new marked.Renderer()
     renderer.table = function (header: string, body: string): string {
       return `<table class="table table-striped table-bordered"><thead>${header}</thead><tbody>${body}</tbody></table>`
     }
-    marked.setOptions({ renderer: renderer })
+    marked.setOptions({renderer: renderer})
   },
   renderUML(context: any, text: string) {
     context.commit('setText', text)
@@ -303,8 +354,8 @@ const actions: any = {
     context.commit('renderMarkdown', text)
     context.commit('setLocalStrage', text)
   },
-  download({ state }: any) {
-    const ext: any = _.find(state.umlExtensions, { text: state.umlExtension })
+  download({state}: any) {
+    const ext: any = _.find(state.umlExtensions, {text: state.umlExtension})
     axios
       .get(state.src || '', {
         responseType: ext.responseType,
@@ -313,7 +364,7 @@ const actions: any = {
         if (response && response.data) {
           let downLoadLink: any = document.createElement('a')
           downLoadLink.download = `${state.plantuml}.${state.umlExtension}`
-          downLoadLink.href = URL.createObjectURL(new Blob([response.data], { type: ext.fileType }))
+          downLoadLink.href = URL.createObjectURL(new Blob([response.data], {type: ext.fileType}))
           downLoadLink.dataset.downloadurl = `${ext.fileType}:${downLoadLink.download}:${downLoadLink.href}`
           if (document.body) {
             document.body.appendChild(downLoadLink) // for firefox
