@@ -1,11 +1,8 @@
 package de.unia.se.plantestic.server
 
 import com.fasterxml.jackson.databind.SerializationFeature
-import de.unia.se.plantestic.M2MTransformer
+import de.unia.se.plantestic.*
 import de.unia.se.plantestic.Main.runTransformationPipeline
-import de.unia.se.plantestic.MetaModelSetup
-import de.unia.se.plantestic.PumlParser
-import de.unia.se.plantestic.PumlSerializer
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -101,10 +98,10 @@ object ServerMain {
 
                 MetaModelSetup.doSetup()
                 val pumlDiagramModel = PumlParser.parse(tmpFile.absolutePath)
-                // TODO: Swagger Transformation
-                // val pumlDiagramWithActor = null
+                val pumlDiagramWithActor =
+                    M2MTransformer.addSwaggerAttributes(pumlDiagramModel.contents[0], parseToml(reqParam.tomlString))
 
-                //pumlDiagramModel.contents[0] = pumlDiagramWithActor
+                pumlDiagramModel.contents[0] = pumlDiagramWithActor
                 val serialised = PumlSerializer.parse(pumlDiagramModel)
 
                 call.respond(mapOf("processedPuml" to serialised, "processedToml" to tmpTomlFile.readText()))
