@@ -17,7 +17,7 @@
           </div>
         </form>
         <div v-zLoading.fullscreen="preprocessing">
-          <button type="button" class="btn btn-primary" @click="triggerPreprocessing">
+          <button type="button" class="btn btn-primary" @click="triggerPreprocessingTester">
             <span class="glyphicon glyphicon-send"></span> Trigger Preprocessing
           </button>
         </div>
@@ -63,10 +63,10 @@
     }
   }
 
-  async function preprocess(pumlString: string = '', tester: string = '', callback: any, errorCallback: any): any {
-    console.log("Triggered Preprocessing");
+  async function preprocessTester(pumlString: string = '', tester: string = '', callback: any, errorCallback: any): any {
+    console.log("Triggered Tester Preprocessing");
     try {
-      const preprocessedPuml: any = await sendToServer('preprocess', {pumlString: pumlString, tester: tester});
+      const preprocessedPuml: any = await sendToServer('preprocessTester', {pumlString: pumlString, tester: tester});
       callback(preprocessedPuml.processedPuml);
     } catch (error) {
       console.log("Error: ", error);
@@ -74,10 +74,21 @@
     }
   }
 
-  async function triggerPipeline(testFileName: string = '', pumlString: string = '', callback: any, errorCallback: any): any {
+  async function preprocessSwagger(pumlString: string = '', tomlString: string = '', callback: any, errorCallback: any): any {
+    console.log("Triggered Swagger Preprocessing");
+    try {
+      const preprocessedPuml: any = await sendToServer('preprocessSwagger', {pumlString: pumlString, tomlString: tomlString});
+      callback(preprocessedPuml.processedPuml);
+    } catch (error) {
+      console.log("Error: ", error);
+      errorCallback(error);
+    }
+  }
+
+  async function triggerPipeline(testFileName: string = '', pumlString: string = '', tomlString: string = '', callback: any, errorCallback: any): any {
     console.log("Triggered Pipeline");
     try {
-      const pipelineResult: any = await sendToServer('runPipeline', {name: testFileName, diagram: pumlString});
+      const pipelineResult: any = await sendToServer('runPipeline', {name: testFileName, diagram: pumlString, toml: tomlString});
       callback(pipelineResult);
     } catch (error) {
       console.log("Error: ", error);
@@ -110,10 +121,10 @@
       }
     },
     methods: {
-      triggerPreprocessing() {
+      triggerPreprocessingTester() {
         this.preprocessing = true;
         this.$store.dispatch('histories/save', this.$store.state.plantumlEditor)
-        preprocess(this.$store.state.plantumlEditor.text, this.tester, (preprocessedPuml: string) => {
+        preprocessTester(this.$store.state.plantumlEditor.text, this.tester, (preprocessedPuml: string) => {
             this.$store.dispatch('plantumlEditor/syncText', preprocessedPuml);
             this.preprocessing = false;
             setTimeout(() => {
@@ -122,7 +133,23 @@
           },
           (error: any) => {
             this.preprocessing = false;
-            this.showErrorModal("Preprocessing failed, " + error);
+            this.showErrorModal("Tester preprocessing failed, " + error);
+          })
+      },
+      triggerPreprocessingSwagger() {
+        this.preprocessing = true;
+        this.$store.dispatch('histories/save', this.$store.state.plantumlEditor)
+        // TODO: tomlString
+        preprocessSwagger(this.$store.state.plantumlEditor.text, this.tester, (preprocessedPuml: string) => {
+            this.$store.dispatch('plantumlEditor/syncText', preprocessedPuml);
+            this.preprocessing = false;
+            setTimeout(() => {
+              this.$store.dispatch('plantumlEditor/renderUML', this.$store.state.plantumlEditor.text)
+            }, 300)
+          },
+          (error: any) => {
+            this.preprocessing = false;
+            this.showErrorModal("Swagger preprocessing failed, " + error);
           })
       },
       generateTests() {
