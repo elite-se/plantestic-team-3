@@ -3,14 +3,15 @@ SEQUENCE @startuml
 Participant A
 Participant B
 Participant C
+Participant D
 
 ACTIVATE A
-A -> B : POST "/hello"
+A -> B : POST "/hello"  waitingTime=1000
 ACTIVATE B
 B -> C : GET "/hello/ref"
 alt "true"
     C -> B : 200
-else
+else "false"
     C -> B : 400
 end
 ACTIVATE C
@@ -31,6 +32,10 @@ else "true"
     A -> C : 400
 end
 DEACTIVATE C
+D -> A : GET "/quetal"
+ACTIVATE D
+A -> D : 200
+DEACTIVATE D
 DEACTIVATE A
 
 @enduml

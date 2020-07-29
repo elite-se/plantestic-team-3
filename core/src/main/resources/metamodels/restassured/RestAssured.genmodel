@@ -21,11 +21,13 @@
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute RestAssured.ecore#//RequestSpecification/url"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute RestAssured.ecore#//RequestSpecification/receiver"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference RestAssured.ecore#//RequestSpecification/requestdatum"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute RestAssured.ecore#//RequestSpecification/waitingTime"/>
     </genClasses>
     <genClasses ecoreClass="RestAssured.ecore#//ResponseSpecification">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference RestAssured.ecore#//ResponseSpecification/bodymatchergroup"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference RestAssured.ecore#//ResponseSpecification/statusmatcher"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference RestAssured.ecore#//ResponseSpecification/responsedatum"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute RestAssured.ecore#//ResponseSpecification/postcondition"/>
     </genClasses>
     <genClasses ecoreClass="RestAssured.ecore#//BodyMatcherGroup">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference RestAssured.ecore#//BodyMatcherGroup/bodymatcher"/>

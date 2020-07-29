@@ -166,6 +166,9 @@ requestParams.put("[requestDatum.variableName/]", subst("[requestDatum.value/]")
 [/template]
 
 [template private generateTestRoundtrip(testRoundtrip : TestRoundtrip) post(trim())]
+[if (testRoundtrip.requestspecification.waitingTime > 0) ]
+    [testRoundtrip.requestspecification.generateDelayBeforeTestRoundTrip()/]
+[/if]
 Response [testRoundtrip.testRoundtripName/] = RestAssured.given().contentType(ContentType.JSON)
         [testRoundtrip.requestspecification.generateGivenPart()/]
     .when()
@@ -176,6 +179,14 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given().contentType(Co
 [testRoundtrip.generateExtractions()/]
 [testRoundtrip.responsespecification.checkPostcondition()/]
 	[/if]
+[/template]
+
+[template private generateDelayBeforeTestRoundTrip(requestspecification : RequestSpecification) post(trim())]
+    try {
+        Thread.sleep([requestspecification.waitingTime/]);
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+    }
 [/template]
 
 [template private generateGivenPart(requestSpecification : RequestSpecification) post(trim())]
@@ -194,7 +205,12 @@ Response [testRoundtrip.testRoundtripName/] = RestAssured.given().contentType(Co
 [/template]
 
 [template private generateWhenPart(requestSpecification : RequestSpecification) post(trim())]
-	.[requestSpecification.method.toLower()/](subst("${[requestSpecification.receiver/].path}") + subst("[requestSpecification.url/]"))
+    [if requestSpecification.method = 'STUB']
+	.get(subst("${[requestSpecification.receiver/].path}") + subst("[requestSpecification.url/]"))
+    [/if]
+    [if requestSpecification.method <> 'STUB']
+    	.[requestSpecification.method.toLower()/](subst("${[requestSpecification.receiver/].path}") + subst("[requestSpecification.url/]"))
+    [/if]
 [/template]
 
 [template private generateThenPart(responseSpecification : ResponseSpecification) post(trim())]

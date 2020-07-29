@@ -10,8 +10,8 @@ paths:
       tags:
         - "stub_get_tester"
       responses:
-        "200":
-          description: "successfully saved"
+        "400":
+          description: "error occurred"
 
   /testA/bye:
     get:
