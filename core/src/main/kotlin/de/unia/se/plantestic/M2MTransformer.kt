@@ -51,7 +51,7 @@ object M2MTransformer {
         val sink2SwaggerMap = mutableMapOf<String, OpenAPI>()
         messagesList.forEach { message ->
             val message = message as Message
-            val sinkName = message.sink.name + "swagger_json_path"
+            val sinkName = message.sink.name + ".swagger_json_path"
             if (!sink2SwaggerMap.containsKey(sinkName)) {
                 val path = sink2SwaggerPathMap[sinkName] as String
                 sink2SwaggerMap[sinkName] = OpenAPIV3Parser().read(path)
