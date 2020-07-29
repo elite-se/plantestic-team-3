@@ -9,7 +9,9 @@ import java.io.File
 fun main() {
     val SWAGGER_YAML = File(Resources.getResource("tests_swagger.yaml").path)
 
-    WireMockServer(8080).stubFor(
+    val wireMockServer = WireMockServer(8080)
+    wireMockServer.start()
+    wireMockServer.stubFor(
         get(urlPathMatching("/swagger/tests.yaml"))
             .willReturn(aResponse().withStatus(200).withBody(SWAGGER_YAML.readText()))
     )
