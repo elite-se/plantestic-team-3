@@ -9,6 +9,7 @@
         <li><a @click="selectTemplate('complexHello')">Complex Hello</a></li>
         <li><a @click="selectTemplate('rerouting')">Rerouting</a></li>
         <li><a @click="selectTemplate('xcall')">XCall</a></li>
+        <li><a @click="selectTemplate('parameterPass')">Parameter Pass</a></li>
       </ul>
     </li>
   </ul>
@@ -27,6 +28,7 @@
     methods: {
       selectTemplate(prop: string) {
         this.$store.dispatch('umlTemplate/selectTemplate', prop)
+        this.$store.dispatch('tomlTemplate/selectTemplate', prop)
       }
     }
   }
