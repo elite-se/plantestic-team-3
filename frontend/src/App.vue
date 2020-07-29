@@ -23,11 +23,11 @@
             </div>
             <div class="tab-content editor-tabs-container" id="codeEditorTabsContent" :class="'col-sm-12'">
               <div class="tab-pane fade in active" id="plantuml" role="tabpanel">
-                <editor :height="editorH"></editor>
+                <editor :height="editorH" id="puml"></editor>
               </div>
 
-              <div class="tab-pane fade" id="config" role="tabpanel" :style="{ height: editorH }">
-                CONFIGIO!
+              <div class="tab-pane fade" id="config" role="tabpanel">
+                <toml-editor :height="editorH" id="toml"></toml-editor>
               </div>
             </div>
           </div>
@@ -62,6 +62,7 @@
   import HistoryList from './components/HistoryList'
   import Pipeline from "./components/Pipeline"
   import Editor from './components/Editor'
+  import TomlEditor from './components/TomlEditor'
   import Preview from "./components/Preview"
 
   export default {
@@ -75,6 +76,7 @@
       NotificationModal,
       HistoryList,
       Editor,
+      TomlEditor,
       Pipeline,
       Preview
     },

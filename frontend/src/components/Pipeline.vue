@@ -7,8 +7,8 @@
         <h4><span class="glyphicon glyphicon-compressed"></span> Autocomplete via Swagger</h4>
         <p>Autogenerate variables from swagger API definitions onto the request arrows and into the config file.</p>
         <p></p>
-        <div v-zLoading.fullscreen="preprocessing">
-          <button type="button" class="btn btn-primary" @click="triggerAutocompleteFromSwagger">
+        <div v-zLoading.fullscreen="preprocessingSwagger">
+          <button type="button" class="btn btn-primary" @click="triggerPreprocessingSwagger">
             <span class="glyphicon glyphicon-send"></span> Trigger Autocomplete
           </button>
         </div>
@@ -27,7 +27,7 @@
                    class="form-control"/>
           </div>
         </form>
-        <div v-zLoading.fullscreen="preprocessing">
+        <div v-zLoading.fullscreen="preprocessingTester">
           <button type="button" class="btn btn-primary" @click="triggerPreprocessingTester">
             <span class="glyphicon glyphicon-send"></span> Trigger Preprocessing
           </button>
@@ -88,8 +88,11 @@
   async function preprocessSwagger(pumlString: string = '', tomlString: string = '', callback: any, errorCallback: any): any {
     console.log("Triggered Swagger Preprocessing");
     try {
-      const preprocessedPuml: any = await sendToServer('preprocessSwagger', {pumlString: pumlString, tomlString: tomlString});
-      callback(preprocessedPuml.processedPuml);
+      const preprocessedPumlAndToml: any = await sendToServer('preprocessSwagger', {
+        pumlString: pumlString,
+        tomlString: tomlString
+      });
+      callback(preprocessedPumlAndToml.processedPuml, preprocessedPumlAndToml.processedToml);
     } catch (error) {
       console.log("Error: ", error);
       errorCallback(error);
@@ -99,7 +102,11 @@
   async function triggerPipeline(testFileName: string = '', pumlString: string = '', tomlString: string = '', callback: any, errorCallback: any): any {
     console.log("Triggered Pipeline");
     try {
-      const pipelineResult: any = await sendToServer('runPipeline', {name: testFileName, diagram: pumlString, toml: tomlString});
+      const pipelineResult: any = await sendToServer('runPipeline', {
+        name: testFileName,
+        diagram: pumlString,
+        toml: tomlString
+      });
       callback(pipelineResult);
     } catch (error) {
       console.log("Error: ", error);
@@ -113,8 +120,8 @@
       return {
         tester: '',
         testFileName: 'magicMike',
-        autocompleting: false,
-        preprocessing: false,
+        preprocessingSwagger: false,
+        preprocessingTester: false,
         pipelining: false
       }
     },
@@ -134,39 +141,39 @@
     },
     methods: {
       triggerPreprocessingTester() {
-        this.preprocessing = true;
+        this.preprocessingTester = true;
         this.$store.dispatch('histories/save', this.$store.state.plantumlEditor)
         preprocessTester(this.$store.state.plantumlEditor.text, this.tester, (preprocessedPuml: string) => {
             this.$store.dispatch('plantumlEditor/syncText', preprocessedPuml);
-            this.preprocessing = false;
+            this.preprocessingTester = false;
             setTimeout(() => {
               this.$store.dispatch('plantumlEditor/renderUML', this.$store.state.plantumlEditor.text)
             }, 300)
           },
           (error: any) => {
-            this.preprocessing = false;
+            this.preprocessingTester = false;
             this.showErrorModal("Tester preprocessing failed, " + error);
           })
       },
       triggerPreprocessingSwagger() {
-        this.preprocessing = true;
+        this.preprocessingSwagger = true;
         this.$store.dispatch('histories/save', this.$store.state.plantumlEditor)
-        // TODO: tomlString
-        preprocessSwagger(this.$store.state.plantumlEditor.text, this.tester, (preprocessedPuml: string) => {
+        preprocessSwagger(this.$store.state.plantumlEditor.text, this.$store.state.plantumlEditor.configText, (preprocessedPuml: string, preprocessedToml: string) => {
             this.$store.dispatch('plantumlEditor/syncText', preprocessedPuml);
-            this.preprocessing = false;
+            this.$store.dispatch('plantumlEditor/syncConfigText', preprocessedToml);
+            this.preprocessingSwagger = false;
             setTimeout(() => {
               this.$store.dispatch('plantumlEditor/renderUML', this.$store.state.plantumlEditor.text)
             }, 300)
           },
           (error: any) => {
-            this.preprocessing = false;
+            this.preprocessingSwagger = false;
             this.showErrorModal("Swagger preprocessing failed, " + error);
           })
       },
       generateTests() {
         this.pipelining = true;
-        triggerPipeline(this.testFileName, this.$store.state.plantumlEditor.text, (pipelineResult: any) => {
+        triggerPipeline(this.testFileName, this.$store.state.plantumlEditor.text, this.$store.state.plantumlEditor.configText, (pipelineResult: any) => {
           this.pipelining = false;
           if (pipelineResult.success) {
             this.$store.dispatch('notifications/setNotificationHeading', "Testcase successfully generated");

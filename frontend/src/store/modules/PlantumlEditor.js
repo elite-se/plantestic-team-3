@@ -14,6 +14,7 @@ const state: any = {
   url: process.env.VUE_APP_URL,
   official: 'http://plantuml.com/',
   plantuml: 'plantuml',
+  configtoml: 'config',
   server: process.env.VUE_APP_SERVER,
   cdn: process.env.VUE_APP_CDN,
   startuml: ['@startuml', '@startmindmap', '@startditaa', '@startgantt', '@startwbs'],
@@ -21,6 +22,8 @@ const state: any = {
   defaultText:
     '# PlantUML Editor\n\n1. select template\n2. write uml diagram\n\n@startuml\n\nleft to right direction\n\nactor User\n\nUser --> (1. select template)\nUser --> (2. write uml diagram)\n\n@enduml',
   text: '',
+  defaultConfigText: 'This is an empty .toml file. Add your configuration here.',
+  configText: 'This is an empty .toml file. Add your configuration here.',
   encodedText: '',
   src: '',
   preMarkdown: '',
@@ -34,6 +37,15 @@ const state: any = {
     lineNumbers: true,
     styleActiveLine: true,
     keyMap: '',
+  },
+  codemirrorOptionsToml: {
+    mode: 'text/x-toml',
+    theme: '',
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    lineNumbers: true,
+    styleActiveLine: true,
   },
   themes: [
     {
@@ -166,6 +178,7 @@ const mutations: any = {
   },
   setCodeMirrorTheme(state: any, theme: string) {
     state.codemirrorOptions.theme = theme
+    state.codemirrorOptionsToml.theme = theme
   },
   getUmlWidthFromLocalStorage() {
     if (window.localStorage && window.localStorage.getItem('umlWidth')) {
@@ -183,6 +196,9 @@ const mutations: any = {
   },
   setText(state: any, text: string) {
     state.text = text
+  },
+  setConfigText(state: any, configText: string) {
+    state.configText = configText
   },
   renderUML(state: any, text: string) {
     const start: string = findKey(state.startuml, text)
@@ -213,6 +229,15 @@ const mutations: any = {
   getLocalStrage(state: any) {
     const text: string = window.localStorage ? window.localStorage.getItem(state.plantuml) : ''
     state.text = text || state.defaultText
+  },
+  setConfigLocalStrage(state: any, text: string) {
+    if (window.localStorage) {
+      window.localStorage.setItem(state.configtoml, text)
+    }
+  },
+  getConfigFromLocalStrage(state: any) {
+    const text: string = window.localStorage ? window.localStorage.getItem(state.configtoml) : ''
+    state.configText = text || state.defaultConfigText
   },
   setKeyMapLocalStrage(state: any, keyMap: string) {
     if (window.localStorage) {
@@ -281,6 +306,7 @@ const actions: any = {
   },
   getLocalStrage(context: any) {
     context.commit('getLocalStrage')
+    context.commit('getConfigFromLocalStrage')
     context.commit('getUmlWidthFromLocalStorage')
     context.commit('getKeyMapFromLocalStrage')
     context.commit('getIndentFromLocalStrage')
@@ -290,6 +316,10 @@ const actions: any = {
   syncText(context: any, text: string) {
     context.commit('setText', text)
     context.commit('setLocalStrage', text)
+  },
+  syncConfigText(context: any, text: string) {
+    context.commit('setConfigText', text)
+    context.commit('setConfigLocalStrage', text)
   },
   setMarked() {
     const renderer: any = new marked.Renderer()

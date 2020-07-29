@@ -114,8 +114,8 @@ deactivate VM
 @enduml
 
 
-  `
-};
+  `,
+}
 
 export default {
   namespaced: true,
