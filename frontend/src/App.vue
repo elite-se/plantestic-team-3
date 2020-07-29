@@ -8,8 +8,27 @@
         </div>
         <div :class="[ historyCol ?  'col-sm-8' : 'col-sm-10']">
           <div class="row">
-            <div class="col-editor" :class="'col-sm-12'">
-              <editor :height="editorH"></editor>
+            <div role="navigation" class="col-editor">
+              <ul class="nav nav-tabs" id="codeEditorTabs" role="tablist" :style="applyThemeColor">
+                <li class="nav-item active">
+                  <a class="nav-link active" id="plantuml-tab" data-toggle="tab" href="#plantuml" role="tab"
+                     aria-controls="plantuml"
+                     aria-selected="true">diagram.puml</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="config-tab" data-toggle="tab" href="#config" role="tab" aria-controls="config"
+                     aria-selected="false">config.toml</a>
+                </li>
+              </ul>
+            </div>
+            <div class="tab-content editor-tabs-container" id="codeEditorTabsContent" :class="'col-sm-12'">
+              <div class="tab-pane fade in active" id="plantuml" role="tabpanel">
+                <editor :height="editorH"></editor>
+              </div>
+
+              <div class="tab-pane fade" id="config" role="tabpanel" :style="{ height: editorH }">
+                CONFIGIO!
+              </div>
             </div>
           </div>
           <Preview :umlH="umlH"></Preview>
@@ -76,6 +95,11 @@
       },
       umlCol(): number {
         return this.$store.state.layout.colSize.uml
+      },
+      applyThemeColor(): any {
+        return {
+          '--color': this.$store.getters['plantumlEditor/themeColor']
+        }
       }
     },
     created() {
@@ -92,13 +116,14 @@
       setHeight() {
         const headerHeight: number = window.$('.navbar-static-top').height()
         const functionTopHeight: number = window.$('.functionTop').height()
+        const codeEditorTabsHeight: number = window.$('#codeEditorTabs').height()
         const height: number = window.innerHeight - headerHeight
         const editorHeight: number = height * 0.5
         const marginTop: number = 20
         const marginBottom: number = 10
         this.height = height + 'px'
         this.editorH = editorHeight + 'px'
-        this.umlH = (height - editorHeight) - (marginTop + functionTopHeight + marginBottom) + 'px'
+        this.umlH = (height - editorHeight - codeEditorTabsHeight) - (marginTop + functionTopHeight + marginBottom) + 'px'
       },
       resize() {
         let timer: any = null
@@ -123,13 +148,43 @@
   /* Spinners */
   @import '../node_modules/z-loading/dist/z-loading.css';
 
-  .col-editor {
-    margin-top: -20px;
-    padding: 0;
+  #codeEditorTabs {
+    --color: #123123; /* dynamically set to the selected theme color via js*/
+
+    background-color: var(--color);
   }
 
+  .nav-tabs {
+    border-bottom-color: #337ab7;
+  }
+
+  .nav-tabs > li.active > a {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #337ab7;
+  }
+
+  .nav-tabs > li.active > a:focus {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-color: #337ab7;
+  }
+
+  .col-editor {
+    margin-top: -20px;
+  }
+
+  /* declared here at the root level since it is used in several sub-components! */
   .alert-default {
     background-color: #f5f5f5;
     border-color: #ddd;
+  }
+
+  .editor-tabs-container {
+    padding: 0;
+  }
+
+  #config {
+    background: red;
   }
 </style>
