@@ -16,18 +16,18 @@
                      aria-selected="true">diagram.puml</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" id="config-tab" data-toggle="tab" href="#config" role="tab" aria-controls="config"
+                  <a class="nav-link" id="configTab" data-toggle="tab" href="#config" role="tab" aria-controls="config"
                      aria-selected="false">config.toml</a>
                 </li>
               </ul>
             </div>
             <div class="tab-content editor-tabs-container" id="codeEditorTabsContent" :class="'col-sm-12'">
-              <div class="tab-pane fade in active" id="plantuml" role="tabpanel">
+              <div class="tab-pane in active" id="plantuml" role="tabpanel">
                 <editor :height="editorH" id="puml"></editor>
               </div>
 
-              <div class="tab-pane fade" id="config" role="tabpanel">
-                <toml-editor :height="editorH" id="toml"></toml-editor>
+              <div class="tab-pane" id="config" role="tabpanel">
+                <toml-editor :height="editorH" ref="toml"></toml-editor>
               </div>
             </div>
           </div>
@@ -113,6 +113,11 @@
     mounted() {
       this.setHeight()
       window.$('[data-toggle="tooltip"]').tooltip()
+      //Rerender toml editor once its shown, because bootstrap messes up codemirrors initial layout calculations when inside a hidden tab
+      window.$('#configTab').on('shown.bs.tab', () => {
+        console.log("Refresh toml editor on shown")
+        this.$refs.toml.refreshEditor();
+      })
     },
     methods: {
       setHeight() {
@@ -184,9 +189,5 @@
 
   .editor-tabs-container {
     padding: 0;
-  }
-
-  #config {
-    background: red;
   }
 </style>

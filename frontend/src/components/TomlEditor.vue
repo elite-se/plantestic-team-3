@@ -69,6 +69,12 @@
       onChange(text: string) {
         this.$store.dispatch('plantumlEditor/syncConfigText', text)
       },
+      refreshEditor() {
+        //foce rerendering of editor. Needed when this editor is hidden by default and only shown interactively by bootstrap tabs
+        if (this.codemirror) {
+          this.codemirror.refresh();
+        }
+      }
     }
   }
 </script>

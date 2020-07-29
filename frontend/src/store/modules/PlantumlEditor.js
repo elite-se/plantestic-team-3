@@ -265,6 +265,7 @@ const mutations: any = {
   getThemeFromLocalStrage(state: any) {
     const theme: string = window.localStorage ? window.localStorage.getItem('codemirrorOptions.theme') : ''
     state.codemirrorOptions.theme = theme || state.defaultTheme
+    state.codemirrorOptionsToml.theme = theme || state.defaultTheme
   },
   setIsLoading(state: any, isLoading: boolean) {
     state.isLoading = isLoading
