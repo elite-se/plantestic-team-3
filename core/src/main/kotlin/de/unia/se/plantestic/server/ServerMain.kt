@@ -102,9 +102,9 @@ object ServerMain {
                 MetaModelSetup.doSetup()
                 val pumlDiagramModel = PumlParser.parse(tmpFile.absolutePath)
                 // TODO: Swagger Transformation
-                val pumlDiagramWithActor = null
+                // val pumlDiagramWithActor = null
 
-                pumlDiagramModel.contents[0] = pumlDiagramWithActor
+                //pumlDiagramModel.contents[0] = pumlDiagramWithActor
                 val serialised = PumlSerializer.parse(pumlDiagramModel)
 
                 call.respond(mapOf("processedPuml" to serialised, "processedToml" to tmpTomlFile.readText()))
