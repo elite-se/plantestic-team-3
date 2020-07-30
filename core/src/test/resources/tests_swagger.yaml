@@ -43,9 +43,11 @@ paths:
       parameters:
         - in: "query"
           name: "testQuery"
-          required : true
+          type: "string"
+          required: true
         - in: "path"
           name: "id"
+          type: "integer"
           required: true
       responses:
         "200":
@@ -59,11 +61,11 @@ paths:
         - in: "path"
           name: "pathTest"
           type: "string"
-          required : true
+          required: true
         - in: "query"
           name: "testQuery"
           type: "string"
-          required : true
+          required: true
         - name: "body"
           in: "body"
           required: true

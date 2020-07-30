@@ -6,6 +6,8 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import de.unia.se.plantestic.server.ServerMain
+import edu.uoc.som.openapi2.io.OpenAPI2Importer
+import edu.uoc.som.openapi2.io.model.SerializationFormat
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import java.io.File
@@ -117,6 +119,10 @@ object Main {
                     println("Preprocessing PlantUML '${inputFile.name}' ${if (tester != null) "with tester '$tester'" else ""}")
                     //TODO: actually execute preprocessing commands here
                 } else {
+
+                    val api = OpenAPI2Importer().createOpenAPI2ModelFromURL("http://localhost:8080/swagger/tests.yaml", SerializationFormat.YAML)
+                    println(api)
+
                     println("Running transformation pipeline")
                     if (tester != null) {
                         runTransformationPipeline(inputFile, outputFolder, tester!!)
