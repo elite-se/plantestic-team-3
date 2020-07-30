@@ -1,11 +1,11 @@
 package de.unia.se.plantestic
 
 import com.google.common.io.Resources
-import io.swagger.parser.OpenAPIParser
-import io.swagger.v3.oas.models.OpenAPI
-import io.swagger.v3.oas.models.Operation
-import io.swagger.v3.parser.OpenAPIV3Parser
-import io.swagger.v3.parser.core.models.ParseOptions
+import edu.uoc.som.openapi2.API
+import edu.uoc.som.openapi2.Operation
+import edu.uoc.som.openapi2.ParameterLocation
+import edu.uoc.som.openapi2.io.OpenAPI2Importer
+import edu.uoc.som.openapi2.io.model.SerializationFormat
 import org.eclipse.emf.common.util.Diagnostic
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
@@ -48,13 +48,13 @@ object M2MTransformer {
     fun addSwaggerAttributes(inputModel : EObject, sink2SwaggerPathMap : Map<String, Any>) : EObject {
         val messagesList = inputModel.eContents().filter { obj -> obj.eClass().name == "Message"
                 && obj.eContents().filter { message -> message.eClass().name == "Request" }.any()}
-        val sink2SwaggerMap = mutableMapOf<String, OpenAPI>()
+        val sink2SwaggerMap = mutableMapOf<String, API>()
         messagesList.forEach { message ->
             val message = message as Message
             val sinkName = message.sink.name + ".swagger_json_path"
             if (!sink2SwaggerMap.containsKey(sinkName)) {
                 val path = sink2SwaggerPathMap[sinkName] as String
-                sink2SwaggerMap[sinkName] = OpenAPIV3Parser().read(path)
+                sink2SwaggerMap[sinkName] = OpenAPI2Importer().createOpenAPI2ModelFromURL(path, SerializationFormat.YAML)
                 if (sink2SwaggerMap[sinkName] == null) {
                     throw FileNotFoundException();
                 }
@@ -64,21 +64,21 @@ object M2MTransformer {
         return inputModel
     }
 
-    fun addSwaggerAttributeToRequest(request : Request, openAPI : OpenAPI) {
+    fun addSwaggerAttributeToRequest(request : Request, openAPI : API) {
         val method = request.method.toLowerCase()
-        val item = openAPI.paths.get(request.url)
+        val item = openAPI.getPathByRelativePath(request.url) //TODO: sadly this also only matches whole strings and doesn't really "resolve" path-instances (like: "helloB/test/123", which should match "helloB/test/{id})
         var params = mutableListOf<String>()
 
         if (item != null) {
             when (method) {
                 "get" -> {
                     params =  item.get.parameters
-                        .filter { param -> param.`in` != "path"}.map { param -> param.name }.toMutableList()
+                        .filter { param -> param.location != ParameterLocation.PATH}.map { param -> param.name }.toMutableList()
                     addBodyAttributes(item.get, openAPI, params)
                 }
                 "post" -> {
                     params =  item.post.parameters
-                        .filter { param -> param.`in` != "path"}.map { param -> param.name }.toMutableList()
+                        .filter { param -> param.location != ParameterLocation.PATH}.map { param -> param.name }.toMutableList()
                     addBodyAttributes(item.post, openAPI, params)
                 }
                 //TODO: other methods e.g. put, delete, etc
@@ -94,8 +94,9 @@ object M2MTransformer {
             }
     }
 
-    fun addBodyAttributes(operation : Operation, openAPI : OpenAPI, params : MutableList<String> ){
-        val mediaType = operation.requestBody.content.get("application/json")
+    fun addBodyAttributes(operation : Operation, openAPI : API, params : MutableList<String> ){
+        /* TODO: @Jorge & @Paula - was auch immer ihr hier tun wollt muss mit dem Metamodell anders gemacht werden ^^
+        val mediaType = operation.content.get("application/json")
         if (mediaType != null) {
             val reference = mediaType.schema.`$ref`
             if (reference.startsWith("#/components/schemas/")){
@@ -109,6 +110,7 @@ object M2MTransformer {
         } else {
             //TODO: Error handling no application/json
         }
+        */
     }
 
 
