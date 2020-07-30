@@ -1,9 +1,7 @@
 package de.unia.se.plantestic
 
 import com.google.common.io.Resources
-import edu.uoc.som.openapi2.API
-import edu.uoc.som.openapi2.Operation
-import edu.uoc.som.openapi2.ParameterLocation
+import edu.uoc.som.openapi2.*
 import edu.uoc.som.openapi2.io.OpenAPI2Importer
 import edu.uoc.som.openapi2.io.model.SerializationFormat
 import org.eclipse.emf.common.util.Diagnostic
@@ -44,75 +42,6 @@ object M2MTransformer {
         val outputModel = doQvtoTransformation(inputModel, QVT_PUML2PUML_TRANSFORMATION_URI, context)
         return outputModel
     }
-
-    fun addSwaggerAttributes(inputModel : EObject, sink2SwaggerPathMap : Map<String, Any>) : EObject {
-        val messagesList = inputModel.eContents().filter { obj -> obj.eClass().name == "Message"
-                && obj.eContents().filter { message -> message.eClass().name == "Request" }.any()}
-        val sink2SwaggerMap = mutableMapOf<String, API>()
-        messagesList.forEach { message ->
-            val message = message as Message
-            val sinkName = message.sink.name + ".swagger_json_path"
-            if (!sink2SwaggerMap.containsKey(sinkName)) {
-                val path = sink2SwaggerPathMap[sinkName] as String
-                sink2SwaggerMap[sinkName] = OpenAPI2Importer().createOpenAPI2ModelFromURL(path, SerializationFormat.YAML)
-                if (sink2SwaggerMap[sinkName] == null) {
-                    throw FileNotFoundException();
-                }
-            }
-            addSwaggerAttributeToRequest(message.content as Request, sink2SwaggerMap[sinkName]!!)
-        }
-        return inputModel
-    }
-
-    fun addSwaggerAttributeToRequest(request : Request, openAPI : API) {
-        val method = request.method.toLowerCase()
-        val item = openAPI.getPathByRelativePath(request.url) //TODO: sadly this also only matches whole strings and doesn't really "resolve" path-instances (like: "helloB/test/123", which should match "helloB/test/{id})
-        var params = mutableListOf<String>()
-
-        if (item != null) {
-            when (method) {
-                "get" -> {
-                    params =  item.get.parameters
-                        .filter { param -> param.location != ParameterLocation.PATH}.map { param -> param.name }.toMutableList()
-                    addBodyAttributes(item.get, openAPI, params)
-                }
-                "post" -> {
-                    params =  item.post.parameters
-                        .filter { param -> param.location != ParameterLocation.PATH}.map { param -> param.name }.toMutableList()
-                    addBodyAttributes(item.post, openAPI, params)
-                }
-                //TODO: other methods e.g. put, delete, etc
-                else -> {
-                }//TODO: error handling
-            }
-        }
-        params.forEach { param ->
-                val newRequestParam  = PumlFactoryImpl.init().createRequestParam()
-                newRequestParam.name = param
-                newRequestParam.value = "STUB"
-                request.requestParam.add(newRequestParam)
-            }
-    }
-
-    fun addBodyAttributes(operation : Operation, openAPI : API, params : MutableList<String> ){
-        /* TODO: @Jorge & @Paula - was auch immer ihr hier tun wollt muss mit dem Metamodell anders gemacht werden ^^
-        val mediaType = operation.content.get("application/json")
-        if (mediaType != null) {
-            val reference = mediaType.schema.`$ref`
-            if (reference.startsWith("#/components/schemas/")){
-                val contentName = reference.split('/').last()
-                val test = openAPI.components.schemas[contentName]!!.properties!!.keys
-                params.addAll(test)
-            } else {
-                //TODO: Error handling malformed reference
-            }
-
-        } else {
-            //TODO: Error handling no application/json
-        }
-        */
-    }
-
 
     /**
      * Transforms a UmlDiagram EObject to a Request Response Pair EObject.

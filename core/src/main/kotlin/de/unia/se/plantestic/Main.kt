@@ -120,7 +120,8 @@ object Main {
                     //TODO: actually execute preprocessing commands here
                 } else {
 
-                    val api = OpenAPI2Importer().createOpenAPI2ModelFromURL("http://localhost:8080/swagger/tests.yaml", SerializationFormat.YAML)
+                    val api = OpenAPI2Importer().createOpenAPI2ModelFromFile(File("./src/test/resources/tests_swagger.yaml"),
+                        SerializationFormat.YAML)
                     println(api)
 
                     println("Running transformation pipeline")
