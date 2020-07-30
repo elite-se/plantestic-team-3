@@ -10,11 +10,16 @@ import org.eclipse.emf.ecore.EObject
 import plantuml.puml.Message
 import plantuml.puml.Request
 import plantuml.puml.impl.PumlFactoryImpl
+import java.io.File
 import java.io.FileNotFoundException
 
 object SwaggerAttributeExtractor {
 
-    fun addSwaggerAttributes(inputModel: EObject, sink2SwaggerPathMap: Map<String, Any>): EObject {
+    fun addSwaggerAttributes(
+        inputModel: EObject,
+        sink2SwaggerPathMap: Map<String, Any>,
+        loadAPIModelFromFile: Boolean = false
+    ): EObject {
 
         val messagesList = getRequestMessages(inputModel.eContents())
         val sink2SwaggerMap = mutableMapOf<String, API>()
@@ -23,12 +28,12 @@ object SwaggerAttributeExtractor {
             val sinkName = message.sink.name + ".swagger_json_path"
             if (!sink2SwaggerMap.containsKey(sinkName)) {
                 val path = sink2SwaggerPathMap[sinkName] as String
-                sink2SwaggerMap[sinkName] =
+                sink2SwaggerMap[sinkName] = if (loadAPIModelFromFile) {
+                    OpenAPI2Importer().createOpenAPI2ModelFromFile(File(path), SerializationFormat.YAML)
+                } else {
                     OpenAPI2Importer().createOpenAPI2ModelFromURL(path, SerializationFormat.YAML)
-                //sink2SwaggerMap[sinkName] = OpenAPI2Importer().createOpenAPI2ModelFromFile(File(
-                //    Resources.getResource("tests_swagger.yaml").path),SerializationFormat.YAML)
+                }
                 if (sink2SwaggerMap[sinkName] == null) {
-                    //return inputModel
                     throw FileNotFoundException();
                 }
             }
@@ -37,7 +42,7 @@ object SwaggerAttributeExtractor {
         return inputModel
     }
 
-    private fun getRequestMessages(inputModel: List<EObject>): List<EObject> {
+    fun getRequestMessages(inputModel: List<EObject>): List<EObject> {
         val messagesList = inputModel.filter { obj ->
             obj.eClass().name == "Message"
                     && obj.eContents().filter { message -> message.eClass().name == "Request" }.any()
