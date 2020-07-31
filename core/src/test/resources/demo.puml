@@ -1,0 +1,30 @@
+SEQUENCE @startuml
+
+Participant A
+Participant B
+Participant C
+Participant D
+
+ACTIVATE A
+A -> B : GET "/asynccall/${id}"
+ACTIVATE B
+A <- B : 200 - (a := "a") ["${a} == 'Hello World!'"]
+B -> C : GET "/synccall"
+ACTIVATE C
+C -> D : POST "/important/info" (name: "${internalinfo}")
+ACTIVATE D
+D -> C : 200
+DEACTIVATE D
+C -> B : 200 - ( result := "result")
+DEACTIVATE C
+alt "${result} == 'success'"
+B -> A : POST "/asyncreturn"
+A -> B : 200
+else "${result} != 'success'"
+B -> A : POST "/asyncfailure"
+A -> B : 200
+end
+DEACTIVATE B
+DEACTIVATE A
+
+@enduml
