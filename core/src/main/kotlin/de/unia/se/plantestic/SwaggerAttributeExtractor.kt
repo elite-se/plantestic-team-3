@@ -17,7 +17,7 @@ object SwaggerAttributeExtractor {
 
     fun addSwaggerAttributes(
         inputModel: EObject,
-        sink2SwaggerPathMap: Map<String, Any>,
+        tomlMap: Map<String, Any>,
         loadAPIModelFromFile: Boolean = false
     ): EObject {
 
@@ -25,9 +25,10 @@ object SwaggerAttributeExtractor {
         val sink2SwaggerMap = mutableMapOf<String, API>()
         messagesList.forEach { message ->
             val message = message as Message
+            val sinkBasePath = message.sink.name + ".path"
             val sinkName = message.sink.name + ".swagger_json_path"
             if (!sink2SwaggerMap.containsKey(sinkName)) {
-                val path = sink2SwaggerPathMap[sinkName] as String
+                val path = tomlMap[sinkName] as String
                 sink2SwaggerMap[sinkName] = if (loadAPIModelFromFile) {
                     OpenAPI2Importer().createOpenAPI2ModelFromFile(File(path), SerializationFormat.YAML)
                 } else {
@@ -37,7 +38,7 @@ object SwaggerAttributeExtractor {
                     throw FileNotFoundException();
                 }
             }
-            addSwaggerAttributeToRequest(message.content as Request, sink2SwaggerMap[sinkName]!!)
+            addSwaggerAttributeToRequest(message.content as Request, tomlMap[sinkBasePath] as String, sink2SwaggerMap[sinkName]!!)
         }
         return inputModel
     }
@@ -54,12 +55,12 @@ object SwaggerAttributeExtractor {
         return messagesList
     }
 
-    fun addSwaggerAttributeToRequest(request: Request, openAPI: API) {
+    fun addSwaggerAttributeToRequest(request: Request, requestSinkBasePath: String, openAPI: API) {
         val method = request.method.toLowerCase()
         val matchedPath = openAPI.paths.first { path ->
             pathUrlMatcher(
                 path,
-                request.url
+                requestSinkBasePath + request.url
             )
         } //TODO: What if multiple matches? Better throw exception?
         val params = mutableListOf<String>()
@@ -86,6 +87,7 @@ object SwaggerAttributeExtractor {
     }
 
     fun pathUrlMatcher(path: Path, url: String): Boolean {
+        println("Matching " + url + " against " + path.relativePath)
         val componentsPath = path.relativePath.trim { c -> c == '/' }.split("/")
         val componentsUrl = url.trim { c -> c == '/' }.split("/")
         return componentsPath.size == componentsUrl.size && componentsPath.zip(componentsUrl)
