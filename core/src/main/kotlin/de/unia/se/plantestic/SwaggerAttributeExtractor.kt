@@ -38,19 +38,21 @@ object SwaggerAttributeExtractor {
                     throw FileNotFoundException();
                 }
             }
-            addSwaggerAttributeToRequest(message.content as Request, tomlMap[sinkBasePath] as String, sink2SwaggerMap[sinkName]!!)
+            addSwaggerAttributeToRequest(
+                message.content as Request,
+                tomlMap[sinkBasePath] as String,
+                sink2SwaggerMap[sinkName]!!
+            )
         }
         return inputModel
     }
 
-    fun getRequestMessages(inputModel: List<EObject>): List<EObject> {
-        val messagesList = inputModel.filter { obj ->
-            obj.eClass().name == "Message"
-                    && obj.eContents().filter { message -> message.eClass().name == "Request" }.any()
+    fun getRequestMessages(elements: List<EObject>): List<EObject> {
+        val messagesList = elements.filter { obj ->
+            obj.eClass().name == "Message" && obj.eContents().filterIsInstance<Request>().any()
         }.toMutableList()
-        val alternativesList = inputModel.filter { obj -> obj.eClass().name == "Alternative" }
-        for (alt in alternativesList) {
-            messagesList.addAll(getRequestMessages(alt.eContents()))
+        for (elem in elements) {
+            messagesList.addAll(getRequestMessages(elem.eContents()))
         }
         return messagesList
     }
