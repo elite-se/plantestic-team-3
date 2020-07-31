@@ -76,9 +76,12 @@ dependencies {
     implementation "com.google.guava:guava:28.0-jre"
     implementation "com.github.ajalt:clikt:2.2.0"
 
-    api "com.networknt:json-schema-validator:1.0.42"
+    implementation "com.networknt:json-schema-validator:1.0.42"
+    implementation "commons-io:commons-io:2.6"
+    implementation "com.google.code.gson:gson:2.7"
 
     // Making qvt work without Eclipse
+    implementation "org.yaml:snakeyaml:1.24"
     implementation "org.eclipse.emf:org.eclipse.emf.common:2.15.0"
     implementation "org.eclipse.emf:org.eclipse.emf.ecore:2.15.0"
     implementation "org.eclipse.emf:org.eclipse.emf.ecore.xmi:2.15.0"

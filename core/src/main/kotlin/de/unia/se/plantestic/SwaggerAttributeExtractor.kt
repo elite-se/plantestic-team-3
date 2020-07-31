@@ -57,12 +57,16 @@ object SwaggerAttributeExtractor {
 
     fun addSwaggerAttributeToRequest(request: Request, requestSinkBasePath: String, openAPI: API) {
         val method = request.method.toLowerCase()
-        val matchedPath = openAPI.paths.first { path ->
+        val filteredPathsList = openAPI.paths.filter { path ->
             pathUrlMatcher(
                 path,
                 requestSinkBasePath + request.url
             )
-        } //TODO: What if multiple matches? Better throw exception?
+        }
+        if (filteredPathsList.size != 1) {
+            return
+        }
+        val matchedPath = filteredPathsList[0]
         val params = mutableListOf<String>()
 
         when (method) {
@@ -76,7 +80,17 @@ object SwaggerAttributeExtractor {
                     .filter { param -> param.location != ParameterLocation.PATH }
                     .forEach { param -> addAttributes(params, param) }
             }
-            //TODO: other methods e.g. put, delete, etc
+            "put" -> {
+                matchedPath.put.parameters
+                    .filter { param -> param.location != ParameterLocation.PATH }
+                    .forEach { param -> addAttributes(params, param) }
+            }
+            "patch" -> {
+                matchedPath.patch.parameters
+                    .filter { param -> param.location != ParameterLocation.PATH }
+                    .forEach { param -> addAttributes(params, param) }
+            }
+            else -> return
         }
         params.forEach { param ->
             val newRequestParam = PumlFactoryImpl.init().createRequestParam()

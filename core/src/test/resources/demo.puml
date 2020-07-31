@@ -11,7 +11,7 @@ ACTIVATE B
 A <- B : 200 - (a := "a") ["${a} == 'Hello World!'"]
 B -> C : GET "/synccall"
 ACTIVATE C
-C -> D : POST "/important/info" (name: "${internalinfo}")
+C -> D : POST "/important/info" (name : "${internalinfo}")
 ACTIVATE D
 D -> C : 200
 DEACTIVATE D
