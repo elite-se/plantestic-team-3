@@ -71,7 +71,13 @@ With our test case generator, developers can quickly uncover inconsistencies, fi
 1. Install Java SE Development Kit 8 or higher. 
 You can find Java SE Development Kit 8 under the website [https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 2. Clone the Plantestic repository.
-3. Run `./gradlew build`.
+3. Run git submodule init and git submodule update.
+4. Install maven (if not already installed).
+5. `cd openapi-metamodel/openapi2` and run `mvn install`.
+6. `cd plugins/edu.uoc.som.openapi2.io` and run `mvn install`.
+7. `cd ../edu.uoc.som.openapi2.mm` and run `mvn install`.
+8. go back to the project root directory
+9. Run `./gradlew build`.
 
 ## Usage
 ### Input requirements
@@ -116,6 +122,16 @@ Example: ```(name1 : "/value/value1", name2 : "/value2")```
 2. Save the sequence diagram. 
 3. Call the command `./gradlew run --args="--input=<path/to/sequence/diagram/diagram_name.puml>"`.
 4. The generated test cases are in `<path/to/sequence/diagram/generatedCode/<diagramName>.java>`.
+
+Preprocessing (i.e. Swagger Extraction and tester generation) can also be triggered via the CLI.
+
+* Swagger extraction: `./gradlew run --args="-p --input=<xyz.puml> --config=<xyz_conf.toml>"`
+* Tester generation: `./gradlew run --args="-p --input=<xyz.puml> --tester=A"`
+* Both preprocessing steps: `./gradlew run --args="-p --input=<xyz.puml> --tester=A --config=<xyz_conf.toml>"`
+* Starting the server, which serves the GUI `./gradlew run --args="-s"`
+
+The `-s` flag can always be appended to  any call and starts the server in the background.
+All other steps (preprocessing or entire pipeline) are executed and the server continues running until the process is actively killed.
 
 ##### Example
 Take the following test case generation from a minimal sequence diagram as an example:
