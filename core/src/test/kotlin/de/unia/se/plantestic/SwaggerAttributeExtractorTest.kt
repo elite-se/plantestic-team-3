@@ -10,7 +10,9 @@ import io.kotlintest.matchers.collections.shouldExist
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
+import plantuml.puml.Activate
 import plantuml.puml.Alternative
+import plantuml.puml.Message
 import plantuml.puml.impl.PumlFactoryImpl
 import java.io.File
 
@@ -50,28 +52,33 @@ class SwaggerAttributeExtractorTest : StringSpec({
 
     "Test addSwaggerAttributes with Alternatives" {
         val pumlFactory = PumlFactoryImpl.init()
-        val request = pumlFactory.createRequest()
-        request.method = "POST"
-        request.url = testUrl
-        val sink = pumlFactory.createParticipant()
-        sink.name = "SINK"
-        val message = pumlFactory.createMessage()
-        message.content = request
-        message.sink = sink
-        val alternative = pumlFactory.createAlternative()
-        alternative.umlElements.add(message)
 
-        SwaggerAttributeExtractor.addSwaggerAttributes(
-            alternative,
-            mapOf(sink.name + ".swagger_json_path" to Resources.getResource("tests_swagger.yaml").path, sink.name + ".path" to ""),
-            loadAPIModelFromFile = true
-        )
-        request.requestParam.size.shouldBe(2)
-        request.requestParam.shouldExist { p -> p.name == "varA" }
-        request.requestParam.shouldExist { p -> p.name == "varB" }
+        fun createMessage(): Message {
+            val pumlFactory = PumlFactoryImpl.init()
+            val request = pumlFactory.createRequest()
+            request.method = "POST"
+            request.url = testUrl
+            val sink = pumlFactory.createParticipant()
+            sink.name = "SINK"
+            val message = pumlFactory.createMessage()
+            message.content = request
+            message.sink = sink
+            return message
+        }
+
+        val alternative = pumlFactory.createAlternative()
+        alternative.umlElements.add(createMessage())
+        val elseBlock = pumlFactory.createElse()
+        elseBlock.umlElements.add(createMessage())
+        alternative.elseBlocks.add(elseBlock)
+        val sequenceDiagram = pumlFactory.createSequenceDiagram()
+        sequenceDiagram.umlElements.add(alternative)
+
+        val extractedRequests = SwaggerAttributeExtractor.getRequestMessages(sequenceDiagram.umlElements)
+        extractedRequests.shouldHaveSize(2)
     }
 
-    "Test getRequestMessages" {
+    "Test getRequestMessages nested Alternatives" {
         val pumlFactory = PumlFactoryImpl.init()
 
         fun addAlternative(alternative: Alternative, count: Int): Alternative {
@@ -100,5 +107,41 @@ class SwaggerAttributeExtractorTest : StringSpec({
 
         val extractedAlternatives = SwaggerAttributeExtractor.getRequestMessages(alternative.umlElements)
         extractedAlternatives.shouldHaveSize(requestCount)
+    }
+
+    "Test getRequestMessages nested Activate" {
+        val pumlFactory = PumlFactoryImpl.init()
+
+        fun addActivate(activate: Activate, count: Int): Activate {
+            if (count <= 0) {
+                return activate
+            }
+            val request = pumlFactory.createRequest()
+            request.method = "POST"
+            request.url = testUrl
+            val sink = pumlFactory.createParticipant()
+            sink.name = "SINK"
+            val message = pumlFactory.createMessage()
+            message.content = request
+            message.sink = sink
+            activate.umlElements.add(message)
+
+            val newActivate = pumlFactory.createActivate()
+            newActivate.activate = pumlFactory.createParticipant().apply { name = "P${count - 1}" }
+            newActivate.deactivate = pumlFactory.createParticipant().apply { name = "P${count - 1}" }
+            activate.umlElements.add(newActivate)
+            addActivate(newActivate, count - 1)
+
+            return activate
+        }
+
+        val requestCount = 5
+        val startActivate = pumlFactory.createActivate()
+        startActivate.activate = pumlFactory.createParticipant().apply { name = "P$requestCount" }
+        startActivate.deactivate = pumlFactory.createParticipant().apply { name = "P$requestCount" }
+        val alternative = addActivate(startActivate, count = requestCount)
+
+        val extractedRequests = SwaggerAttributeExtractor.getRequestMessages(alternative.umlElements)
+        extractedRequests.shouldHaveSize(requestCount)
     }
 })
