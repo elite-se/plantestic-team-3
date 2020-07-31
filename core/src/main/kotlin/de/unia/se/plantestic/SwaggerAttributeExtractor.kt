@@ -55,7 +55,9 @@ object SwaggerAttributeExtractor {
             val newRequestParam  = PumlFactoryImpl.init().createRequestParam()
             newRequestParam.name = param
             newRequestParam.value = "STUB"
-            request.requestParam.add(newRequestParam)
+            if (request.requestParam.all { predicate -> predicate.name != param }) {
+                request.requestParam.add(newRequestParam)
+            }
         }
     }
 
