@@ -29,7 +29,7 @@ SequenceElement:
 
 Participant:
 	{Participant}
-	('PARTICIPANT' | 'ACTOR') (name=PUMLID | longname=(STRING | PUMLID) 'AS'
+	('PARTICIPANT') (name=PUMLID | longname=(STRING | PUMLID) 'AS'
 	name=PUMLID);
 
 // TODO: restrict arrows (problem: hexcode can be anywhere)
