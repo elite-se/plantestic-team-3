@@ -9,7 +9,7 @@
         <li><a @click="selectTemplate('complexHello')">Complex Hello</a></li>
         <li><a @click="selectTemplate('rerouting')">Rerouting</a></li>
         <li><a @click="selectTemplate('xcall')">XCall</a></li>
-        <li><a @click="selectTemplate('parameterPass')">Parameter Pass</a></li>
+        <li><a @click="selectTemplate('async')">Async Request</a></li>
       </ul>
     </li>
   </ul>

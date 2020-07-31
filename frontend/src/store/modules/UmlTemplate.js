@@ -20,7 +20,7 @@ B -> A : 200
 deactivate B
 
 @enduml
-  `,
+`,
   complexHello: `SEQUENCE @startuml
 
 PARTICIPANT A
@@ -34,7 +34,6 @@ deactivate B
 end
 
 @enduml
-
   `,
   rerouting: `SEQUENCE @startuml
 
@@ -62,7 +61,8 @@ else "\${voiceEstablished} == false"
     note over CCC : Error is displayed \\n reroute may not be triggered
 end
 
-@enduml`,
+@enduml
+`,
   xcall: `SEQUENCE @startuml
 
 participant "Voicemanager" as VM
@@ -112,9 +112,28 @@ deactivate XCS
 deactivate VM
 
 @enduml
-
-
   `,
+  async: `SEQUENCE @startuml
+
+Participant A
+Participant B
+Participant C
+
+ACTIVATE A
+A -> B : GET "/asynccall"
+ACTIVATE B
+A <- B : 200
+B -> C : GET "/synccall"
+ACTIVATE C
+C -> B : 200
+DEACTIVATE C
+B -> A : POST "/asyncreturn"
+A -> B : 200
+DEACTIVATE B
+DEACTIVATE A
+
+@enduml
+`,
 }
 
 export default {
