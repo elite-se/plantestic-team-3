@@ -71,6 +71,11 @@ class End2EndTest : StringSpec({
         )
 
         wireMockServer.stubFor(
+            get(urlEqualTo("/testA/STUB"))
+                .willReturn(aResponse().withStatus(400))
+        )
+
+        wireMockServer.stubFor(
             get(urlPathMatching("/swagger/tests.yaml"))
                 .willReturn(aResponse().withStatus(200).withBody(SWAGGER_YAML.readText()))
         )
@@ -95,7 +100,7 @@ class End2EndTest : StringSpec({
             serveEvent.request.url == "/testC/bye"
         }.size shouldBe 1
         wireMockServer.allServeEvents.filter { serveEvent ->
-            serveEvent.request.url == "/testA"
+            serveEvent.request.url == "/testA/STUB"
         }.size shouldBe 1
         wireMockServer.allServeEvents[0].response.status shouldBe 400
     }

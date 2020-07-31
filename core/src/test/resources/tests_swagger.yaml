@@ -21,6 +21,14 @@ paths:
         "400":
           description: "error"
 
+  /testA/STUB:
+    get:
+      tags:
+        - "complex_tester"
+      responses:
+        "400":
+          description: "error"
+
   /testB/hello:
     get:
       tags:
@@ -59,12 +67,8 @@ paths:
         - application/json
       parameters:
         - in: "path"
-          name: "pathTest"
-          type: "string"
-          required: true
-        - in: "query"
-          name: "testQuery"
-          type: "string"
+          name: "id"
+          type: "integer"
           required: true
         - name: "body"
           in: "body"

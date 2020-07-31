@@ -43,7 +43,7 @@ class SwaggerAttributeExtractorTest : StringSpec({
         requestTest.method = "POST"
         requestTest.url = testUrl
 
-        SwaggerAttributeExtractor.addSwaggerAttributeToRequest(requestTest, apiFile)
+        SwaggerAttributeExtractor.addSwaggerAttributeToRequest(requestTest, "", apiFile)
         requestTest.requestParam.size.shouldBe(3)
         requestTest.requestParam.shouldExist { p -> p.name == "testQuery" }
         requestTest.requestParam.shouldExist { p -> p.name == "varA" }
