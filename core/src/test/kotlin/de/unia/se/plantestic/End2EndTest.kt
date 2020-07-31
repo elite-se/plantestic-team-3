@@ -19,12 +19,12 @@ class End2EndTest : StringSpec({
     "End2End test with extracted tester" {
         wireMockServer.stubFor(
             get(urlEqualTo("/testB/hello"))
-                .willReturn(aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200).withHeader("content-type", "application/json"))
         )
 
         wireMockServer.stubFor(
             get(urlEqualTo("/testC/bye"))
-                .willReturn(aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200).withHeader("content-type", "application/json"))
         )
 
         wireMockServer.stubFor(
@@ -57,22 +57,22 @@ class End2EndTest : StringSpec({
     "End2End test with extracted tester - Complex" {
         wireMockServer.stubFor(
             post(urlEqualTo("/testB/hello"))
-                .willReturn(aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200).withHeader("content-type", "application/json"))
         )
 
         wireMockServer.stubFor(
             get(urlEqualTo("/testC/bye"))
-                .willReturn(aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200).withHeader("content-type", "application/json"))
         )
 
         wireMockServer.stubFor(
             get(urlEqualTo("/testA"))
-                .willReturn(aResponse().withStatus(400))
+                .willReturn(aResponse().withStatus(400).withHeader("content-type", "application/json"))
         )
 
         wireMockServer.stubFor(
             get(urlEqualTo("/testA/STUB"))
-                .willReturn(aResponse().withStatus(400))
+                .willReturn(aResponse().withStatus(400).withHeader("content-type", "application/json"))
         )
 
         wireMockServer.stubFor(
@@ -108,7 +108,7 @@ class End2EndTest : StringSpec({
     "End2End test receives request on mock server for the minimal hello" {
         wireMockServer.stubFor(
             get(urlEqualTo("/testB/hello"))
-                .willReturn(aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200).withHeader("content-type", "application/json"))
         )
         wireMockServer.stubFor(
             get(urlPathMatching("/swagger/tests.yaml"))
@@ -143,7 +143,9 @@ class End2EndTest : StringSpec({
             }"""
         wireMockServer.stubFor(
             post(urlPathMatching("/testB/hello/([0-9]+)"))
-                .willReturn(aResponse().withStatus(200).withBody(responseHello))
+                .willReturn(
+                    aResponse().withStatus(200).withHeader("content-type", "application/json").withBody(responseHello)
+                )
         )
         wireMockServer.stubFor(
             get(urlPathMatching("/swagger/tests.yaml"))
@@ -179,7 +181,7 @@ class End2EndTest : StringSpec({
         val responseIsConnected =
             """{
                 "VoiceStatus": {
-                    "eventId1" : "123",
+                    "eventId1" : 123,
                     "agent1" : {
                         "connectionStatus" : "connected"
                     },
@@ -193,6 +195,7 @@ class End2EndTest : StringSpec({
                 .willReturn(
                     aResponse()
                         .withStatus(200)
+                        .withHeader("content-type", "application/json")
                         .withBody(responseRerouteOptions)
                 )
         )
@@ -201,6 +204,7 @@ class End2EndTest : StringSpec({
                 .willReturn(
                     aResponse()
                         .withStatus(200)
+                        .withHeader("content-type", "application/json")
                         .withBody(responseIsConnected)
                 )
         )
@@ -235,7 +239,7 @@ class End2EndTest : StringSpec({
             }"""
         wireMockServer.stubFor(
             get(urlEqualTo("/DataService/vehicle/internal/987")).willReturn(
-                aResponse().withBody(
+                aResponse().withStatus(200).withHeader("content-type", "application/json").withBody(
                     responseVehicleInternal
                 )
             )
@@ -248,23 +252,23 @@ class End2EndTest : StringSpec({
             post(urlEqualTo("/CRS/routingTargets/find")).willReturn(
                 aResponse()
                     .withStatus(200)
+                    .withHeader("content-type", "application/json")
                     .withBody(responseRoutingTargetsFind)
             )
         )
         wireMockServer.stubFor(
             put(urlPathMatching("/([A-Za-z]+)/xcs/notify/([0-9]+)")).willReturn(
-                aResponse()
-                    .withStatus(200)
+                aResponse().withStatus(200).withHeader("content-type", "application/json")
             )
         )
         wireMockServer.stubFor(
             post(urlEqualTo("/CCC/xcs/eventReceived")).willReturn(
-                aResponse().withStatus(200)
+                aResponse().withStatus(200).withHeader("content-type", "application/json")
             )
         )
         wireMockServer.stubFor(
             post(urlEqualTo("/Voicemanager/setupCall")).willReturn(
-                aResponse().withStatus(200)
+                aResponse().withStatus(200).withHeader("content-type", "application/json")
             )
         )
         wireMockServer.stubFor(
@@ -292,14 +296,16 @@ class End2EndTest : StringSpec({
     }
 
     "End2End test for parameter_pass" {
-        val responseAge = """{"years":22}"""
+        val responseAge = """{"age":22}"""
         wireMockServer.stubFor(
             get(urlEqualTo("/Person/getAge"))
-                .willReturn(aResponse().withStatus(200).withBody(responseAge))
+                .willReturn(
+                    aResponse().withStatus(200).withHeader("content-type", "application/json").withBody(responseAge)
+                )
         )
         wireMockServer.stubFor(
             post(urlEqualTo("/Person/checkAge"))
-                .willReturn(aResponse().withStatus(200))
+                .willReturn(aResponse().withStatus(200).withHeader("content-type", "application/json"))
         )
         wireMockServer.stubFor(
             get(urlPathMatching("/swagger/tests.yaml"))

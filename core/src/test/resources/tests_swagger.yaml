@@ -89,16 +89,16 @@ paths:
           description: "success"
           schema:
             type: "object"
-            required:
-              - "itemA"
-              - "itemB"
             properties:
               itemA:
-                type: "string"
-                example: "value1"
+                type: "integer"
+                example: 1
               itemB:
-                type: "string"
-                example: "value2"
+                type: "integer"
+                example: 2
+            required:
+              - itemA
+              - itemB
 
   /testC/bye:
     get:
