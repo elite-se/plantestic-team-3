@@ -6,7 +6,7 @@ PARTICIPANT B
 A -> B : POST "/checkAge" (age : "${A.age}")
 A <- B : 200
 A -> B : GET "/getAge"
-A <- B : 200 - (age := "years") ["${age} === 22"]
+A <- B : 200 - (age := "age") ["${age} === 22"]
 A -> B : POST "/checkAge" (age : "${age}")
 A <- B : 200
 end

@@ -29,6 +29,35 @@ paths:
         "400":
           description: "error"
 
+  /testB/asynccall/{id}:
+    get:
+      tags:
+        - "demo"
+      parameters:
+        - in: "path"
+          name: "id"
+          type: "integer"
+          required: true
+        - in: "query"
+          name: "varX"
+          type: "string"
+          required: true
+        - in: "query"
+          name: "varY"
+          type: "string"
+          required: true
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            required:
+              - "a"
+            properties:
+              a:
+                type: "string"
+                example: "Hello World!"
+
   /testB/hello:
     get:
       tags:
@@ -89,21 +118,59 @@ paths:
           description: "success"
           schema:
             type: "object"
-            required:
-              - "itemA"
-              - "itemB"
             properties:
               itemA:
-                type: "string"
-                example: "value1"
+                type: "integer"
+                example: 1
               itemB:
-                type: "string"
-                example: "value2"
+                type: "integer"
+                example: 2
+            required:
+              - itemA
+              - itemB
 
   /testC/bye:
     get:
       tags:
         - "tester_out"
+      responses:
+        "200":
+          description: "success"
+
+  /testC/synccall:
+    get:
+      tags:
+        - "demo"
+      responses:
+        "200":
+          description: "success"
+          schema:
+            type: "object"
+            required:
+              - "result"
+            properties:
+              result:
+                type: "string"
+                example: "success"
+
+  /testD/important/info:
+    post:
+      tags:
+        - "demo"
+      consumes:
+        - application/json
+      parameters:
+        - name: "body"
+          in: "body"
+          required: true
+          schema:
+            # Body schema with atomic property examples
+            type: "object"
+            required:
+              - name
+            properties:
+              name:
+                type: "string"
       responses:
         "200":
           description: "success"

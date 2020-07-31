@@ -6,6 +6,7 @@ import org.eclipse.xtext.formatting2.IFormattableDocument
 import plantuml.puml.SequenceDiagram
 import plantuml.puml.SequenceElement
 import plantuml.puml.UmlElementsContainer
+import plantuml.puml.Alternative
 
 class PumlFormatter extends AbstractFormatter2 {
 
@@ -19,6 +20,16 @@ class PumlFormatter extends AbstractFormatter2 {
 
     def dispatch void format(SequenceElement element, extension IFormattableDocument document) {
         element.surround[newLine]
+    }
+
+    def dispatch void format(Alternative element, extension IFormattableDocument document) {
+        element.surround[newLine]
+        for (SequenceElement child : element.getUmlElements) {
+            child.format.surround[indent]
+        }
+        for (SequenceElement child : element.getElseBlocks) {
+            child.format
+        }
     }
 
     def dispatch void format(UmlElementsContainer element, extension IFormattableDocument document) {
