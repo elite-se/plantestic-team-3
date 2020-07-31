@@ -151,6 +151,7 @@ mapping Message::mapTesterIncomingToTesterOutgoing(in tester : Participant, in p
     result.source := tester;
     var newRequest := new Request();
     newRequest.method := 'STUB';
+    newRequest.url := '/STUB';
     newRequest.waitingTime := 2000;
     result.content := newRequest;
 }
@@ -166,8 +167,8 @@ mapping Message::mapTesterOutgoingToTesterIncoming(in tester : Participant, in p
 constructor Note::Note(noteOfIn : Participant, request : Request, og_source : Participant, og_sink : Participant) {
     position := 'LEFT';
     noteOf := noteOfIn;
-    value += 'Stub pair for incoming asynchronous messages.';
-    value += 'Corresponds to ' + request.method + ' request between ' + og_source.name + ' and ' + og_sink.name;
+    value += 'Stub pair for incoming asynchronous messages.\n';
+    value += 'Corresponds to ' + request.method + ' request between\n' + og_source.name + ' and ' + og_sink.name;
 }
 
 helper OrderedSet(SequenceElement)::getTester(): Participant {

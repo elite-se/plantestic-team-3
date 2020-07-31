@@ -99,7 +99,7 @@ object ServerMain {
                 MetaModelSetup.doSetup()
                 val pumlDiagramModel = PumlParser.parse(tmpFile.absolutePath)
                 val pumlDiagramWithActor =
-                    M2MTransformer.addSwaggerAttributes(pumlDiagramModel.contents[0], parseToml(reqParam.tomlString))
+                    SwaggerAttributeExtractor.addSwaggerAttributes(pumlDiagramModel.contents[0], parseToml(reqParam.tomlString))
 
                 pumlDiagramModel.contents[0] = pumlDiagramWithActor
                 val serialised = PumlSerializer.parse(pumlDiagramModel)

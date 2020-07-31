@@ -1,6 +1,9 @@
 package de.unia.se.plantestic
 
 import com.google.common.io.Resources
+import edu.uoc.som.openapi2.*
+import edu.uoc.som.openapi2.io.OpenAPI2Importer
+import edu.uoc.som.openapi2.io.model.SerializationFormat
 import org.eclipse.emf.common.util.Diagnostic
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.EObject
@@ -10,7 +13,11 @@ import org.eclipse.m2m.qvt.oml.ExecutionContext
 import org.eclipse.m2m.qvt.oml.ExecutionContextImpl
 import org.eclipse.m2m.qvt.oml.TransformationExecutor
 import org.eclipse.m2m.qvt.oml.util.WriterLog
+import plantuml.puml.Message
+import plantuml.puml.Request
 import plantuml.puml.SequenceDiagram
+import plantuml.puml.impl.PumlFactoryImpl
+import java.io.FileNotFoundException
 import java.io.OutputStreamWriter
 
 object M2MTransformer {
@@ -32,7 +39,8 @@ object M2MTransformer {
     fun transformPuml2Puml(inputModel: EObject, tester : String): EObject {
         require(inputModel is SequenceDiagram) { "Puml transformation input wasn't a puml object!" }
         val context = setContext(inputModel, Pair("tester", tester))
-        return doQvtoTransformation(inputModel, QVT_PUML2PUML_TRANSFORMATION_URI, context)
+        val outputModel = doQvtoTransformation(inputModel, QVT_PUML2PUML_TRANSFORMATION_URI, context)
+        return outputModel
     }
 
     /**

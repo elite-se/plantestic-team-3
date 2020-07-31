@@ -37,6 +37,21 @@ paths:
           description: "success"
 
   /testB/hello/{id}:
+    get:
+      tags:
+        - "tester"
+      parameters:
+        - in: "query"
+          name: "testQuery"
+          type: "string"
+          required: true
+        - in: "path"
+          name: "id"
+          type: "integer"
+          required: true
+      responses:
+        "200":
+          description: "success"
     post:
       tags:
         - "complex_hello"
@@ -44,11 +59,15 @@ paths:
         - application/json
       parameters:
         - in: "path"
-          name: "id"
+          name: "pathTest"
           type: "string"
           required: true
-        - name: body
-          in: body
+        - in: "query"
+          name: "testQuery"
+          type: "string"
+          required: true
+        - name: "body"
+          in: "body"
           required: true
           schema:
             # Body schema with atomic property examples
