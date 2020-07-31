@@ -4,10 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
 import de.unia.se.plantestic.server.ServerMain
-import edu.uoc.som.openapi2.io.OpenAPI2Importer
-import edu.uoc.som.openapi2.io.model.SerializationFormat
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.emf.ecore.EStructuralFeature
 import java.io.File
@@ -88,10 +85,11 @@ object Main {
         private val preprocessflag by option(
             "--preprocess",
             "-p",
-            help = "Trigger preprocessing of the input PlantUML instead of transforming to Java unit tests. Generates a new PlantUML file into the output folder with imported variables from Swagger and a tester actor."
+            help = "Trigger preprocessing of the input PlantUML instead of transforming to Java unit tests. Generates a new PlantUML file into the output folder with imported variables from Swagger and a tester actor (if present)."
         )
             .flag(default = false)
-        private val tester: String? by option(help = "Actor in the input PlantUML whose requests should be extracted into a separate actor during preprocessing. If not supplied preprocessing will not generate such a new test actor.")
+        private val config: String? by option(help = "Path to a .toml file containing configuration information. Required for swagger preprocessing.")
+        private val tester: String? by option(help = "Actor in the input PlantUML whose requests should be extracted into a separate actor during preprocessing. If not supplied preprocessing will not generate such a new test actor. If supplied while running the normal pipeline, it will implicitly perform the preprocessing step.")
         private val serverflag by option(
             "--server",
             "-s",
@@ -116,15 +114,43 @@ object Main {
                 }
 
                 if (preprocessflag) {
-                    println("Preprocessing PlantUML '${inputFile.name}' ${if (tester != null) "with tester '$tester'" else ""}")
-                    //TODO: actually execute preprocessing commands here
+                    if (tester == null && config == null) {
+                        echo("During preprocessing you need to specify at least a tester or supply a config .toml file!")
+                        return
+                    }
+
+                    println("Preprocessing PlantUML '${inputFile.name}'. ${if (tester != null) "Tester: '$tester';" else ""} ${if (config != null) "Config '$config'" else ""}" )
+
+                    MetaModelSetup.doSetup()
+
+                    val inputFileName = (input!!).trim { c -> c == '/' }.split("/").last()
+                    val outputFile = File(outputFolder, "preprocessed_$inputFileName").normalize()
+                    outputFile.writeText(inputFile.readText())
+
+                    //swagger
+                    if (config != null) {
+                        val configFile = File(config!!).normalize()
+                        val pumlDiagramModel = PumlParser.parse(outputFile.absolutePath)
+                        val pumlDiagramWithActor =
+                            SwaggerAttributeExtractor.addSwaggerAttributes(pumlDiagramModel.contents[0], parseToml(configFile.readText()))
+
+                        pumlDiagramModel.contents[0] = pumlDiagramWithActor
+                        val serialised = PumlSerializer.parse(pumlDiagramModel)
+                        outputFile.writeText(serialised)
+                    }
+
+                    if (tester != null) {
+                        val pumlDiagramModel = PumlParser.parse(outputFile.absolutePath)
+                        val pumlDiagramWithActor =
+                            M2MTransformer.transformPuml2Puml(pumlDiagramModel.contents[0], tester!!)
+
+                        pumlDiagramModel.contents[0] = pumlDiagramWithActor
+                        val serialised = PumlSerializer.parse(pumlDiagramModel)
+                        outputFile.writeText(serialised)
+                    }
+
+                    println("Preprocessed PlantUML can be found in the file ${outputFile.absolutePath}")
                 } else {
-
-                    val api = OpenAPI2Importer().createOpenAPI2ModelFromFile(File("./src/test/resources/tests_swagger.yaml"),
-                        SerializationFormat.YAML)
-                    println(api)
-
-                    println("Running transformation pipeline")
                     if (tester != null) {
                         runTransformationPipeline(inputFile, outputFolder, tester!!)
                     } else {
