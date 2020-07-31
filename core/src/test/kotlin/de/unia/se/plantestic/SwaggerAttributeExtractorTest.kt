@@ -32,8 +32,7 @@ class SwaggerAttributeExtractorTest : StringSpec({
         val testList = mutableListOf<String>()
         testPath.post.parameters.filter { param -> param.location != ParameterLocation.PATH }
             .forEach { param -> SwaggerAttributeExtractor.addAttributes(testList, param) }
-        testList.size.shouldBe(3)
-        testList.contains("testQuery").shouldBeTrue()
+        testList.size.shouldBe(2)
         testList.contains("varA").shouldBeTrue()
         testList.contains("varB").shouldBeTrue()
     }
@@ -44,8 +43,7 @@ class SwaggerAttributeExtractorTest : StringSpec({
         requestTest.url = testUrl
 
         SwaggerAttributeExtractor.addSwaggerAttributeToRequest(requestTest, "", apiFile)
-        requestTest.requestParam.size.shouldBe(3)
-        requestTest.requestParam.shouldExist { p -> p.name == "testQuery" }
+        requestTest.requestParam.size.shouldBe(2)
         requestTest.requestParam.shouldExist { p -> p.name == "varA" }
         requestTest.requestParam.shouldExist { p -> p.name == "varB" }
     }
@@ -65,11 +63,10 @@ class SwaggerAttributeExtractorTest : StringSpec({
 
         SwaggerAttributeExtractor.addSwaggerAttributes(
             alternative,
-            mapOf(sink.name + ".swagger_json_path" to Resources.getResource("tests_swagger.yaml").path),
+            mapOf(sink.name + ".swagger_json_path" to Resources.getResource("tests_swagger.yaml").path, sink.name + ".path" to ""),
             loadAPIModelFromFile = true
         )
-        request.requestParam.size.shouldBe(3)
-        request.requestParam.shouldExist { p -> p.name == "testQuery" }
+        request.requestParam.size.shouldBe(2)
         request.requestParam.shouldExist { p -> p.name == "varA" }
         request.requestParam.shouldExist { p -> p.name == "varB" }
     }
