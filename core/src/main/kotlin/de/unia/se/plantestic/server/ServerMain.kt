@@ -45,15 +45,15 @@ object ServerMain {
         //therefore we let it fail silently
         "docker run -d -p 4000:8080 plantuml/plantuml-server:jetty".runCommand(File("./"))
 
-        //start our plantestic server
-        io.ktor.server.netty.EngineMain.main(arrayOf<String>())
-    }
+                //start our plantestic server
+                io.ktor.server.netty.EngineMain.main(arrayOf<String>())
+            }
 
-    //ktor magic, the serverModule function is added to ktor in the application.conf file (located in resources)
-    fun Application.plantesticServerModule() {
-        install(ContentNegotiation) {
-            jackson {
-                enable(SerializationFeature.INDENT_OUTPUT) // Pretty Prints the JSON
+            //ktor magic, the serverModule function is added to ktor in the application.conf file (located in resources)
+            fun Application.plantesticServerModule() {
+                install(ContentNegotiation) {
+                    jackson {
+                        enable(SerializationFeature.INDENT_OUTPUT) // Pretty Prints the JSON
             }
         }
         install(StatusPages) {
@@ -112,10 +112,14 @@ object ServerMain {
                 val post = call.receive(PUMLDiagram::class)
                 println(post.diagram)
 
-                val inputFile = File(post.name + ".puml").normalize()
-                inputFile.writeText(post.diagram)
-                val outputFolder = File("./testServer").normalize()
 
+                val outputFolder = File("./testServer").normalize()
+                if(!outputFolder.exists()) {
+                    outputFolder.mkdirs()
+                }
+
+                val inputFile = File(outputFolder,post.name + ".puml").normalize()
+                inputFile.writeText(post.diagram)
                 if (post.toml != null) {
                     val tomlFile = File(outputFolder, "Test${post.name}.toml")
                     tomlFile.writeText(post.toml)
