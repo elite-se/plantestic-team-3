@@ -2,7 +2,7 @@
 This project is a continuation and extension of the [plantestic project](https://github.com/FionaGuerin/plantestic).
 This README gives an overview of plantestic's core features and of the new features we added.
 
-##Contents
+## Contents
 * [Description](#description)
 * [Motivation](#motivation)
 * [Core Features (V1)](#core-features)
@@ -53,7 +53,7 @@ Our test case generator detects deviations at an early stage:
 The test case generator derives test cases directly from the specification. 
 If the implementation fulfills these test cases, then the implementation fulfills the specification. 
 If the implementation does not fulfill these test cases, the implementation deviates from the specification. 
-With our test case generator, developers can quickly uncover inconsistencies, fix them, and save costs.## Demo
+With our test case generator, developers can quickly uncover inconsistencies, fix them, and save costs.
 
 ## Core Features
 * gradle-based. Runs in any IDE
@@ -63,9 +63,14 @@ With our test case generator, developers can quickly uncover inconsistencies, fi
 * parameters can be passed into sequence diagrams using external `.toml` config files and templating
 
 ## Extension Features
-* Restructure sequence diagrams to inspect only interactions of a specific actor. This enables users to have fewer,
- more granular sequence diagrams and automatically generate specific sequence diagrams that test only the interactions of one actor.
-* Annotate requests to be delayed during the testcase execution. This enables the user to test a endpoint
+The extensions focus on preprocessing sequence diagrams to semi-automate writing such diagrams:
+
+* Restructure sequence diagrams to inspect only interactions of a specific actor.
+* Support for transformation of asynchronous POST requests sent to an actor into timed GET Requests, that test the actor, who receives the asnyc POST.
+* Annotate requests to be delayed during the testcase execution. This enables the user to let time pass during a test's execution to allow for asynchronous events to occur
+* Automatically complete Request Parameters on Requests in Sequence Diagrams based on Swagger definition files.
+* Postcondition evaluation for HTTP Responses. You can check values of a response to let tests fail when incorrect values occur during test runtime.
+* A web-based GUI to enable a smooth preprocessing workflow that doesn't require the user to work with new files after each preprocessing step.
 
 ## Installation
 1. Install Java SE Development Kit 8 or higher. 
@@ -112,13 +117,18 @@ The last response datum is followed by a closing bracket.
 We specify the response datum as a `Name: XPath` pair: 
 The name of the response datum is followed by a space, a colon, a space, and the xpath of the response datum as a string. 
 In the xpath, slashes separate the path components. . 
-Example: ```(name1 : "/value/value1", name2 : "/value2")```
+Example: ```(name1 : "value.value1", name2 : "value2")```
+
+Conditions can be evaluated in `alt` statements and on Responses. These conditions are evaluated using a JavaScript engine and thus must adhere
+to JS-syntax. In alternatives a condition could be formulated as such: `alt "${x} === 'Hello World!'"`.
+
+On a Response, a condition can be appended after the response datum tuple in square brackets: `200 - (x : "test.value") ["${x} === 'Hello World!'"]`
 
 ![./core/src/test/resources/rerouting.png](./core/src/test/resources/rerouting.png)
 
 ### Execution
 #### Via the CLI
-1. Create a PlantUML sequence diagram. Note the input requirements above. 
+1. Create a PlantUML sequence diagram. Note the [input requirements above](#input-requirements). 
 2. Save the sequence diagram. 
 3. Call the command `./gradlew run --args="--input=<path/to/sequence/diagram/diagram_name.puml>"`.
 4. The generated test cases are in `<path/to/sequence/diagram/generatedCode/<diagramName>.java>`.
@@ -130,8 +140,8 @@ Preprocessing (i.e. Swagger Extraction and tester generation) can also be trigge
 * Both preprocessing steps: `./gradlew run --args="-p --input=<xyz.puml> --tester=A --config=<xyz_conf.toml>"`
 * Starting the server, which serves the GUI `./gradlew run --args="-s"`
 
-The `-s` flag can always be appended to  any call and starts the server in the background.
-All other steps (preprocessing or entire pipeline) are executed and the server continues running until the process is actively killed.
+> The `-s` flag can always be appended to any call and starts the server in the background.
+> All other steps (preprocessing or entire pipeline) are executed and the server continues running until the process is actively killed.
 
 ##### Example
 Take the following test case generation from a minimal sequence diagram as an example:
@@ -233,13 +243,11 @@ public class Test {
 - Fabian Wildgrube
 
 ### Contributors (V1)
-- [Stefan Grafberger](https://github.com/stefan-grafberger) *
-- [Fiona Guerin](https://github.com/FionaGuerin) *
-- [Michelle Martin](https://github.com/MichelleMar) *
-- [Daniela Neupert](https://github.com/danielaneupert) *
-- [Andreas Zimmerer](https://github.com/Jibbow) *
-
-\* contributed equally
+- [Stefan Grafberger](https://github.com/stefan-grafberger)
+- [Fiona Guerin](https://github.com/FionaGuerin)
+- [Michelle Martin](https://github.com/MichelleMar)
+- [Daniela Neupert](https://github.com/danielaneupert)
+- [Andreas Zimmerer](https://github.com/Jibbow)
 
 ### Repositories
 #### plantuml-eclipse-xtext
@@ -260,6 +268,7 @@ From the Wiki article [QVTOML/Examples/InvokeInJava](https://wiki.eclipse.org/QV
 From the paper [Grammar-based Program Generation Based on Model Finding](http://www.informatik.uni-bremen.de/agra/doc/konf/13_idt_program_generation.pdf) we learned about the Eclipse Modeling Framework.
    
 ## License
+Copyright [2020] [Jorge Quintero, Tobias Schmidt, Paula Wikidal, Fabian Wildgrube]
 Copyright [2019] [Stefan Grafberger, Fiona Guerin, Michelle Martin, Daniela Neupert, Andreas Zimmerer]
 
 Licensed under the Apache License, Version 2.0 (the "License");
