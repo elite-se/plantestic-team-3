@@ -3,14 +3,14 @@ This project is a continuation and extension of the [plantestic project](https:/
 This README gives an overview of plantestic's core features and of the new features we added.
 
 ##Contents
-* [Description]('#Description')
-* [Motivation]('#Motivation')
-* [Core Features (V1)]('#Motivation')
-* [Extension Features (V2, new in this repo)]('#Motivation')
-* [Installation]('#Installation')
-* [Usage]('#Usage')
-* [Limitations]('#Limitations')
-* [Credits]('#Credits')
+* [Description](#description)
+* [Motivation](#motivation)
+* [Core Features (V1)](#core-features)
+* [Extension Features (V2, new in this repo)](#extension-features)
+* [Installation](#installation)
+* [Usage](#usage)
+* [Limitations](#limitations)
+* [Credits](#credits)
 
 
 ## Description
@@ -62,7 +62,7 @@ With our test case generator, developers can quickly uncover inconsistencies, fi
 * powerful condition evaluation evaluates JavaScript conform conditions within sequence diagrams
 * parameters can be passed into sequence diagrams using external `.toml` config files and templating
 
-## Extension Features (V2, new in this repo)
+## Extension Features
 * Restructure sequence diagrams to inspect only interactions of a specific actor. This enables users to have fewer,
  more granular sequence diagrams and automatically generate specific sequence diagrams that test only the interactions of one actor.
 * Annotate requests to be delayed during the testcase execution. This enables the user to test a endpoint
