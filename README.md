@@ -9,6 +9,8 @@ This README gives an overview of plantestic's core features and of the new featu
 * [Extension Features (V2, new in this repo)](#extension-features)
 * [Installation](#installation)
 * [Usage](#usage)
+	- [With the CLI](#with-the-cli)
+	- [With the GUI](#with-the-gui)
 * [Limitations](#limitations)
 * [Credits](#credits)
 
@@ -57,13 +59,15 @@ With our test case generator, developers can quickly uncover inconsistencies, fi
 
 ## Core Features
 * gradle-based. Runs in any IDE
-* requires only Java to be installed
+* requires only Java (and Docker for optional diagram rendering) to be installed
 * single line user friendly CLI
 * powerful condition evaluation evaluates JavaScript conform conditions within sequence diagrams
 * parameters can be passed into sequence diagrams using external `.toml` config files and templating
 
 ## Extension Features
 The extensions focus on preprocessing sequence diagrams to semi-automate writing such diagrams:
+
+![Plantestic Pipelin with extensions](./doc/preprocessingpipeline.png)
 
 * Restructure sequence diagrams to inspect only interactions of a specific actor.
 * Support for transformation of asynchronous POST requests sent to an actor into timed GET Requests, that test the actor, who receives the asnyc POST.
@@ -75,14 +79,15 @@ The extensions focus on preprocessing sequence diagrams to semi-automate writing
 ## Installation
 1. Install Java SE Development Kit 8 or higher. 
 You can find Java SE Development Kit 8 under the website [https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
-2. Clone the Plantestic repository.
-3. Run git submodule init and git submodule update.
-4. Install maven (if not already installed).
-5. `cd openapi-metamodel/openapi2` and run `mvn install`.
-6. `cd plugins/edu.uoc.som.openapi2.io` and run `mvn install`.
-7. `cd ../edu.uoc.som.openapi2.mm` and run `mvn install`.
-8. go back to the project root directory
-9. Run `./gradlew build`.
+2. *Optional*: Install [Docker](https://www.docker.com/products/docker-desktop) to enable the GUI to render PlantUML diagrams using a specific docker-container.
+3. Clone the Plantestic repository.
+4. Run git submodule init and git submodule update.
+5. Install maven (if not already installed).
+6. `cd openapi-metamodel/openapi2` and run `mvn install`.
+7. `cd plugins/edu.uoc.som.openapi2.io` and run `mvn install`.
+8. `cd ../edu.uoc.som.openapi2.mm` and run `mvn install`.
+9. go back to the project root directory
+10. Run `./gradlew build`.
 
 ## Usage
 ### Input requirements
@@ -127,7 +132,7 @@ On a Response, a condition can be appended after the response datum tuple in squ
 ![./core/src/test/resources/rerouting.png](./core/src/test/resources/rerouting.png)
 
 ### Execution
-#### Via the CLI
+#### With the CLI
 1. Create a PlantUML sequence diagram. Note the [input requirements above](#input-requirements). 
 2. Save the sequence diagram. 
 3. Call the command `./gradlew run --args="--input=<path/to/sequence/diagram/diagram_name.puml>"`.
@@ -227,6 +232,14 @@ public class Test {
 	}
 }
 ```
+
+#### With the GUI
+* Make sure Docker is running (otherwise the web editor will not be able to render your diagrams)
+* Start the server, which serves the GUI `./gradlew run --args="-s"`
+* Open the address `http://localhost:9090`
+* You now have an editor with two tabs for the `.puml` diagram and its accompanying `.toml` configuration file. On the right are buttons to trigger the different preprocessing steps and the test case generation. On the left is a history which saves snapshots of your diagram whenever you start a new preprocessing step.
+
+![Screenshot of the webeditor GUI](./doc/webeditor.png)
 
 ## Limitations
 - When actor A sends actor B a request, Plantestic expects actor B to send actor A a response. 
