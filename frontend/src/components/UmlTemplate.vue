@@ -10,6 +10,7 @@
         <li><a @click="selectTemplate('rerouting')">Rerouting</a></li>
         <li><a @click="selectTemplate('xcall')">XCall</a></li>
         <li><a @click="selectTemplate('async')">Async Request</a></li>
+        <li><a @click="selectTemplate('demo')">Demo</a></li>
       </ul>
     </li>
   </ul>

@@ -128,6 +128,33 @@ voiceTargets = "tar1"
     password = 'password'
     path = '/testC'
     swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
+  `,
+  demo: `id = 123
+internalinfo = 'secret'
+
+[A]
+    username = 'Test'
+    password = 'password'
+    path = '/testA'
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
+
+[B]
+    username = 'Test'
+    password = 'password'
+    path = '/testB'
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
+
+[C]
+    username = 'Test'
+    password = 'password'
+    path = '/testC'
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
+
+[D]
+    username = 'Test'
+    password = 'password'
+    path = '/testD'
+    swagger_json_path = 'http://localhost:8080/swagger/tests.yaml'
   `
 }
 
