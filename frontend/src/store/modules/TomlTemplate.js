@@ -131,6 +131,7 @@ voiceTargets = "tar1"
   `,
   demo: `id = 123
 internalinfo = 'secret'
+result = 'success'
 
 [A]
     username = 'Test'
