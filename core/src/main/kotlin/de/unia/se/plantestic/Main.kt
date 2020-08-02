@@ -99,6 +99,7 @@ object Main {
 
         override fun run() {
             if (serverflag) {
+                MetaModelSetup.doSetup()
                 ServerMain.startServer()
             }
 
