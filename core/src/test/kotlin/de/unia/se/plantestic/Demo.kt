@@ -12,7 +12,7 @@ fun main() {
         OUTPUT_FOLDER.listFiles().filter { f -> f.name == "TestdemoTest_puml.java" }.first()
 
     val tomlFile =
-        OUTPUT_FOLDER.listFiles().filter { f -> f.name == "TestdemoTest_puml.toml" }.first()
+        OUTPUT_FOLDER.listFiles().filter { f -> f.name == "TestdemoTest.toml" }.first()
 
     val compiledTest = Reflect.compile(
         "com.plantestic.test.${generatedSourceFile.nameWithoutExtension}",
