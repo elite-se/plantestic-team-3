@@ -83,6 +83,23 @@ mapping SequenceDiagram::transformUmlDiagram(): Scenario {
             roundtripElement.precondition := alternative.text;
             roundtrip += roundtripElement;
             roundtripId := roundtripId + 1;
+
+            if (alternative.elseBlocks->size() > 0) {
+                var elseElement : Else := alternative.elseBlocks->at(1).oclAsType(Else);
+                message := elseElement.umlElements->at(1).oclAsType(Message);
+                request := message.message2request();
+                httpRequestElement := request.request2httpRequest();
+                httpRequestElement.receiver := message.sink.name;
+
+                message := elseElement.umlElements->at(2).oclAsType(Message);
+                response := message.message2response();
+                httpResponseElement := response.response2httpResponse();
+
+                roundtripElement := generateRoundtrip(roundtripId, httpRequestElement, httpResponseElement);
+                roundtripElement.precondition := elseElement.text;
+                roundtrip += roundtripElement;
+                roundtripId := roundtripId + 1;
+            };
         };
         umlElementsIndex := umlElementsIndex + 1;
     };
